@@ -1,0 +1,505 @@
+﻿<html>
+
+<head>
+    <title>index</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta content="IE=11.00" http-equiv="X-UA-Compatible" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=0.5, maximum-scale=0.5">
+
+    <link rel="apple-touch-icon-precomposed" href="icon.png" />
+    <link rel="touch-icon-precomposed" href="icon.png" />
+
+    <style>
+        canvas {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+        }
+    </style>
+
+    <script src="bins/inflate.min.js"></script>
+
+    <script src="jsbin/engine/events/Event.js"></script>
+    <script src="jsbin/engine/events/EventDispatcher.js"></script>
+
+    <script src="jsbin/engine/base/GC.js"></script>
+    <script src="jsbin/engine/base/ResCount.js"></script>
+    <script src="jsbin/engine/base/ResGC.js"></script>
+    <script src="jsbin/engine/base/Object3D.js"></script>
+    <script src="jsbin/engine/base/Camera3D.js"></script>
+    <script src="jsbin/engine/base/ObjData.js"></script>
+    <script src="jsbin/engine/base/MeshData.js"></script>
+    <script src="jsbin/engine/base/Dictionary.js"></script>
+
+
+
+    <script src="jsbin/engine/context/Context3D.js"></script>
+    <script src="jsbin/engine/context/Scene_data.js"></script>
+
+    <script src="jsbin/engine/display3D/Display3D.js"></script>
+    <script src="jsbin/engine/display3D/Display3DSprite.js"></script>
+    <script src="jsbin/engine/display3D/Display3DSky.js"></script>
+    <script src="jsbin/engine/display3D/Display3dMovie.js"></script>
+    <script src="jsbin/engine/display3D/Display3dBatchMovie.js"></script>
+    <script src="jsbin/engine/display3D/Display3dShadow.js"></script>
+    <script src="jsbin/engine/display3D/Display3dBg.js"></script>
+    <script src="jsbin/engine/display3D/Display2dMovie.js"></script>
+    <script src="jsbin/engine/display3D/Display3DUISprite.js"></script>
+
+
+    <script src="jsbin/engine/Engine.js"></script>
+    <script src="jsbin/engine/math/MathClass.js"></script>
+    <script src="jsbin/engine/math/MathUtil.js"></script>
+    <script src="jsbin/engine/math/Matrix3D.js"></script>
+    <script src="jsbin/engine/math/Quaternion.js"></script>
+    <script src="jsbin/engine/math/Vector3D.js"></script>
+    <script src="jsbin/engine/math/Vector2D.js"></script>
+    <script src="jsbin/engine/math/Rectangle.js"></script>
+    <script src="jsbin/engine/math/Circle.js"></script>
+    <script src="jsbin/engine/math/Groundposition.js"></script>
+    <script src="jsbin/engine/math/Calculation.js"></script>
+    <script src="jsbin/engine/math/ByteArray.js"></script>
+
+
+
+    <script src="jsbin/engine/program/ProgramManager.js"></script>
+    <script src="jsbin/engine/program/Shader3D.js"></script>
+    <script src="jsbin/engine/program/BuildShader.js"></script>
+    <script src="jsbin/engine/program/MaterialShader.js"></script>
+    <script src="jsbin/engine/program/MaterialAnimShader.js"></script>
+    <script src="jsbin/engine/program/MaterialBatchAnimShader.js"></script>
+    <script src="jsbin/engine/program/SkyShader.js"></script>
+    <script src="jsbin/engine/program/Display3DShadowShader.js"></script>
+    <script src="jsbin/engine/program/UIShader.js"></script>
+    <script src="jsbin/engine/program/UIImageShager.js"></script>
+    <script src="jsbin/engine/program/UIMaskShader.js"></script>
+    <script src="jsbin/engine/program/Movie2DShader.js"></script>
+    <script src="jsbin/engine/program/Sprite2DShader.js"></script>
+
+
+    <script src="jsbin/engine/particle/CombineParticleData.js"></script>
+    <script src="jsbin/engine/particle/CombineParticle.js"></script>
+    <script src="jsbin/engine/particle/ParticleManager.js"></script>
+    <script src="jsbin/engine/particle/Display3DParticle.js"></script>
+    <script src="jsbin/engine/particle/ParticleData.js"></script>
+    <script src="jsbin/engine/particle/ParticleGpuData.js"></script>
+
+    <script src="jsbin/engine/particle/facet/Display3DFacetParticle.js"></script>
+    <script src="jsbin/engine/particle/facet/Display3DFacetShader.js"></script>
+    <script src="jsbin/engine/particle/facet/ParticleFacetData.js"></script>
+
+    <script src="jsbin/engine/particle/ball/Display3DBallPartilce.js"></script>
+    <script src="jsbin/engine/particle/ball/Display3DBallShader.js"></script>
+    <script src="jsbin/engine/particle/ball/ParticleBallData.js"></script>
+    <script src="jsbin/engine/particle/ball/ParticleBallGpuData.js"></script>
+
+    <script src="jsbin/engine/particle/locus/Display3DLocusPartilce.js"></script>
+    <script src="jsbin/engine/particle/locus/Display3DLocusShader.js"></script>
+    <script src="jsbin/engine/particle/locus/ParticleLocusData.js"></script>
+
+    <script src="jsbin/engine/particle/locusball/Display3DLocusBallPartilce.js"></script>
+    <script src="jsbin/engine/particle/locusball/ParticleLocusballData.js"></script>
+
+    <script src="jsbin/engine/particle/model/Display3DModelPartilce.js"></script>
+    <script src="jsbin/engine/particle/model/Display3DModelObjParticle.js"></script>
+    <script src="jsbin/engine/particle/model/Display3dModelAnimParticle.js"></script>
+    <script src="jsbin/engine/particle/model/ParticleModelData.js"></script>
+
+    <script src="jsbin/engine/particle/follow/Display3DFollowPartilce.js"></script>
+    <script src="jsbin/engine/particle/follow/Display3DFollowShader.js"></script>
+    <script src="jsbin/engine/particle/follow/ParticleFollowData.js"></script>
+
+
+
+
+    <script src="jsbin/engine/particle/bone/Display3DBonePartilce.js"></script>
+    <script src="jsbin/engine/particle/bone/ParticleBoneData.js"></script>
+
+
+    <script src="jsbin/engine/particle/ctrl/KeyFrame.js"></script>
+    <script src="jsbin/engine/particle/ctrl/TimeLineData.js"></script>
+    <script src="jsbin/engine/particle/ctrl/TimeLine.js"></script>
+    <script src="jsbin/engine/particle/ctrl/BaseAnim.js"></script>
+    <script src="jsbin/engine/particle/ctrl/AxisMove.js"></script>
+    <script src="jsbin/engine/particle/ctrl/AxisRotaion.js"></script>
+    <script src="jsbin/engine/particle/ctrl/ScaleAnim.js"></script>
+    <script src="jsbin/engine/particle/ctrl/ScaleChange.js"></script>
+    <script src="jsbin/engine/particle/ctrl/ScaleNoise.js"></script>
+    <script src="jsbin/engine/particle/ctrl/SelfRotation.js"></script>
+
+    <script src="jsbin/engine/ui/base/InteractiveEvent.js"></script>
+    <script src="jsbin/engine/ui/base/TextAlign.js"></script>
+    <script src="jsbin/engine/ui/base/UIAtlas.js"></script>
+    <script src="jsbin/engine/ui/base/UIRectangle.js"></script>
+    <script src="jsbin/engine/ui/base/UIGridRectangle.js"></script>
+    <script src="jsbin/engine/ui/base/UICompenent.js"></script>
+    <script src="jsbin/engine/ui/base/UIContainer.js"></script>
+    <script src="jsbin/engine/ui/base/UIVirtualContainer.js"></script>
+    <script src="jsbin/engine/ui/base/UIData.js"></script>
+    <script src="jsbin/engine/ui/base/UIRenderComponent.js"></script>
+    <script src="jsbin/engine/ui/base/UIListRenderComponent.js"></script>
+    <script src="jsbin/engine/ui/base/UIBackImg.js"></script>
+    <script src="jsbin/engine/ui/base/UIMask.js"></script>
+
+
+    
+
+    <script src="jsbin/engine/ui/compenent/BaseButton.js"></script>
+    <script src="jsbin/engine/ui/compenent/Button.js"></script>
+    <script src="jsbin/engine/ui/compenent/SelectButton.js"></script>
+    <script src="jsbin/engine/ui/compenent/Grid9Compenent.js"></script>
+    <script src="jsbin/engine/ui/compenent/FrameCompenent.js"></script>
+    <script src="jsbin/engine/ui/compenent/List.js"></script>
+    <script src="jsbin/engine/ui/compenent/SList.js"></script>
+    <script src="jsbin/engine/ui/compenent/GridList.js"></script>
+    <script src="jsbin/engine/ui/compenent/CdUICompenent.js"></script>
+    <script src="jsbin/engine/ui/compenent/Dis2DUIContianerPanel.js"></script>
+    <script src="jsbin/engine/ui/compenent/AlphaUiContianer.js"></script>
+    <script src="jsbin/engine/ui/compenent/RoationUiContianer.js"></script>
+
+    <script src="jsbin/engine/ui/IconManager.js"></script>
+    <script src="jsbin/engine/ui/UIManager.js"></script>
+    <script src="jsbin/engine/ui/UILoading.js"></script>
+    <script src="jsbin/engine/ui/UIStage.js"></script>
+    <script src="jsbin/engine/ui/PuiData.js"></script>
+
+
+
+
+
+    <script src="jsbin/engine/material/TextureRes.js"></script>
+    <script src="jsbin/engine/material/TextureManager.js"></script>
+    <script src="jsbin/engine/material/ConstItem.js"></script>
+    <script src="jsbin/engine/material/TexItem.js"></script>
+    <script src="jsbin/engine/material/Material.js"></script>
+    <script src="jsbin/engine/material/MaterialManager.js"></script>
+    <script src="jsbin/engine/material/DynamicBaseConstItem.js"></script>
+    <script src="jsbin/engine/material/DynamicBaseTexItem.js"></script>
+    <script src="jsbin/engine/material/MaterialBaseParam.js"></script>
+    <script src="jsbin/engine/material/MaterialParam.js"></script>
+    <script src="jsbin/engine/material/DynamicConstItem.js"></script>
+    <script src="jsbin/engine/material/DynamicTexItem.js"></script>
+
+    <script src="jsbin/engine/scene/tree/QuadTreeNode.js"></script>
+    <script src="jsbin/engine/scene/tree/SceneQuadTree.js"></script>
+    <script src="jsbin/engine/scene/ViewFrustum.js"></script>
+    <script src="jsbin/engine/scene/SceneManager.js"></script>
+
+    <script src="jsbin/engine/skill/SkillManager.js"></script>
+    <script src="jsbin/engine/skill/Skill.js"></script>
+    <script src="jsbin/engine/skill/SkillData.js"></script>
+    <script src="jsbin/engine/skill/vo/SkillVo.js"></script>
+    <script src="jsbin/engine/skill/vo/SkillKeyVo.js"></script>
+    <script src="jsbin/engine/skill/key/SkillKey.js"></script>
+    <script src="jsbin/engine/skill/key/SkillEffect.js"></script>
+    <script src="jsbin/engine/skill/key/SkillFixEffect.js"></script>
+    <script src="jsbin/engine/skill/key/SkillTrajectory.js"></script>
+    <script src="jsbin/engine/skill/key/SkillMulTrajectory.js"></script>
+    <script src="jsbin/engine/skill/path/SkillPath.js"></script>
+    <script src="jsbin/engine/skill/path/SkillSinPath.js"></script>
+    <script src="jsbin/engine/skill/path/SkillMulPath.js"></script>
+    <script src="jsbin/engine/skill/path/PathManager.js"></script>
+
+
+    <script src="jsbin/engine/utils/LoadManager.js"></script>
+    <script src="jsbin/engine/utils/ObjDataManager.js"></script>
+    <script src="jsbin/engine/utils/MeshDataManager.js"></script>
+    <script src="jsbin/engine/utils/AnimManager.js"></script>
+    <script src="jsbin/engine/utils/LightProbeManager.js"></script>
+    <script src="jsbin/engine/utils/GroupDataManager.js"></script>
+    <script src="jsbin/engine/utils/AstarUtil.js"></script>
+    <script src="jsbin/engine/utils/KeyboardType.js"></script>
+    <script src="jsbin/engine/utils/KeyControl.js"></script>
+    <script src="jsbin/engine/utils/TimeUtil.js"></script>
+    <script src="jsbin/engine/utils/Util.js"></script>
+    <script src="jsbin/engine/utils/ColorTransition.js"></script>
+    <script src="jsbin/engine/utils/ArtFont.js"></script>
+    <script src="jsbin/engine/utils/LabelTextFont.js"></script>
+    
+    <script src="jsbin/engine/utils/BloodManager.js"></script>
+
+    <script src="jsbin/engine/utils/curves/Curve.js"></script>
+
+    <script src="jsbin/engine/utils/shadow/Shadow.js"></script>
+    <script src="jsbin/engine/utils/shadow/ShadowManager.js"></script>
+
+    <script src="jsbin/engine/utils/res/BaseRes.js"></script>
+    <script src="jsbin/engine/utils/res/ResManager.js"></script>
+    <script src="jsbin/engine/utils/res/RoleRes.js"></script>
+    <script src="jsbin/engine/utils/res/SkillRes.js"></script>
+    <script src="jsbin/engine/utils/res/ModelRes.js"></script>
+    <script src="jsbin/engine/utils/res/GroupRes.js"></script>
+
+    <script src="jsbin/engine/scene/SceneRes.js"></script>
+    <script src="jsbin/engine/scene/SceneResLow.js"></script>
+
+    <script src="jsbin/engine/net/obj/NetEventDispatcher.js"></script>
+    <script src="jsbin/engine/net/obj/UpdateMask.js"></script>
+    <script src="jsbin/engine/net/obj/StringIndexer.js"></script>
+    <script src="jsbin/engine/net/obj/SyncEvent.js"></script>
+    <script src="jsbin/engine/net/obj/BinLogStru.js"></script>
+    <script src="jsbin/engine/net/obj/SyncEventRecorder.js"></script>
+    <script src="jsbin/engine/net/obj/GuidObject.js"></script>
+    <script src="jsbin/engine/net/obj/GuidObjectTable.js"></script>
+    <script src="jsbin/engine/net/obj/SyncEventFilter.js"></script>
+    <script src="jsbin/engine/net/obj/SyncEventFilter.js"></script>
+    <script src="jsbin/engine/net/obj/ObjectDef.js"></script>
+    <script src="jsbin/engine/net/script/clientmsg.js"></script>
+    <script src="jsbin/engine/net/script/Protocols.js"></script>
+    <script src="jsbin/engine/net/script/clientstru.js"></script>
+    <script src="jsbin/engine/net/script/OprateResult.js"></script>
+    <script src="jsbin/engine/net/script/SharedDef.js"></script>
+    <script src="jsbin/engine/net/script/OperationInfo.js"></script>
+    <script src="jsbin/engine/net/NetManager.js"></script>
+
+
+    <script src="jsbin/engine/vo/skinanim/AnimData.js"></script>
+    <script src="jsbin/engine/vo/skinanim/SkinMesh.js"></script>
+    <script src="jsbin/engine/vo/skinanim/BoneSocketData.js"></script>
+    <script src="jsbin/engine/vo/collistion/CollisionVo.js"></script>
+    <script src="jsbin/engine/vo/collistion/CapsuleVo.js"></script>
+    <script src="jsbin/engine/vo/LightVo.js"></script>
+
+
+    <script src="jsbin/engine/scene/grldLevel/LineDisplayShader.js"></script>
+    <script src="jsbin/engine/scene/grldLevel/LineDisplaySprite.js"></script>
+
+    <script src="jsbin/engine/FpsStage.js"></script>
+
+
+    <script src="jsbin/mvcframe/Module.js"></script>
+    <script src="jsbin/mvcframe/ModuleEventManager.js"></script>
+    <script src="jsbin/mvcframe/Processor.js"></script>
+
+
+    <script src="jsbin/libs/tween/TweenLite.min.js"></script>
+    <script src="jsbin/libs/patrol/astar.js"></script>
+    <script src="jsbin/libs/cannon/cannon.js"></script>
+    <script src="jsbin/libs/cannon/Physics.js"></script>
+    <script src="jsbin/libs/base64.js"></script>
+    <script src="jsbin/libs/md5.js"></script>
+
+
+   
+
+    <script src="jsbin/mmogame/common/base/CharAction.js"></script>
+    <script src="jsbin/mmogame/common/base/UIPanel.js"></script>
+    <script src="jsbin/mmogame/common/base/BaseProcessor.js"></script>
+    <script src="jsbin/mmogame/common/base/SceneBaseChar.js"></script>
+    <script src="jsbin/mmogame/common/base/ScenePerfab.js"></script>
+
+    <script src="jsbin/mmogame/data/SceneChar.js"></script>
+    <script src="jsbin/mmogame/data/KeyMouseManeger.js"></script>
+    <script src="jsbin/mmogame/data/GameInstance.js"></script>
+
+    <script src="jsbin/tp/dis/CannonLineSprite.js"></script>
+    <script src="jsbin/tp/dis/CanonPrefabSprite.js"></script>
+
+
+
+
+
+
+    <script src="jsbin/tp/modules/mainui/MainUiPanel.js"></script>
+    <script src="jsbin/tp/modules/mainui/MainUiProcessor.js"></script>
+
+    <script src="jsbin/tp/modules/command/CommandPanel.js"></script>
+    <script src="jsbin/tp/modules/command/CommandProcessor.js"></script>
+
+
+    
+    <script src="jsbin/tp/modules/scene/TpSceneProcessor.js"></script>
+
+
+    <script src="jsbin/tp/modules/cannon/demos/DemoBase_html.js"></script>
+
+    <script src="jsbin/tp/modules/cannon/demos/BodyTypes_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Bounce_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/CollisionFilter_html.js"></script>
+
+    <script src="jsbin/tp/modules/cannon/demos/Collisions_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Compound_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Container_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Convex_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/FixedRotation_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Friction_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Heightfield_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Ragdoll_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Hinge_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/RaycastVehicle_html.js"></script>
+    <script src="jsbin/tp/modules/cannon/demos/Constraints_html.js"></script>
+
+    
+    
+    <script src="jsbin/tp/modules/car/heightfield/HeightFieldModel.js"></script>
+
+
+    <script src="jsbin/tp/modules/car/BaseMachine.js"></script>
+    <script src="jsbin/tp/modules/car/CarBodySprite.js"></script>
+    <script src="jsbin/tp/modules/car/CarProcessor.js"></script>
+    <script src="jsbin/tp/modules/car/crane/CraneBaseSprite.js"></script>
+
+    <script src="jsbin/tp/modules/car/showdis/ShowDisModel.js"></script>
+
+    
+
+
+    <script src="jsbin/tp/modules/car/aotu/AotuCar.js"></script>
+    
+    
+    <script src="jsbin/tp/modules/cannon/SceneConanManager.js"></script>
+    <script src="jsbin/tp/modules/cannon/CannonProcessor.js"></script>
+
+    <script src="jsbin/tp/modules/TpModuleList.js"></script>
+
+
+
+    <script src="jsbin/tp/TpGame.js"></script>
+
+
+
+
+    <script>
+        
+        function gameLoad(){
+            var xhr = new XMLHttpRequest();
+
+
+            xhr.open("GET", "bins/h5web.min.js", true);
+            xhr.responseType = "text";
+
+           showLoadInfo("开始读取主程序...请稍后")
+
+            xhr.onreadystatechange = function() {
+                if (xhr.status == 200 && xhr.readyState == 4) {
+                    includeJS(201,xhr.response);
+                    init();
+                }
+            }
+
+            xhr.onprogress =  function(e){
+                var num =  (e.loaded / e.total) * 100 | 0
+                showLoadInfo("主程序读取" + num + "%");
+            }
+
+
+            xhr.send();
+
+        }
+
+        function showLoadInfo(str){
+            var loadCav = document.getElementById('LoadCanvas'); 
+            var ctx = loadCav.getContext("2d");
+            ctx.clearRect(0, 0, loadCav.width, loadCav.height);
+            ctx.font = "40px Helvetica";
+            ctx.fillStyle = "#ffffff";
+            ctx.textBaseline = "top";
+            ctx.textAlign = "left";
+            ctx.fillText(str, 0, 0);
+        }
+
+        function removeLoadInfo(){
+            
+        }
+
+        function includeJS(sId,source){
+            if((source != null)&&(!document.getElementById(sId))){
+                var myHead = document.getElementsByTagName("HEAD").item(0);
+                var myScript = document.createElement( "script" );
+                myScript.language = "javascript";
+                myScript.type = "text/javascript";
+                myScript.id = sId;
+                try{
+                    myScript.appendChild(document.createTextNode(source));
+                }
+                catch (ex){
+                    myScript.text = source;
+                }
+                myHead.appendChild( myScript );
+            }
+
+        }
+    
+
+
+
+        var game;
+        var hasInit = false;
+        function init() {
+            Scene_data.fileRoot = "../arpg/res/";
+
+            var $indexUrl = window.location.toString();
+            console.log($indexUrl)
+            Scene_data.fileRoot = $indexUrl.replace("trunk/carpart/carpart/index.html", "arpg/res/");
+
+            hasInit = true;
+            //document.addEventListener('touchmove', function (e) { e.preventDefault(); }, false);  //如果不想让页面滑动，可以加上这段代码
+
+            Engine.init(document.getElementById('ArpgStageCanvas'));
+            Scene_data.user = 0;
+            FpsStage.getInstance().init(document.getElementById('FpsTipsCanvas'), document.getElementById('LoadCanvas'));
+
+            game = new TpGame();
+            game.init();
+
+            resetSize();
+            addEvents();
+    
+
+            window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+            if (requestAnimationFrame ) {
+                requestAnimationFrame(step);
+            }
+            setInterval("update()", 1000);//特别加一次系统时间的UPdata
+
+            document.addEventListener('visibilitychange', function() { 
+                //alert(document.visibilityState);
+            });
+        }
+        function step(timestamp) {
+            update()
+            requestAnimationFrame(step);
+            //window.setTimeout(nextFun, 1000 / 60)
+        }
+        function nextFun()
+        {
+        }
+        function addEvents() {
+            UIManager.getInstance().regEvent(null);
+        }
+        function resetSize() {
+            if(hasInit){
+                Engine.resetSize();
+                FpsStage.getInstance().resetSize();
+            }
+        }
+        function update() {
+            Engine.update();
+        }
+        function unload() {
+            Engine.unload();
+        }
+        window.onbeforeunload = function (e) {
+            Engine.unload();
+        }
+        // window.onerror =
+        // function(errorMessage, scriptURI, lineNumber) {
+        //     alert(errorMessage + "-" + scriptURI + "-" + lineNumber);
+        //     };
+
+
+    </script>
+</head>
+
+<body onload='init()' onresize="resetSize()" ontouchmove="event.preventDefault()" style="overflow-x: hidden; overflow-y: hidden;background-color:#000000">
+    <canvas id="ArpgStageCanvas" width="800" height="600" style="z-index:1"></canvas>
+    <canvas id="FpsTipsCanvas" width="100" height="50" style="z-index:0"></canvas>
+    <canvas id="LoadCanvas" width="800" height="100" style="z-index:3"></canvas>
+
+
+</body>
+
+</html>

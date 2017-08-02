@@ -1,0 +1,335 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{2A9562D5-24A0-4F44-94C5-EADCD36C5804}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="bins\h5web.zip.js" />
+    <Content Include="bins\inflate.min.js" />
+    <Content Include="index.html" />
+    <Content Include="libs\cannon\cannon.js" />
+    <Content Include="libs\patrol\astar.js" />
+    <Content Include="web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="engine\base\Camera3D.ts" />
+    <TypeScriptCompile Include="engine\base\Dictionary.ts" />
+    <TypeScriptCompile Include="engine\base\GC.ts" />
+    <TypeScriptCompile Include="engine\base\MeshData.ts" />
+    <TypeScriptCompile Include="engine\base\ObjData.ts" />
+    <TypeScriptCompile Include="engine\base\Object3D.ts" />
+    <TypeScriptCompile Include="engine\base\ResCount.ts" />
+    <TypeScriptCompile Include="engine\base\ResGC.ts" />
+    <TypeScriptCompile Include="engine\context\Context3D.ts" />
+    <TypeScriptCompile Include="engine\context\Scene_data.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display2dMovie.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3D.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3dBatchMovie.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3dBg.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3dMovie.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3dShadow.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3DSky.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3DSprite.ts" />
+    <TypeScriptCompile Include="engine\display3D\Display3DUISprite.ts" />
+    <TypeScriptCompile Include="engine\display3D\interfaces\IBind.ts" />
+    <TypeScriptCompile Include="engine\Engine.ts" />
+    <TypeScriptCompile Include="engine\events\Event.ts" />
+    <TypeScriptCompile Include="engine\events\EventDispatcher.ts" />
+    <TypeScriptCompile Include="engine\FpsStage.ts" />
+    <TypeScriptCompile Include="engine\material\ConstItem.ts" />
+    <TypeScriptCompile Include="engine\material\DynamicBaseConstItem.ts" />
+    <TypeScriptCompile Include="engine\material\DynamicBaseTexItem.ts" />
+    <TypeScriptCompile Include="engine\material\DynamicConstItem.ts" />
+    <TypeScriptCompile Include="engine\material\DynamicTexItem.ts" />
+    <TypeScriptCompile Include="engine\material\Material.ts" />
+    <TypeScriptCompile Include="engine\material\MaterialBaseParam.ts" />
+    <TypeScriptCompile Include="engine\material\MaterialManager.ts" />
+    <TypeScriptCompile Include="engine\material\MaterialParam.ts" />
+    <TypeScriptCompile Include="engine\material\TexItem.ts" />
+    <TypeScriptCompile Include="engine\material\TextureCube.ts" />
+    <TypeScriptCompile Include="engine\material\TextureManager.ts" />
+    <TypeScriptCompile Include="engine\material\TextureRes.ts" />
+    <TypeScriptCompile Include="engine\math\ByteArray.ts" />
+    <TypeScriptCompile Include="engine\math\Calculation.ts" />
+    <TypeScriptCompile Include="engine\math\Circle.ts" />
+    <TypeScriptCompile Include="engine\math\Groundposition.ts" />
+    <TypeScriptCompile Include="engine\math\MathClass.ts" />
+    <TypeScriptCompile Include="engine\math\MathUtil.ts" />
+    <TypeScriptCompile Include="engine\math\Matrix3D.ts" />
+    <TypeScriptCompile Include="engine\math\Quaternion.ts" />
+    <TypeScriptCompile Include="engine\math\Rectangle.ts" />
+    <TypeScriptCompile Include="engine\math\TestTriangle.ts" />
+    <TypeScriptCompile Include="engine\math\Vector2D.ts" />
+    <TypeScriptCompile Include="engine\math\Vector3D.ts" />
+    <TypeScriptCompile Include="engine\net\NetManager.ts" />
+    <TypeScriptCompile Include="engine\net\obj\BinLogStru.ts" />
+    <TypeScriptCompile Include="engine\net\obj\GuidObject.ts" />
+    <TypeScriptCompile Include="engine\net\obj\GuidObjectTable.ts" />
+    <TypeScriptCompile Include="engine\net\obj\NetEventDispatcher.ts" />
+    <TypeScriptCompile Include="engine\net\obj\ObjectDef.ts" />
+    <TypeScriptCompile Include="engine\net\obj\StringIndexer.ts" />
+    <TypeScriptCompile Include="engine\net\obj\SyncEvent.ts" />
+    <TypeScriptCompile Include="engine\net\obj\SyncEventFilter.ts" />
+    <TypeScriptCompile Include="engine\net\obj\SyncEventRecorder.ts" />
+    <TypeScriptCompile Include="engine\net\obj\UpdateMask.ts" />
+    <TypeScriptCompile Include="engine\net\script\clientmsg.ts" />
+    <TypeScriptCompile Include="engine\net\script\clientstru.ts" />
+    <TypeScriptCompile Include="engine\net\script\OperationInfo.ts" />
+    <TypeScriptCompile Include="engine\net\script\OprateResult.ts" />
+    <TypeScriptCompile Include="engine\net\script\Protocols.ts" />
+    <TypeScriptCompile Include="engine\net\script\SharedDef.ts" />
+    <TypeScriptCompile Include="engine\particle\ball\Display3DBallPartilce.ts" />
+    <TypeScriptCompile Include="engine\particle\ball\Display3DBallShader.ts" />
+    <TypeScriptCompile Include="engine\particle\ball\ParticleBallData.ts" />
+    <TypeScriptCompile Include="engine\particle\ball\ParticleBallGpuData.ts" />
+    <TypeScriptCompile Include="engine\particle\bone\Display3DBonePartilce.ts" />
+    <TypeScriptCompile Include="engine\particle\bone\ParticleBoneData.ts" />
+    <TypeScriptCompile Include="engine\particle\CombineParticle.ts" />
+    <TypeScriptCompile Include="engine\particle\CombineParticleData.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\AxisMove.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\AxisRotaion.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\BaseAnim.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\KeyFrame.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\ScaleAnim.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\ScaleChange.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\ScaleNoise.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\SelfRotation.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\TimeLine.ts" />
+    <TypeScriptCompile Include="engine\particle\ctrl\TimeLineData.ts" />
+    <TypeScriptCompile Include="engine\particle\Display3DParticle.ts" />
+    <TypeScriptCompile Include="engine\particle\facet\Display3DFacetParticle.ts" />
+    <TypeScriptCompile Include="engine\particle\facet\Display3DFacetShader.ts" />
+    <TypeScriptCompile Include="engine\particle\facet\ParticleFacetData.ts" />
+    <TypeScriptCompile Include="engine\particle\follow\Display3DFollowPartilce.ts" />
+    <TypeScriptCompile Include="engine\particle\follow\Display3DFollowShader.ts" />
+    <TypeScriptCompile Include="engine\particle\follow\ParticleFollowData.ts" />
+    <TypeScriptCompile Include="engine\particle\locusball\Display3DLocusBallPartilce.ts" />
+    <TypeScriptCompile Include="engine\particle\locusball\ParticleLocusballData.ts" />
+    <TypeScriptCompile Include="engine\particle\locus\Display3DLocusPartilce.ts" />
+    <TypeScriptCompile Include="engine\particle\locus\Display3DLocusShader.ts" />
+    <TypeScriptCompile Include="engine\particle\locus\ParticleLocusData.ts" />
+    <TypeScriptCompile Include="engine\particle\model\Display3dModelAnimParticle.ts" />
+    <TypeScriptCompile Include="engine\particle\model\Display3DModelObjParticle.ts" />
+    <TypeScriptCompile Include="engine\particle\model\Display3DModelPartilce.ts" />
+    <TypeScriptCompile Include="engine\particle\model\ParticleModelData.ts" />
+    <TypeScriptCompile Include="engine\particle\ParticleData.ts" />
+    <TypeScriptCompile Include="engine\particle\ParticleGpuData.ts" />
+    <TypeScriptCompile Include="engine\particle\ParticleManager.ts" />
+    <TypeScriptCompile Include="engine\program\BuildShader.ts" />
+    <TypeScriptCompile Include="engine\program\Display3DShadowShader.ts" />
+    <TypeScriptCompile Include="engine\program\MaterialAnimShader.ts" />
+    <TypeScriptCompile Include="engine\program\MaterialBatchAnimShader.ts" />
+    <TypeScriptCompile Include="engine\program\MaterialShader.ts" />
+    <TypeScriptCompile Include="engine\program\Movie2DShader.ts" />
+    <TypeScriptCompile Include="engine\program\ProgramManager.ts" />
+    <TypeScriptCompile Include="engine\program\Shader3D.ts" />
+    <TypeScriptCompile Include="engine\program\SkyShader.ts" />
+    <TypeScriptCompile Include="engine\program\Sprite2DShader.ts" />
+    <TypeScriptCompile Include="engine\program\UIImageShager.ts" />
+    <TypeScriptCompile Include="engine\program\UIMaskShader.ts" />
+    <TypeScriptCompile Include="engine\program\UIShader.ts" />
+    <TypeScriptCompile Include="engine\scene\grldLevel\LineDisplayShader.ts" />
+    <TypeScriptCompile Include="engine\scene\grldLevel\LineDisplaySprite.ts" />
+    <TypeScriptCompile Include="engine\scene\SceneManager.ts" />
+    <TypeScriptCompile Include="engine\scene\SceneRes.ts" />
+    <TypeScriptCompile Include="engine\scene\SceneResLow.ts" />
+    <TypeScriptCompile Include="engine\scene\tree\QuadTreeNode.ts" />
+    <TypeScriptCompile Include="engine\scene\tree\SceneQuadTree.ts" />
+    <TypeScriptCompile Include="engine\scene\ViewFrustum.ts" />
+    <TypeScriptCompile Include="engine\skill\key\SkillEffect.ts" />
+    <TypeScriptCompile Include="engine\skill\key\SkillFixEffect.ts" />
+    <TypeScriptCompile Include="engine\skill\key\SkillKey.ts" />
+    <TypeScriptCompile Include="engine\skill\key\SkillMulTrajectory.ts" />
+    <TypeScriptCompile Include="engine\skill\key\SkillTrajectory.ts" />
+    <TypeScriptCompile Include="engine\skill\path\PathManager.ts" />
+    <TypeScriptCompile Include="engine\skill\path\SkillMulPath.ts" />
+    <TypeScriptCompile Include="engine\skill\path\SkillPath.ts" />
+    <TypeScriptCompile Include="engine\skill\path\SkillSinPath.ts" />
+    <TypeScriptCompile Include="engine\skill\Skill.ts" />
+    <TypeScriptCompile Include="engine\skill\SkillData.ts" />
+    <TypeScriptCompile Include="engine\skill\SkillManager.ts" />
+    <TypeScriptCompile Include="engine\skill\vo\SkillKeyVo.ts" />
+    <TypeScriptCompile Include="engine\skill\vo\SkillVo.ts" />
+    <TypeScriptCompile Include="engine\ui\base\InteractiveEvent.ts" />
+    <TypeScriptCompile Include="engine\ui\base\TextAlign.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIAtlas.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIBackImg.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UICompenent.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIContainer.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIData.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIGridRectangle.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIListRenderComponent.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIMask.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIRectangle.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIRenderComponent.ts" />
+    <TypeScriptCompile Include="engine\ui\base\UIVirtualContainer.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\AlphaUiContianer.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\BaseButton.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\Button.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\CdUICompenent.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\Dis2DUIContianerPanel.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\FrameCompenent.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\Grid9Compenent.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\GridList.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\List.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\RoationUiContianer.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\SelectButton.ts" />
+    <TypeScriptCompile Include="engine\ui\compenent\SList.ts" />
+    <TypeScriptCompile Include="engine\ui\IconManager.ts" />
+    <TypeScriptCompile Include="engine\ui\PuiData.ts" />
+    <TypeScriptCompile Include="engine\ui\UILoading.ts" />
+    <TypeScriptCompile Include="engine\ui\UIManager.ts" />
+    <TypeScriptCompile Include="engine\ui\UIStage.ts" />
+    <TypeScriptCompile Include="engine\utils\AnimManager.ts" />
+    <TypeScriptCompile Include="engine\utils\ArtFont.ts" />
+    <TypeScriptCompile Include="engine\utils\AstarUtil.ts" />
+    <TypeScriptCompile Include="engine\utils\BloodManager.ts" />
+    <TypeScriptCompile Include="engine\utils\ColorTransition.ts" />
+    <TypeScriptCompile Include="engine\utils\curves\Curve.ts" />
+    <TypeScriptCompile Include="engine\utils\GroupDataManager.ts" />
+    <TypeScriptCompile Include="engine\utils\KeyboardType.ts" />
+    <TypeScriptCompile Include="engine\utils\KeyControl.ts" />
+    <TypeScriptCompile Include="engine\utils\LabelTextFont.ts" />
+    <TypeScriptCompile Include="engine\utils\LightProbeManager.ts" />
+    <TypeScriptCompile Include="engine\utils\LoadManager.ts" />
+    <TypeScriptCompile Include="engine\utils\MeshDataManager.ts" />
+    <TypeScriptCompile Include="engine\utils\ObjDataManager.ts" />
+    <TypeScriptCompile Include="engine\utils\res\BaseRes.ts" />
+    <TypeScriptCompile Include="engine\utils\res\GroupRes.ts" />
+    <TypeScriptCompile Include="engine\utils\res\ModelRes.ts" />
+    <TypeScriptCompile Include="engine\utils\res\ResManager.ts" />
+    <TypeScriptCompile Include="engine\utils\res\RoleRes.ts" />
+    <TypeScriptCompile Include="engine\utils\res\RoleResLow.ts" />
+    <TypeScriptCompile Include="engine\utils\res\SkillRes.ts" />
+    <TypeScriptCompile Include="engine\utils\shadow\Shadow.ts" />
+    <TypeScriptCompile Include="engine\utils\shadow\ShadowManager.ts" />
+    <TypeScriptCompile Include="engine\utils\TimeUtil.ts" />
+    <TypeScriptCompile Include="engine\utils\Util.ts" />
+    <TypeScriptCompile Include="engine\vo\collistion\CapsuleVo.ts" />
+    <TypeScriptCompile Include="engine\vo\collistion\CollisionVo.ts" />
+    <TypeScriptCompile Include="engine\vo\LightVo.ts" />
+    <TypeScriptCompile Include="engine\vo\skinanim\AnimData.ts" />
+    <TypeScriptCompile Include="engine\vo\skinanim\BoneSocketData.ts" />
+    <TypeScriptCompile Include="engine\vo\skinanim\SkinMesh.ts" />
+    <TypeScriptCompile Include="engine\vo\TestCplus.ts" />
+    <TypeScriptCompile Include="libs\cannon\cannon.d.ts" />
+    <TypeScriptCompile Include="libs\cannon\Physics.ts" />
+    <TypeScriptCompile Include="libs\encrypt.d.ts" />
+    <TypeScriptCompile Include="libs\zlib.js.d.ts" />
+    <TypeScriptCompile Include="libs\patrol\astar.d.ts" />
+    <TypeScriptCompile Include="libs\tween\TweenLite.d.ts" />
+    <TypeScriptCompile Include="mmogame\common\base\BaseProcessor.ts" />
+    <TypeScriptCompile Include="mmogame\common\base\CharAction.ts" />
+    <TypeScriptCompile Include="mmogame\common\base\SceneBaseChar.ts" />
+    <TypeScriptCompile Include="mmogame\common\base\ScenePerfab.ts" />
+    <TypeScriptCompile Include="mmogame\common\base\UIPanel.ts" />
+    <TypeScriptCompile Include="mmogame\data\GameInstance.ts" />
+    <TypeScriptCompile Include="mmogame\data\SceneChar.ts" />
+    <TypeScriptCompile Include="mvcframe\Module.ts" />
+    <TypeScriptCompile Include="mvcframe\ModuleEventManager.ts" />
+    <TypeScriptCompile Include="mvcframe\Processor.ts" />
+    <TypeScriptCompile Include="mmogame\data\KeyMouseManeger.ts" />
+    <TypeScriptCompile Include="tp\modules\car\aotu\AotuCar.ts" />
+    <TypeScriptCompile Include="tp\modules\car\BaseMachine.ts" />
+    <TypeScriptCompile Include="tp\modules\car\CarBodySprite.ts" />
+    <TypeScriptCompile Include="tp\dis\CannonLineSprite.ts" />
+    <TypeScriptCompile Include="tp\dis\CanonPrefabSprite.ts" />
+    <TypeScriptCompile Include="tp\modules\car\CarProcessor.ts" />
+    <TypeScriptCompile Include="tp\modules\car\crane\CraneBaseSprite.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\CannonProcessor.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\BodyTypes_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Bounce_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\CollisionFilter_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Collisions_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Compound_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Constraints_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Container_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Convex_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\DemoBase_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\FixedRotation_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Friction_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Heightfield_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Hinge_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\Ragdoll_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\demos\RaycastVehicle_html.ts" />
+    <TypeScriptCompile Include="tp\modules\cannon\SceneConanManager.ts" />
+    <TypeScriptCompile Include="tp\modules\car\heightfield\HeightFieldModel.ts" />
+    <TypeScriptCompile Include="tp\modules\car\showdis\ShowDisModel.ts" />
+    <TypeScriptCompile Include="tp\modules\command\CommandPanel.ts" />
+    <TypeScriptCompile Include="tp\modules\command\CommandProcessor.ts" />
+    <TypeScriptCompile Include="tp\modules\mainui\MainUiPanel.ts" />
+    <TypeScriptCompile Include="tp\modules\mainui\MainUiProcessor.ts" />
+    <TypeScriptCompile Include="tp\modules\scene\TpSceneProcessor.ts" />
+    <TypeScriptCompile Include="tp\modules\TpModuleList.ts" />
+    <TypeScriptCompile Include="tp\TpGame.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="engine\net\script\client.msgtsvm" />
+    <Content Include="engine\net\script\client.strutsvm" />
+    <Content Include="engine\net\script\Protocols.ts.vm" />
+    <None Include="web.Debug.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+    <None Include="web.Release.config">
+      <DependentUpon>web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>arpg</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>12290</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:12291/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptOutDir>$(ProjectDir)/jsbin</TypeScriptOutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <PropertyGroup>
+    <PreBuildEvent>attrib -r /s "$(ProjectDir)*.js"</PreBuildEvent>
+  </PropertyGroup>
+</Project>

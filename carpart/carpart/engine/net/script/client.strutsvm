@@ -1,0 +1,77 @@
+﻿/***********************************************************************/
+/*************** 本代码由协议工具自动生成，请勿手动修改 ****************/
+/***********************************************************************/
+
+#macro(gettype $i)
+#if($i.ClientType == "String")##
+string##
+#elseif($i.ClientType == "uint" || $i.ClientType == "int" || $i.ClientType == "Number")##
+number##
+#else##
+$i.ClientType ##
+#end##
+#end
+
+#foreach($stru in $strulist)##
+
+
+
+class $stru.Name
+{				
+#foreach( $m in $stru.Members)
+	/**
+	 * $m.OnlyDescStr
+	 */
+#if($m.Type == "String")
+	public $m.Name:#gettype($m) = "";	//$m.Type
+#elseif($m.ArrayLen > 0)
+	public $m.Name:Array<#gettype($m)> = new Array;	//$m.Type
+#else
+	public $m.Name:#gettype($m);	//$m.Type		
+#end
+#end			
+	/**
+	 从输入二进制流中读取结构体
+	 */
+	public read(input:ByteArray):void
+	{			
+		var i:number;		
+#foreach( $m in $stru.Members)			
+#if($m.ArrayLen > 0 && $m.Type!="String")
+		this.$m.Name. length = 0;
+		for(i = 0; i < $m.ArrayLen; i ++){				
+			this.$m.Name. push( input#**#. $m.ReadStreamFuncName ());
+		}
+#else
+#if($m.Type=="String")			
+		this.$m.Name = input.readStringByLen($m.ArrayLen);		
+#else	
+		this.$m.Name = input#**#. $m.ReadStreamFuncName ();
+#end
+#end			
+#end
+	}
+
+	/**
+	 * 将结构体写入到输出二进制流中
+	 */
+	public write(output:ByteArray):void
+	{			
+		var i:number;
+#foreach( $m in $stru.Members)			
+#if($m.ArrayLen > 0 && $m.Type!="String")
+		for(i = 0; i < $m.ArrayLen; i ++){				
+			output#**#.$m.WriteStreamFuncName (this.$m.Name [i]);	
+		}
+#else
+#if($m.Type=="String")		
+		output.writeStringByLen(this.$m.Name, $m.ArrayLen);
+#else	
+		output#**#.$m.WriteStreamFuncName (this.$m.Name);	
+#end
+#end
+#end
+	}
+}
+
+#end

@@ -1,0 +1,6 @@
+C:\wamp\www\example\carpart\carpart\bin\carpart.dll.config
+C:\wamp\www\example\carpart\carpart\bin\carpart.dll
+C:\wamp\www\example\carpart\carpart\bin\carpart.pdb
+C:\wamp\www\example\carpart\carpart\obj\Debug\carpart.csprojResolveAssemblyReference.cache
+C:\wamp\www\example\carpart\carpart\obj\Debug\carpart.dll
+C:\wamp\www\example\carpart\carpart\obj\Debug\carpart.pdb
