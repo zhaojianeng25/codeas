@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark"  backgroundColor="#404040"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="300" height="300">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.events.AIREvent;
+		
+		import spark.components.Window;
+		
+		import _Pan3D.base.ObjectBone;
+		import _Pan3D.role.AnimDataManager;
+		
+		import _me.Scene_data;
+		
+		import utils.FileConfigUtils;
+		private var isFirst:Boolean = true;
+		/**
+		 * 显示
+		 * */
+		public function show(container:DisplayObjectContainer):void{
+			
+			var win:Window = new Window();
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.height=296;
+			win.width=300;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = false;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom);
+			win.title = "位置预处理";
+			win.open(true);
+			
+		}
+		
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		public function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+		private function onChose():void{
+			openFile = new File(FileConfigUtils.readConfig().animUrl);
+			openFile.browseForOpen("打开骨骼动画文件",[new FileFilter("md5anim","*.md5anim")]);
+			openFile.addEventListener(Event.SELECT,onSel);
+		}
+		private function onSel(event:Event):void{
+			var file:File = event.target as File;
+			addAnim(file.url,file.name);
+		}
+		public function addAnim(url:String,name:String):void{
+			var obj:Object = {"name":name,"url":url};
+			AnimDataManager.getInstance().addAnim(url,onAnimLoad2,obj);
+		}
+		/**
+		 * 添加骨骼到人物和list（包括骨骼最终生成的矩阵、帧数信息、骨骼数信息、数据源、数据源字符串）
+		 * 
+		 * */
+		private var boneAry:Array;
+
+		private var changtype:int;
+		
+		private var rootChangeType:int;
+		
+		private var rootStart:int;
+
+		private var posVec:Vector.<Vector3D>;
+
+		private var openFile:File;
+		
+		private function onAnimLoad2(ary0:Array,_info:Object):void{
+			boneAry = ary0;
+			var frameNum:int = ary0.length;
+			
+			getRootCenter(_info.hierarchy,frameNum);
+		
+			changtype = _info.hierarchy[0].changtype;
+			
+			getFrames(_info.strAry);
+		 		
+			
+		}
+		
+		private function getRootCenter(vec:Vector.<ObjectBone>,frameNum:int):void{
+			var index:int = 0;
+			for(var i:int;i<vec.length;i++){
+				if(vec[i].name == "root"){
+					index = i;
+					this.rootChangeType = vec[i].changtype;
+					this.rootStart = vec[i].startIndex;
+					break;
+				}
+			}
+			
+			
+			
+			posVec = new Vector.<Vector3D>;
+			for(i=0;i<frameNum;i++){
+				var pos:Vector3D = getPosV3d(i,index);
+				posVec.push(pos);
+			}
+		}
+		
+		private var lIndex:int;
+		private var rIndex:int;
+		private function getLowIndex(vec:Vector.<ObjectBone>):void{
+			var rStr:String = "Bip01 R Toe0";
+			var lStr:String = "Bip01 L Toe0";
+			
+			for(var i:int;i<vec.length;i++){
+				if(vec[i].name == lStr){
+					lIndex = i;
+				}else if(vec[i].name == rStr){
+					rIndex = i;
+				}
+			}
+			
+		}
+		
+		private function getCenter(frameNum:int):void{
+			posVec = new Vector.<Vector3D>;
+			for(var i:int;i<frameNum;i++){
+				var vec:Vector3D = getPosV3d(i,0);
+				vec.y = 0;
+				
+				var lvec:Vector3D = getPosV3d(i,lIndex);
+				
+				var rvec:Vector3D = getPosV3d(i,rIndex);
+				
+				var ymin:Number = Math.min(lvec.y,rvec.y);
+				
+				vec.y = ymin;
+				
+				posVec.push(vec);
+			}
+			
+		}
+		
+		private function getFrames(ary:Array):void{
+			for(var i:int;i<ary.length;i++){
+				var str:String = String(ary[i])
+				if(str.indexOf("frame") != -1 && str.indexOf("baseframe") == -1){
+					var ary0:Array = str.split(" ");
+					ary[i] = changeFrame(str);
+				}
+			}
+			var allStr:String = new String;
+			for(i=0;i<ary.length;i++){
+				allStr += ary[i] + "\r\n";
+			}
+			trace(allStr);
+			
+			allStr = "pos " + getAllPos() + "\r\n" + allStr ;
+			
+			var fileName:String = openFile.name.split(".")[0] + "_pos.md5anim"
+			
+			var newFile:File = new File(openFile.parent.url + "/" + fileName);
+			var fs:FileStream = new FileStream;
+			fs.open(newFile,FileMode.WRITE);
+			fs.writeUTFBytes(allStr);
+			fs.close();
+			
+			txt.text = "转换成功！\n保存文件到：" + newFile.nativePath;
+		}
+		
+		private function changeFrame(str:String):String{
+			var newStr:String = new String;
+			
+			var reg:RegExp = /\d+/;
+			
+			var arr:Array = str.split("\n\r");
+			
+			var arrsign:int;
+			
+			var tempArray:Array = new Array();
+			
+			for (var w:int = 0 ; w < arr.length ; w++) {
+				
+				
+				if (String(arr[w]).indexOf("frame") != -1) {
+					
+					arrsign = String(arr[w]).match(reg)[0];
+					//找到数组下标
+				}
+				
+				
+				if (String(arr[w]).indexOf("{") == -1 && String(arr[w]).indexOf("}") == -1 && arr[w] != "") {
+					
+					tempArray.push(arr[w]);
+				}
+				
+			}
+			var frame:int = arrsign;
+			var ary:Array = new Array;
+			var tempArrs:Array;
+			for(var i:int=0;i<tempArray.length;i++){
+				str = _genewStr(tempArray[i])
+				tempArrs = str.split(" ");
+				tempArrs.pop();
+				ary = ary.concat(tempArrs);
+			}
+			
+			var ma:Matrix3D = new Matrix3D;
+			ma.appendRotation(-90,Vector3D.X_AXIS);
+			ma.appendScale(-1,1,1);
+			var tf:Boolean = ma.invert();
+			
+			var v3dpos:Vector3D = posVec[frame];
+			v3dpos = ma.transformVector(v3dpos);
+			
+			var k:int;
+			if (changtype & 1){
+				ary[k] = Number(Number(ary[k]) - v3dpos.x).toFixed(6);
+				++k;
+			}
+			if (changtype & 2){
+				ary[k] = Number(Number(ary[k]) - v3dpos.y).toFixed(6);
+				++k;
+			}
+			if (changtype & 4){
+				ary[k] = Number(Number(ary[k]) - v3dpos.z).toFixed(6);
+				++k;
+			}
+			
+			k = this.rootStart;
+			if (rootChangeType & 1){
+				ary[k] = Number(Number(ary[k]) - v3dpos.x).toFixed(6);
+				++k;
+			}
+			if (rootChangeType & 2){
+				ary[k] = Number(Number(ary[k]) - v3dpos.y).toFixed(6);
+				++k;
+			}
+			if (rootChangeType & 4){
+				ary[k] = Number(Number(ary[k]) - v3dpos.z).toFixed(6);
+				++k;
+			}
+			
+			
+			newStr = "frame " + frame + " {\n\r\t";
+			for(i=0;i<ary.length;i++){
+				newStr += ary[i] + " ";
+			}
+			newStr += "\n\r}\n\r";
+			
+			return newStr;
+		}
+		
+		private function getAllPos():String{
+			var posStr:String = new String;
+			for(var i:int;i<posVec.length;i++){
+				posStr += posVec[i].x.toFixed(6) + "," + posVec[i].y.toFixed(6) + "," + posVec[i].z.toFixed(6) + ","
+			}
+			return posStr;
+		}
+		
+		private function _genewStr(_str:String):String
+		{
+			var _s:String="";
+			var _t:String="";
+			var _e:String=" ";
+			var i:Number=0;
+			while(i<_str.length){
+				_t=_str.charAt(i);
+				switch (_t) {
+					case "(":
+						break;
+					case ")":
+						break;
+					case "\"":
+						break;
+					case "	":
+						if(_e!=" "){
+							_s=_s+" ";
+						}
+						_e=" ";
+						break;
+					case " ":
+						if(_e!=" "){
+							_s=_s+" ";
+						}
+						_e=" ";
+						break;
+					default:
+						_s=_s+_t;
+						_e=_t;
+						break;
+				}
+				
+				i++;
+			}
+			return _s;
+		}
+		
+		public function getPosV3d(frame:int,index:int):Vector3D{
+			var testmatix:Matrix3D = boneAry[frame][index].matrix;
+			
+			return new Vector3D(testmatix.position.x,testmatix.position.y,testmatix.position.z);
+		}
+	]]>
+</fx:Script>
+	<mx:Button x="10" y="30" label="选择文件" click="onChose()"/>
+	<mx:Text id="txt" x="10" y="60" width="200" height="100"/>
+</mx:Canvas>

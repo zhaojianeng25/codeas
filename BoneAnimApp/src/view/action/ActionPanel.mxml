@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="utf-8"?>
+<frame:BasePanel xmlns:fx="http://ns.adobe.com/mxml/2009" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		  xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="onCom()"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="296" height="300" xmlns:frame="common.utils.frame.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.collections.Sort;
+		import mx.collections.SortField;
+		import mx.controls.Alert;
+		import mx.events.ListEvent;
+		
+		import _Pan3D.role.AnimDataManager;
+		
+		import _me.Scene_data;
+		
+		import utils.FileConfigUtils;
+		import utils.FilterStringUtils;
+		
+		import view.bone.BonePanel;
+		import view.controlCenter.ControlCenterPanle;
+		import view.hang.HangPanel;
+		import view.mesh.MeshPanel;
+		import view.meshSort.BoneImportSort;
+		
+		private static var _instance:ActionPanel;
+		
+		[Embed(source="assets/animEnumName.txt",mimeType="application/octet-stream")]
+		private var fileTypeCls:Class;
+		
+		[Bindable]
+		public var dataAry:ArrayCollection = new ArrayCollection;
+		private var info:Object;
+		private var isFirst:Boolean = true;
+		/**
+		 * 最后一次打开的路径
+		 * */
+		private var lastFileOpenUrl:String;
+		private var expActPanle:ExpActPanle = new ExpActPanle;
+		
+		private var _boneImportSort:BoneImportSort = new BoneImportSort;
+		
+		public static function getInstance():ActionPanel{
+			if(!_instance){
+				_instance = new ActionPanel;
+			}
+			return _instance;
+		}
+		private function onCom():void{
+			draw();
+			initFileType();
+			list.setStyle("contentBackgroundColor",0x404040);
+		}
+		private function initFileType():void{
+			var fileTypeStr:String = new fileTypeCls;
+			var fileAry:Array = fileTypeStr.split("\r\n");
+			fileTypeDic = new Object;
+			for(var i:int;i<fileAry.length;i++){
+				var itemAry:Array = String(fileAry[i]).split("=");
+				fileTypeDic[itemAry[1]] = itemAry[0];
+			}
+		}
+		private function draw():void{
+			ui.graphics.clear();
+			ui.graphics.lineStyle(1,0x999999);
+			ui.graphics.moveTo(200,0);
+			ui.graphics.lineTo(200,list.height);
+			
+			var num:int = list.height/20;
+			for(var i:int;i<num;i++){
+				ui.graphics.moveTo(0,20*i+20);
+				if(num < dataAry.length){
+					ui.graphics.lineTo(258,20*i+20);
+				}else{
+					ui.graphics.lineTo(274,20*i+20);
+				}
+			}
+		}
+		/**
+		 * 打开骨骼文件
+		 * 
+		 * */
+		public function addBoneFile():void{
+			if(!lastFileOpenUrl){
+				lastFileOpenUrl = FileConfigUtils.readConfig().animUrl;
+			}
+			var file:File = new File(FileConfigUtils.readConfig().animUrl);
+//			file.browseForOpen("打开骨骼动画文件",[new FileFilter("md5anim","*.md5anim")]);
+//			file.addEventListener(Event.SELECT,onSel);
+			
+			file.browseForOpenMultiple("打开骨骼动画文件",[new FileFilter("md5anim","*.md5anim")]);
+			file.addEventListener(FileListEvent.SELECT_MULTIPLE,onMultipleSel);
+		}
+		
+		private function onMultipleSel(event:FileListEvent):void{
+			var ary:Array = event.files;
+			for(var i:int;i<ary.length;i++){
+				openFile(ary[i]);
+			}
+		}
+		
+		private function openFile(file:File):void{
+			
+			if(FilterStringUtils.getErrorName(file.name)){
+				Alert.show("该文件的文件名存在 大写字母/空格/中文或者其他特殊字符");
+				return;
+			}
+			
+			trace(Scene_data.md5Root)
+			if(file.url.indexOf(Scene_data.md5Root) == -1){
+				Alert.show("非工作空间");
+				return;
+			}
+			testUrl(file.name);
+			
+			info = new Object;
+			
+			info.url = file.url.substring(Scene_data.md5Root.length);
+			
+			info.nativePath = file.nativePath;
+			//info.url = file.url;
+			info.fileName = String(file.name).split(".")[0];
+			info.name = file.name;
+			addAnim(Scene_data.md5Root + info.url,file.name,info);
+			
+			lastFileOpenUrl = file.parent.url;
+			FileConfigUtils.writeConfig("animUrl",lastFileOpenUrl);
+		}
+		
+		/**
+		 * 选择后开始装载文件，同时记录路径
+		 * 
+		 * */
+		private function onSel(event:Event):void{
+			var file:File = event.target as File;
+			
+			if(FilterStringUtils.getErrorName(file.name)){
+				Alert.show("该文件的文件名存在 大写字母/空格/中文或者其他特殊字符");
+				return;
+			}
+			
+			trace(Scene_data.md5Root)
+			if(file.url.indexOf(Scene_data.md5Root) == -1){
+				Alert.show("非工作空间");
+				return;
+			}
+			testUrl(file.name);
+			
+			info.url = file.url.substring(Scene_data.md5Root.length);
+			
+			info.nativePath = file.nativePath;
+			//info.url = file.url;
+			info.fileName = String(file.name).split(".")[0];
+			info.name = file.name;
+			addAnim(Scene_data.md5Root + info.url,file.name,info);
+			
+			lastFileOpenUrl = file.parent.url;
+			FileConfigUtils.writeConfig("animUrl",lastFileOpenUrl);
+		}
+		private function testUrl(url:String):void{
+			url = url.split(".")[0];
+			if(!fileTypeDic.hasOwnProperty(url)){
+				var allStr:String = new String;
+				for(var key:String in fileTypeDic){
+					allStr += fileTypeDic[key] + "=" + key + "\n";
+				}
+				Alert.show(allStr,"导入的文件名不符合命名规则");
+			}
+		}
+		public function addAnim(url:String,name:String,info:Object):void{
+			var obj:Object = {"name":name,"url":url};
+			AnimDataManager.getInstance().addAnim(url,onAnimLoad2,info);
+		}
+		/**
+		 * 添加骨骼到人物和list（包括骨骼最终生成的矩阵、帧数信息、骨骼数信息、数据源、数据源字符串）
+		 * 
+		 * */
+		private function onAnimLoad2(ary0:Array,_info:Object):void{
+			
+			var prePorcessInfo:Object = _boneImportSort.processBoneNew(_info.hierarchy,_info);
+			var ary:Array = _info.data = prePorcessInfo.animAry;
+			
+			_info.source = prePorcessInfo.source;
+			_info.strAry = prePorcessInfo.strAry;
+			_info.hierarchy = prePorcessInfo.hierarchy;
+			_info.str = prePorcessInfo.str;
+			
+			var frameNum:int = ary.length;
+			var boneNum:int = ary[0].length;
+			_info.frameNum = frameNum;
+			_info.boneNum = boneNum;
+			_info.data = ary;
+			_info.source = _info.source;
+			_info.str = _info.str;
+			_info.strAry = _info.strAry;
+			dataAry.addItem(_info);
+			AppDataBone.role.addAnimLocal(_info.fileName,ary,null,_info.pos);
+			
+			BonePanel.getInstance().setData(ary[0]);
+		}
+		
+		/**
+		 * 添加到舞台
+		 * 
+		 * */
+		public function showUI(container:DisplayObjectContainer):void{
+			if(isFirst){
+//				this.x = (container.width-this.width)/2;
+//				this.y = (container.height-this.height)/2;
+				var str:String = FileConfigUtils.readConfig().animPanlePos;
+				if(!str){
+					this.x = 400;
+					this.y = 50;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+			
+		}
+		private function onResizeDown():void{
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			stage.addEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+		}
+		private function onMouseMove(event:MouseEvent):void{
+			this.height = stage.mouseY - this.y;
+			if(this.height < 120){
+				this.height = 120;
+			}
+			draw();
+		}
+		private function onMouseUp(event:MouseEvent):void{
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			stage.removeEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+			draw();
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		/**
+		 * 获取所有的骨骼数据（用于数据保存）
+		 * 
+		 * */
+		public function getAllInfo():Object{
+			var ary:Array = new Array;
+			for(var i:int;i<dataAry.length;i++){
+				ary.push(copyData(dataAry[i]));
+			}
+			return ary;
+		}
+		/**
+		 * 数据拷贝
+		 * (去除加载好的骨骼数据 只剩下诸如路径等信息数据)
+		 * */
+		private function copyData(source:Object):Object{
+			var obj:Object = new Object;
+			for(var key:String in source){
+				if(key != "data" && key != "hierarchy" && key != "source" && key != "str" && key != "strAry"){
+					obj[key] = source[key];
+				}
+			}
+			return obj;
+		}
+		/**
+		 * 装载数据
+		 * 
+		 * */
+		public function setAllInfo(ary:Array):void{
+			if(!ary){
+				return;
+			}
+			localAllNum = ary.length;
+			for(var i:int;i<ary.length;i++){
+				addLocalAnim(ary[i]);
+			}
+		}
+		public function clear():void{
+			dataAry = new ArrayCollection;
+			localFlag = 0;
+		}
+		private var localFlag:int;
+		private var localAllNum:int;
+
+		private var fileTypeDic:Object;
+		/**
+		 * 将装入的信息队列逐一加载
+		 * 
+		 * */
+		public function addLocalAnim(obj:Object):void{
+			AnimDataManager.getInstance().addAnim(Scene_data.md5Root + obj.url,onLocalAnimLoad,obj);
+		}
+		/**
+		 * 当所有装入的数据加载完成后</br>
+		 * 启动必须有骨骼的装载的系统（buff系统、mesh系统、技能系统、角色播放）
+		 * */
+		private function onLocalAnimLoad(ary0:Array,obj:Object):void{
+			
+			var prePorcessInfo:Object = _boneImportSort.processBoneNew(obj.hierarchy,obj);
+			var ary:Array = obj.data = prePorcessInfo.animAry;
+			
+			obj.source = prePorcessInfo.source;
+			obj.strAry = prePorcessInfo.strAry;
+			obj.hierarchy = prePorcessInfo.hierarchy;
+			obj.str = prePorcessInfo.str;
+			
+			
+//			obj.data = ary;
+			dataAry.addItem(obj);
+			AppDataBone.role.addAnimLocal(obj.fileName,ary,obj.bounds,obj.pos);
+			BonePanel.getInstance().setData(ary[0]);
+			
+//			AppData.role.bindParticle = ParticleManager.getInstance().getParticle();
+//			ParticleManager.getInstance().getParticle().bindTarget = AppData.role;
+			localFlag++;
+			trace(localFlag,localAllNum)
+			if(localFlag == localAllNum){
+				HangPanel.getInstance().setAllInfo();
+				MeshPanel.getInstance().addAllParticle();
+				ControlCenterPanle.getInstance().buildByFile();
+				AppDataBone.role.play(dataAry[0].fileName);
+				
+				var sort:Sort = new Sort();
+				sort.fields = [new SortField("name", true)];
+				dataAry.sort = sort;
+				dataAry.refresh();
+
+			}
+		}
+		/**
+		 * 删除行为动作
+		 * 
+		 * 
+		 * */ 
+		private function delAction():void{
+			var obj:Object = list.selectedItem;
+			if(!obj){
+				return;
+			}
+			dataAry.removeItemAt(dataAry.getItemIndex(obj));
+			
+		}
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("animPanlePos",this.x + "|" + this.y);
+		}
+		
+		protected function itemClick(event:ListEvent):void
+		{
+			return;
+			var obj:Object = list.selectedItem;
+			//reloadAnim(obj);
+			var frameNum:int = obj.data.length;
+			
+			var posVec:Vector.<Vector3D> = new Vector.<Vector3D>;
+			for(var i:int;i<frameNum;i++){
+				var v3d:Vector3D = new Vector3D;
+				AppDataBone.role.gotoAndStop(i);
+				AppDataBone.role.getPosV3d(2,v3d);
+				posVec.push(v3d);
+			}
+			
+			trace(posVec)
+			
+			//var changeType:int = obj.hierarchy[0].changetype;
+			
+			
+		}
+		
+		
+		
+		
+		public function reloadAnim(obj:Object):void{
+			AnimDataManager.getInstance().addAnim(Scene_data.md5Root + obj.url,onReloadAnimLoad2,obj);
+		}
+		private function onReloadAnimLoad2(ary:Array,_info:Object):void{
+			var frameNum:int = ary.length;
+			var boneNum:int = ary[0].length;
+			_info.frameNum = frameNum;
+			_info.boneNum = boneNum;
+			_info.data = ary;
+			AppDataBone.role.addAnimLocal(_info.fileName,ary);
+			
+			//BonePanel.getInstance().setData(ary[0]);
+			AppDataBone.role.skillMode = false;
+		}
+		
+		private function expBone():void{
+			//var sql:String =  "select * from t_avatars where f_name='" + _keyUrl +"' and f_type=6";
+			//DBManager.getInstance().executeQuery(sql,querySuc,error);
+			
+			if(MeshPanel.getInstance().getMeshData() == null){
+				Alert.show("没有mesh信息！");
+				return;
+			}
+			
+			//expActPanle.show(this.parent,dataAry.source);
+			 
+			expActPanle.expAction(dataAry.source);
+		}
+		
+		
+	
+		
+	]]>
+</fx:Script>
+	<!--<mx:Panel width="100%" height="100%"/>-->
+	<mx:List id="list" left="10" top="20" bottom="60" right="0" dataProvider="{dataAry}" borderStyle="none" itemClick="itemClick(event)">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas height="16" backgroundColor="#eeeeee" creationComplete="creationCompleteHandler(event)" rollOver="item_rollOverHandler(event)" rollOut="item_rollOutHandler(event)">
+					<fx:Script>
+						<![CDATA[
+							import mx.events.FlexEvent;
+							
+							import view.frame.FrameEditPanle;
+							private function onDoubleClick():void{
+								AppDataBone.role.skillMode = false;
+								AppDataBone.role.play(data.fileName);
+							}
+							private function edit():void{
+								FrameEditPanle.getInstance().show(outerDocument.parent,data.data.length,data);
+								onDoubleClick();
+							}
+							
+							protected function creationCompleteHandler(event:FlexEvent):void{
+								editTxt.htmlText = "<a href='event:myevnet'>编辑</a>";
+							}
+							
+							protected function item_rollOverHandler(event:MouseEvent):void
+							{
+								editTxt.visible = true;
+							}
+							
+							protected function item_rollOutHandler(event:MouseEvent):void
+							{
+								editTxt.visible = false;
+							}
+							
+						]]>
+					</fx:Script>
+					<mx:Label text="{data.fileName}" y="-2" width="100%" doubleClickEnabled="true" doubleClick="onDoubleClick()" />
+					<mx:Label id="editTxt" text="编辑" click="edit()" x="150" visible="false"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Button x="10" bottom="28" label="添加" click="addBoneFile()"/>
+	<mx:Button x="88" bottom="28" label="删除" click="delAction()"/>
+	<!--<mx:Label x="6" y="5" width="253" height="26" fontWeight="bold" mouseDown="startDrag()" click="this.parent.setChildIndex(this,this.parent.numChildren-1)"
+			  mouseUp="mouseUpDrag()" text="动作管理"/>-->
+	<!--<mx:Button right="0" bottom="0" width="8" height="8" mouseDown="onResizeDown()"/>-->
+	<!--<mx:Button x="258" y="6" width="28" label="X" click="close()"/>-->
+	<mx:UIComponent id="ui" x="10" y="60" visible="false" />
+	<mx:Label x="16" y="0" text="动作名称"/>
+	<!--<mx:Label x="224" y="0" text="帧数"/>-->
+	<mx:Button x="180" bottom="28" label="导出动作" click="expBone()" />
+	<mx:Label x="17" bottom="3" text="动作数量：{dataAry.length}"/>
+</frame:BasePanel>

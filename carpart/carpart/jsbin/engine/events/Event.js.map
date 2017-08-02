@@ -1,1 +1,0 @@
-{"version":3,"file":"Event.js","sourceRoot":"","sources":["../../../engine/events/Event.ts"],"names":["BaseEvent","BaseEvent.constructor"],"mappings":"AAAA;IAIIA,mBAAmBA,KAAaA;QAC5BC,IAAIA,CAACA,IAAIA,GAAGA,KAAKA,CAACA;IACtBA,CAACA;IAEaD,kBAAQA,GAAWA,UAAUA,CAACA;IAChDA,gBAACA;AAADA,CAACA,AATD,IASC"}

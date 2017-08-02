@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		  xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="onCom()"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="296" height="300">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.base.MeshData;
+		import _Pan3D.role.MeshDataManager;
+		import _Pan3D.texture.TextureManager;
+		
+		import flash.display3D.textures.Texture;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		
+		import utils.FileConfigUtils;
+		
+		private static var _instance:MeshPanel;
+		
+		public var baseX:int = 40;
+		public var baseY:int = 50;
+		
+		[Bindable]
+		private var dataAry:ArrayCollection = new ArrayCollection;
+		private var info:Object;
+		private var isFirst:Boolean = true;
+		public static function getInstance():MeshPanel{
+			if(!_instance){
+				_instance = new MeshPanel;
+			}
+			return _instance;
+		}
+		private function onCom():void{
+			draw();
+		}
+		private function draw():void{
+			ui.graphics.clear();
+			ui.graphics.lineStyle(1,0x999999);
+			ui.graphics.moveTo(137,0);
+			ui.graphics.lineTo(137,list.height);
+			
+			var num:int = list.height/20;
+			for(var i:int;i<num;i++){
+				ui.graphics.moveTo(0,20*i+20);
+				if(num < dataAry.length){
+					ui.graphics.lineTo(258,20*i+20);
+				}else{
+					ui.graphics.lineTo(274,20*i+20);
+				}
+				
+			}
+			
+			
+		}
+		
+		
+		private var lastFileOpenUrl:String;
+		public var lastFileImgUrl:String;
+		public function addMeshFile():void{
+			info = new Object;
+			if(!lastFileOpenUrl){
+				lastFileOpenUrl = FileConfigUtils.readConfig().meshUrl;
+			}
+			var file:File = new File(lastFileOpenUrl);
+			file.browseForOpen("打开mesh文件",[new FileFilter("md5mesh","*.md5mesh")]);
+			file.addEventListener(Event.SELECT,onSel);
+		}
+		private function onSel(event:Event):void{
+			var file:File = event.target as File;
+			info.nativePath = file.nativePath;
+			info.url = file.url;
+			info.fileName = String(file.name).split(".")[0];
+			addMesh(file.url,file.name);
+			
+			lastFileOpenUrl = file.parent.url;
+			FileConfigUtils.writeConfig("meshUrl",lastFileOpenUrl);
+		}
+		public function addMesh(url:String,name:String):void{
+			var obj:Object = {"name":name,"url":url};
+			MeshDataManager.getInstance().addMesh(url,onMeshLoad2,obj);
+		}
+		
+		private function onMeshLoad2(meshData:MeshData,obj:Object):void{
+			var boneNum:int = meshData.boneNewIDAry.length;
+			info.boneNum = boneNum;
+			info.data = meshData;
+			if(boneNum > 54){
+				Alert.show("对应骨骼数：" + boneNum + "  超过27个 非标准mesh");
+				//boneNumTxt.htmlText = "<font color='#ff0000'>对应骨骼数：" + boneNum + "  超过27个 非标准mesh</font>";
+				return;
+			}
+			dataAry.addItem(info);
+			AppDataBone.role.addMeshLocal(info.fileName,meshData);
+		}
+		
+		private function delMesh():void{
+			var obj:Object = list.selectedItem;
+			if(!obj){
+				return;
+			}
+			dataAry.removeItemAt(dataAry.getItemIndex(obj));
+			AppDataBone.role.removeMeshLocal(obj.fileName);
+		}
+		
+		public function show(container:DisplayObjectContainer):void{
+			if(isFirst){
+//				this.x = (container.width-this.width)/2;
+//				this.y = (container.height-this.height)/2;
+				
+				var str:String = FileConfigUtils.readConfig().meshPanlePos;
+				if(!str){
+					this.x = baseX;
+					this.y = baseY;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+		}
+		private function onResizeDown():void{
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			stage.addEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+		}
+		private function onMouseMove(event:MouseEvent):void{
+			this.height = stage.mouseY - this.y;
+			if(this.height < 120){
+				this.height = 120;
+			}
+			draw();
+		}
+		private function onMouseUp(event:MouseEvent):void{
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			stage.removeEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+			draw();
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+		public function getAllInfo():Object{
+			var ary:Array = new Array;
+			for(var i:int;i<dataAry.length;i++){
+				ary.push(copyData(dataAry[i]));
+			}
+			return ary;
+		}
+		private function copyData(source:Object):Object{
+			var obj:Object = new Object;
+			for(var key:String in source){
+				if(key != "data" && key != "texture"){
+					obj[key] = source[key];
+				}
+			}
+			return obj;
+		}
+		
+		public function setAllInfo(ary:Array):void{
+			for(var i:int;i<ary.length;i++){
+				//addMesh(ary[i].url,ary[i].name);
+				//addFileMesh(ary[i]);
+				addFileTexture(ary[i]);
+			}
+		}
+		
+		
+		public function addFileMesh(obj:Object):void{
+			MeshDataManager.getInstance().addMesh(obj.url,onMeshFileLoad,obj);
+		}
+		
+		private function onMeshFileLoad(meshData:MeshData,obj:Object):void{
+			obj.data = meshData;
+			dataAry.addItem(obj);
+			AppDataBone.role.addMeshLocal(obj.fileName,meshData);
+		}
+		
+		private function addFileTexture(obj:Object):void{
+			TextureManager.getInstance().addTexture(obj.textureUrl,onTextureLoad,obj);
+		}
+		private function onTextureLoad(texture:Texture,obj:Object):void{
+			obj.texture = texture;
+			AppDataBone.role.addTextureLocal(obj.fileName,texture);
+			//AppData.role.addMeshLocal(obj.fileName,obj.data);
+			addFileMesh(obj);
+		}
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("meshPanlePos",this.x + "|" + this.y);
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:List id="list" x="10" top="39" bottom="45" width="274" dataProvider="{dataAry}">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas height="16">
+					<fx:Script>
+						<![CDATA[
+							import _Pan3D.texture.TextureManager;
+							
+							import flash.display3D.textures.Texture;
+							
+							import mx.core.UIComponent;
+							
+							import utils.FileConfigUtils;
+							
+							
+							public function addImg():void{
+								var fileurl:String = outerDocument.lastFileImgUrl;
+								if(!fileurl){
+									fileurl= FileConfigUtils.readConfig().meshImgUrl;
+								}
+								var file:File = new File(fileurl);
+								file.browseForOpen("打开贴图文件",[new FileFilter("img","*.jpg;*png")]);
+								file.addEventListener(Event.SELECT,onSel)
+							}
+							private function onSel(event:Event):void{
+								var url:String = event.target.url;
+								data.textureUrl = url;
+								data.texturePath = File(event.target).nativePath;
+								data.textureName = File(event.target).name;
+								img.text = data.textureName;
+								TextureManager.getInstance().addTexture(url,addTexture,data);
+								outerDocument.lastFileImgUrl = url;
+								FileConfigUtils.writeConfig("meshImgUrl",File(event.target).parent.url);
+							}
+							private function addTexture(texture:Texture,info:Object):void{
+								data.texture = texture;
+								AppDataBone.role.addTextureLocal(data.fileName,texture);
+								AppDataBone.role.addMeshLocal(data.fileName,data.data);
+							}
+							/* override public function set data(value:Object):void{
+								super.data = value;
+								if(data && data.textureUrl){
+									TextureManager.getInstance().addTexture(data.textureUrl,addTexture,data);
+								}
+							} */
+						]]>
+					</fx:Script>
+					<mx:Label text="{data.fileName}" y="-2"/>
+					<!--<mx:Image source="style/images/{data.texture?'img':'blackImg'}.png" width="16" height="16" x="134"  />-->
+					<mx:Label id="img" text="{data.textureName?data.textureName:'添加图片'}" x="140" y="-2" click="addImg()"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Button x="10" bottom="16" label="添加" click="addMeshFile()"/>
+	<mx:Button x="88" bottom="16" label="删除" click="delMesh()"/>
+	<mx:Button x="166" bottom="16" label="刷新"/>
+	<mx:Label x="6" y="5" width="253" height="26" mouseDown="startDrag()" mouseUp="mouseUpDrag()"
+			  text="皮肤管理"/>
+	<mx:Button right="0" bottom="0" width="8" height="8" mouseDown="onResizeDown()"/>
+	<mx:Button x="258" y="6" width="28" label="X" click="close()"/>
+	<mx:UIComponent id="ui" x="10" y="39" />
+</mx:Canvas>

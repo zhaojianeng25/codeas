@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="256" height="270">
+	<fx:Declarations>
+		<!-- @author liuyanfei QQ:421537900
+			 基础属性编辑面板
+		-->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.core.UIComponent;
+		
+		import _Pan3D.particle.Display3DParticle;
+		
+		import xyz.MoveScaleRotationLevel;
+		import xyz.base.TooXyzPosData;
+		import xyz.draw.TooXyzMoveData;
+		
+		
+		
+		public var targetContainer:UIComponent;
+		public var targetDisplay3d:ParticleItem;
+
+		public var center:Vector3D;
+		
+		/**
+		 * 单例模式构造
+		 * */
+		private static var instance:KeyAttributPanle;
+		public static function getInstance():KeyAttributPanle{
+			if(!instance){
+				instance = new KeyAttributPanle;
+			}
+			return instance;
+		}
+		/**
+		 * 显示，将要显示的粒子属性刷入面板
+		 * @param value 粒子条目
+		 * 
+		 * */
+		public function show(value:ParticleItem):void{
+			targetContainer.addChild(this);
+			this.x = (targetContainer.width-this.width)/2;
+			this.y = (targetContainer.height-this.height)/2;
+			
+			this.targetDisplay3d = value;
+			
+			
+			xposTxt.text = String(value.display3D.center.x/100);
+			yposTxt.text = String(value.display3D.center.y/100);
+			zposTxt.text = String(value.display3D.center.z/100);	
+			
+			xAngle.text = String(value.display3D.rotationX);
+			yAngle.text = String(value.display3D.rotationY);
+			zAngle.text = String(value.display3D.rotationZ);
+			
+			showXyzMove();
+		}
+		private function showXyzMove():void
+		{
+			if(this.targetDisplay3d&&this.targetDisplay3d.display3D){
+				var $sprite:Display3DParticle=this.targetDisplay3d.display3D
+				var $xyzPosData:TooXyzMoveData=new TooXyzMoveData
+				$xyzPosData.dataItem=new Vector.<TooXyzPosData>;
+				$xyzPosData.modelItem=new Array
+				
+				var k:TooXyzPosData=new TooXyzPosData;
+				k.x=$sprite.center.x/10
+				k.y=$sprite.center.y/10
+				k.z=$sprite.center.z/10
+				k.scale_x=1
+				k.scale_y=1
+				k.scale_z=1
+				k.angle_x=$sprite.rotationX
+				k.angle_y=$sprite.rotationY
+				k.angle_z=$sprite.rotationZ
+				$xyzPosData.dataItem.push(k)
+				$xyzPosData.modelItem.push($sprite)
+				
+				$xyzPosData.fun=xyzBfun
+				$xyzPosData.isCenten=true
+				MoveScaleRotationLevel.getInstance().xyzMoveData=$xyzPosData
+			
+			}
+			
+			
+		}
+		private function xyzBfun($XyzMoveData:xyz.draw.TooXyzMoveData):void
+		{
+			if($XyzMoveData.modelItem.length==1){
+				var $TooXyzPosData:TooXyzPosData=$XyzMoveData.dataItem[0]
+				var $sprite:Display3DParticle=$XyzMoveData.modelItem[0]
+			
+
+				xposTxt.text = String($TooXyzPosData.x/10);
+				yposTxt.text = String($TooXyzPosData.y/10);
+				zposTxt.text = String($TooXyzPosData.z/10);	
+				
+				
+				xAngle.text = String($TooXyzPosData.angle_x);
+				yAngle.text = String($TooXyzPosData.angle_y);
+				zAngle.text = String($TooXyzPosData.angle_z);
+				
+
+				applyData();
+					
+//				oldObject3D=_PointArr[tempXyzPosData.id];
+//				newObject3D=new Object3D($TooXyzPosData.x/GuijiLevel.scaleNum-_pos.x,$TooXyzPosData.y/GuijiLevel.scaleNum-_pos.y,$TooXyzPosData.z/GuijiLevel.scaleNum-_pos.z)
+//				newObject3D.angle_x=$TooXyzPosData.angle_x
+//				newObject3D.angle_y=$TooXyzPosData.angle_y
+//				newObject3D.angle_z=$TooXyzPosData.angle_z
+//				_PointArr[tempXyzPosData.id]=newObject3D;
+			}
+			
+		}
+			
+		
+		/**
+		 * 关闭
+		 * 
+		 * */
+		public function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+
+		}
+		
+		/**
+		 * 将数据应用到粒子
+		 * 
+		 * */
+		public function applyData():void{
+			
+			center = new Vector3D(Number(xposTxt.text)*100,Number(yposTxt.text)*100,Number(zposTxt.text)*100);
+			
+			var ma:Matrix3D = new Matrix3D;
+			ma.prependRotation(Number(xAngle.text) , Vector3D.X_AXIS);
+			ma.prependRotation(Number(yAngle.text) , Vector3D.Y_AXIS);
+			ma.prependRotation(Number(zAngle.text) , Vector3D.Z_AXIS);
+
+	
+	
+			
+			
+			var obj:Object = new Object;
+			obj.center = center;
+
+			obj.rotationX = Number(xAngle.text);
+			obj.rotationY = Number(yAngle.text);
+			obj.rotationZ = Number(zAngle.text);
+			//obj.baseColor = vc;
+			obj.normal=new Vector3D();
+			
+			targetDisplay3d.display3D.setBeginInfo(obj);
+			
+			//targetDisplay3d.timeline.setLastTime(int(lifeTxt.text));
+			
+		}
+		
+
+	
+	
+		
+		public function setData(value:Object):void{
+			 
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:Label x="10" y="42" text="中心点："/>
+	<mx:Label x="66" y="42" text="x"/>
+	<mx:TextInput id="xposTxt" x="83" y="40" width="32" text="0"/>
+	<mx:Label x="123" y="42" text="y"/>
+	<mx:TextInput id="yposTxt" x="140" y="40" width="32" text="0"/>
+	<mx:Label x="187" y="42" text="z"/>
+	<mx:TextInput id="zposTxt" x="204" y="40" width="32" text="0"/>
+
+	<mx:Label x="10" y="73" text="水平角度："/>
+	<mx:TextInput id="xAngle" x="83" y="71" width="89" text="0"/>
+	<mx:Label x="10" y="104" text="俯仰角度："/>
+	<mx:TextInput id="yAngle" x="83" y="102" width="89" text="0"/>
+	<mx:Label x="10" y="135" text="侧倾角度："/>
+	<mx:TextInput id="zAngle" x="83" y="133" width="89" text="0"/>
+	<mx:Label x="10" y="165" text="时间长度："/>
+
+
+	
+	<mx:Button x="36" y="222" label="刷新" click="applyData()"/>
+	<mx:Button x="140" y="222" label="关闭" click="close()"/>
+	
+	<mx:UIComponent id="ui"  x="83" y="222"/>
+	<mx:HBox x="10" y="5" width="234" height="24" mouseDown="this.startDrag()" mouseUp="this.stopDrag()" backgroundColor="#ffffff" backgroundAlpha="0"/>
+</mx:Canvas>

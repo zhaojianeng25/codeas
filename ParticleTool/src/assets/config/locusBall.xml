@@ -1,0 +1,53 @@
+﻿<order>
+	<item name='名字' value='曲线粒子' type='11' key='name'/>
+		<item name='延时时间' value='0' type='1' key='delayedTime'/>
+	<item name='粒子配额' value='30' type='1' key='totalNum'/>
+	<item name='粒子生命' value='100' type='1' key='life'/>
+	<item name='3D粒子' value='0|1' type='2' key='is3Dlizi' tip="如果为3d粒子则旋转相关和面向视点不生效，3d粒子的旋转轴为当前粒子速度方向"/>
+	<item name='宽度' value='0.1' type='1' key='width' scale='100'/>
+	<item name='高度' value='0.1' type='1' key='height' scale='100'/>
+	<item name='原点宽度比例' value='0.5' type='1' key='originWidthScale'/>
+	<item name='原点高度比例' value='0.5' type='1' key='originHeightScale'/>
+	<item name='材质' value='assets/particle.material' key="materialUrl" type='10' />
+	<item name='随机色' value='0|1|2|3|4' type='6' key='randomColor' tip="若让此选项生效请在material节点中使用vertexColor"/>
+	<item name='面向视点' value='1|0' type='2' key='watchEye'/>
+	<item name='发射数率' value='10' type='1' key='shootSpeed'/>
+	<item name='粒子速度' value='5' type='1' key='speed'/>
+	<item name='播放速度' value='1' type='1' key='playSpeed'/>
+	<item name='发射速度随机' value='0|1' type='2' key='isSendRandom'/>
+	<item name='粒子自身加速度' value='0' type='1' key='acceleration'/>
+	<item name='额外加速度' value='0|0|0|1' type='4' key='addforce'/>
+	<item name='切线速度' value='0|1|-1|2' type='2' key='tangentSpeed' tip="0表示沿着法线方向 1表示沿着切线方向 -1表示逆着切线方向 2表示随机方向"/>
+<!-- 	<item name='发射锥形角度' value='0|1|0|0' type='4' key='shootAngly'/> -->
+<!-- 	<item name='发射方形角度' value='0|0|0|0' type='4' key='lixinForce'/> -->
+<!-- 	<item name='发射离心角度' value='0|1' type='2' key='islixinAngly'/> -->
+	<item name='起点随机' value='0|1' type='2' key='isRandom'/>
+	<item name='粒子范围' value='1|1|1|100' type='4' key='round'/>
+	<item name='不均匀分布' value='0|1' type='2' key='isEven'/>
+<!-- 	<item name='紧贴表面' value='0|1' type='2' key='closeSurface'/> -->
+	<item name='基础坐标' value='0|0|0' type='3' key='basePositon'/>
+	<item name='自转' value='0|0|0|0' type='4' key='ziZhuanAngly' tip="x表示基础的旋转 y为1则表示基础自传在x范围内随机 z表示旋转的速度 w为1则表示旋转的速度在y内随机"/>
+	<item name='比例变化起始时间' value='0' type='1' key='beginScale' tip="粒子开始变化的时间"/>
+<!-- 	<item name='基础旋转' value='0' type='1' key='baseRandomAngle'/> -->
+	<item name='比例抖动' value='0|0|0|0' type='4' key='waveform' tip="粒子抖动比例，x为频率，y为振幅，zw无效"/>
+	<item name='比例变化' value='0' type='1' key='toscale'/>
+	<item name='宽度比例不变' value='0|1' type='2' key='widthFixed'/>
+	<item name='高度比例不变' value='0|1' type='2' key='heightFixed'/>
+	<item name='粒子最大约束比例' value='100' type='1' key='paticleMaxScale'/>
+	<item name='粒子最小约束比例' value='0' type='1' key='paticleMinScale'/>
+	<item name='粒子随机比例' value='1|1|0' type='3' key='particleRandomScale'/>
+	<item name='不循环' value='1|0' type='2' key='isLoop'/>
+	<item name='距离视点偏移' value='0' type='1' key='eyeDistance'/>
+	<item name='alpha模式' value='0|1|2|3|4|-1' type='2' key='alphaMode'/>
+	<item name='U坐标平移速度' value='0' type='1' key='uSpeed'/>
+	<item name='V坐标平移速度' value='0' type='1' key='vSpeed'/>
+	<item name='动画行数' value='1' type='1' key='animLine'/>
+	<item name='动画列数' value='1' type='1' key='animRow'/>
+	<item name='动画间隔时间' value='1' type='1' key='animInterval'/>
+	<item name='UV坐标互换' value='0|1' type='2' key='isUV'/>
+	<item name='U坐标互换' value='0|1' type='2' key='isU'/>
+	<item name='V坐标互换' value='0|1' type='2' key='isV'/>
+	<item name='显示优先级' value='0|1|2' type='2' key='renderPriority'/>
+	<item name='数据' value='null' type='7' key='data'/>
+	<item name='是否扭曲' value='0|1' type='2' key='distortion'/>
+</order>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" implements="view.IAnimItem" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" horizontalScrollPolicy="off" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="30">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		
+		import _me.Scene_data;
+		
+		import common.AppData;
+		
+		import utils.FilterStringUtils;
+		[Bindable]
+		public var setData:Object;
+		
+		public function get itemData():Object{
+			var obj:Object = new Object;
+			obj.value = wTxt.text;
+			obj.type = setData.type;
+			obj.key = setData.key;
+			obj.name = setData.name;
+			return obj;
+		}
+		
+		private var file:File = new File;
+		private function onOpenFile():void{
+			
+			if(this.itemData&&this.itemData.value){
+				var lastFile:File=new File(AppData.workSpaceUrl+this.itemData.value)
+				if(lastFile.exists){
+					file=lastFile.parent;
+				}
+			}
+
+			var filefilter:FileFilter = new FileFilter("请选择","");
+			if(this.itemData.key=="materialUrl")
+			{
+				 filefilter = new FileFilter("请选择","*.material");
+			}
+			if(this.itemData.key=="objUrl")
+			{
+				filefilter = new FileFilter("请选择","*.obj");
+			}
+			if(this.itemData.key=="meshUrl")
+			{
+				filefilter = new FileFilter("请选择","*.md5mesh");
+			}
+			if(this.itemData.key=="animUrl")
+			{
+				filefilter = new FileFilter("请选择","*.md5anim");
+			}
+			
+			
+			file.browse([filefilter]);
+		
+			file.addEventListener(Event.SELECT,onSel);
+		}
+		
+		private function onSel(event:Event):void{
+			var str:String = file.url;
+			if(str.indexOf(Scene_data.particleRoot) == -1){
+				Alert.show("你选择的文件在非工作空间");
+				return;
+			}
+			
+			//if(AppData.projectType == 0 || AppData.projectType == 3){
+				
+			//}else{
+			if(FilterStringUtils.getErrorName(file.name)){
+				Alert.show("文件中包含大写字符空格或者其他非法字符！！！");
+				return;
+			}
+			//}
+			
+			if(!(AppParticleData.projectType == 0 || AppParticleData.projectType == 3)){
+				if(file.name.length > 20){
+					Alert.show("文件名也太长了点吧...改短点!");
+					return;
+				}
+			}
+			
+			
+			
+			str = str.substring(Scene_data.particleRoot.length);
+			wTxt.text = str;
+		}
+		public function setInfo(value:*):void{
+			wTxt.text = value;
+		}
+		
+		public function setTip(str:String):void{
+			title.toolTip = str;
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Label id="title" x="10" y="0" text="{setData.name}" color="#9f9f9f" toolTip="{setData.tip}"/>
+	<s:TextInput id="wTxt" x="120"  width="70"  y="5" contentBackgroundColor="#505050" color="#9f9f9f" borderVisible="false" height="16" paddingTop="4"
+				    text="{setData.value}"/>
+	<mx:Button x="198" y="0" label="打开" click="onOpenFile()"/>
+</mx:Canvas>

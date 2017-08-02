@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="utf-8"?>
+<frame:BasePanel xmlns:fx="http://ns.adobe.com/mxml/2009" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		  xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="onCom()"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" width="360" height="300" xmlns:frame="common.utils.frame.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.treeClasses.TreeItemRenderer;
+		import mx.controls.treeClasses.TreeListData;
+		
+		import _Pan3D.base.MeshData;
+		import _Pan3D.particle.ctrl.CombineParticle;
+		import _Pan3D.particle.ctrl.ParticleManager;
+		import _Pan3D.program.shaders.Md5MatrialShader;
+		import _Pan3D.role.MeshDataManager;
+		import _Pan3D.texture.TextureManager;
+		import _Pan3D.utils.MaterialManager;
+		import _Pan3D.vo.texture.TextureVo;
+		
+		import _me.Scene_data;
+		
+		import materials.MaterialTree;
+		
+		import renderLevel.Display3DMovieLocal;
+		
+		import utils.FileConfigUtils;
+		import utils.FilterStringUtils;
+		import utils.PackageEquipUtils;
+		import utils.combine.MeshCombineUtils;
+		
+		import view.component.MeshTreeItemRenderer;
+		import view.controlCenter.NamePanel;
+		import view.exp.ExpMeshPanle;
+		import view.meshSort.MeshImportSort;
+		
+		private static var _instance:MeshPanel;
+		
+		public var baseX:int = 40;
+		public var baseY:int = 50;
+		
+		[Bindable]
+		private var dataAry:ArrayCollection = new ArrayCollection;
+		private var info:Object;
+		private var isFirst:Boolean = true;
+		private var expMeshPanle:ExpMeshPanle = new ExpMeshPanle;
+		private var meshImportUtils:MeshImportSort;
+		public static function getInstance():MeshPanel{
+			if(!_instance){
+				_instance = new MeshPanel;
+			}
+			return _instance;
+		}
+		private function onCom():void{
+			//draw();
+			inits();
+		}
+//		private function draw():void{
+//			ui.graphics.clear();
+//			ui.graphics.lineStyle(1,0x999999);
+//			ui.graphics.moveTo(137,0);
+//			ui.graphics.lineTo(137,this.height);
+//			
+//			var num:int = this.height/20;
+//			for(var i:int;i<num;i++){
+//				ui.graphics.moveTo(0,20*i+20);
+//				if(num < dataAry.length){
+//					ui.graphics.lineTo(258,20*i+20);
+//				}else{
+//					ui.graphics.lineTo(274,20*i+20);
+//				}
+//				
+//			}
+//			
+//			
+//		}
+		
+		
+		private var lastFileOpenUrl:String;
+		public var lastFileImgUrl:String;
+		public var lastParticleUrl:String;
+		public function addMeshFile():void{
+			info = new Object;
+			if(!lastFileOpenUrl){
+				lastFileOpenUrl = FileConfigUtils.readConfig().meshUrl;
+			}
+			var file:File = new File(lastFileOpenUrl);
+			file.browseForOpen("打开mesh文件",[new FileFilter("md5mesh","*.md5mesh")]);
+			file.addEventListener(Event.SELECT,onSel);
+		}
+		private function onSel(event:Event):void{
+			var file:File = event.target as File;
+			if(FilterStringUtils.getErrorName(file.name)){
+				Alert.show("该文件的文件名存在 大写字母/空格/中文或者其他特殊字符");
+				return;
+			}
+			info.nativePath = file.nativePath;
+			if(file.url.indexOf(Scene_data.md5Root) == -1){
+				Alert.show("非工作空间");
+				return;
+			}
+			info.url = file.url.substring(Scene_data.md5Root.length);
+			info.fileName = String(file.name).split(".")[0];
+			addMesh(Scene_data.md5Root + info.url,file.name);
+			
+			lastFileOpenUrl = file.parent.url;
+			FileConfigUtils.writeConfig("meshUrl",lastFileOpenUrl);
+		}
+		public function addMesh(url:String,name:String):void{
+			var obj:Object = {"name":name,"url":url};
+			MeshDataManager.getInstance().addMesh(url,onMeshLoad2,obj);
+		}
+		
+		private function onMeshLoad2(meshData:MeshData,obj:Object):void{
+			if(!meshImportUtils){
+				meshImportUtils = new MeshImportSort;
+			}
+			meshImportUtils.processMesh(meshData);
+			var boneNum:int = meshData.boneNewIDAry.length;
+			info.boneNum = boneNum;
+			info.data = meshData;
+			if(boneNum > 54){
+				Alert.show("对应骨骼数：" + boneNum + "  超过27个 非标准mesh");
+				//boneNumTxt.htmlText = "<font color='#ff0000'>对应骨骼数：" + boneNum + "  超过27个 非标准mesh</font>";
+				return;
+			}
+			//dataAry.addItem(info);
+			info.check = 1;
+			Object(currentItem.listData).item.children.addItem(info)
+			AppDataBone.role.addMeshLocal(info.fileName,meshData);
+		}
+		
+//		private function delMesh():void{
+//			var obj:Object = list.selectedItem;
+//			if(!obj){
+//				return;
+//			}
+//			dataAry.removeItemAt(dataAry.getItemIndex(obj));
+//			AppData.role.removeMeshLocal(obj.fileName);
+//		}
+		
+		public function showUI(container:DisplayObjectContainer):void{
+			if(isFirst){
+//				this.x = (container.width-this.width)/2;
+//				this.y = (container.height-this.height)/2;
+				
+				var str:String = FileConfigUtils.readConfig().meshPanlePos;
+				if(!str){
+					this.x = baseX;
+					this.y = baseY;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+		}
+		private function onResizeDown():void{
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			stage.addEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+		}
+		private function onMouseMove(event:MouseEvent):void{
+			this.height = stage.mouseY - this.y;
+			if(this.height < 120){
+				this.height = 120;
+			}
+			//draw();
+		}
+		private function onMouseUp(event:MouseEvent):void{
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			stage.removeEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+			//draw();
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+		public function getAllInfo():Object{
+			var ary:ArrayCollection = new ArrayCollection;
+			for(var i:int;i<treeAry.length;i++){
+				ary.addItem(copyData(treeAry[i]));
+			}
+			return ary;
+		}
+		private function copyData(source:Object):Object{
+			var obj:Object = new Object;
+			for(var key:String in source){
+				if(key != "data" && key != "texture"){
+					if(source[key] is ArrayCollection){
+						obj[key] = copyAryCollection(source[key]);
+					}else if(source[key] is Array){
+						obj[key] = copyAry(source[key]);
+					}else if(source[key] is CombineParticle){
+						//obj[key] = CombineParticle(source[key]).toObject();
+					}else if(source[key] is Display3DMovieLocal){
+						
+					}else{
+						obj[key] = source[key];
+					}
+				}
+				
+			}
+			return obj;
+		}
+		private function copyAryCollection(soure:ArrayCollection):ArrayCollection{
+			var resultAry:ArrayCollection = new ArrayCollection;
+			for(var i:int;i<soure.length;i++){
+				resultAry.addItem(copyData(soure[i]));
+			}
+			return resultAry;
+		}
+		private function copyAry(soure:Array):Array{
+			var resultAry:Array = new Array;
+			for(var i:int;i<soure.length;i++){
+				resultAry.push(copyData(soure[i]));
+			}
+			return resultAry;
+		}
+		
+		public function setAllInfo(ary:ArrayCollection):void{
+			treeAry = ary;
+			for(var i:int;i<ary.length;i++){
+				for(var j:int=0;j<ary[i].children.length;j++){
+					var obj:Object = ary[i].children[j];
+					//addFileTexture(obj);
+					addFileMesh(obj);
+				}
+			}
+		}
+		
+		public function getMeshData():MeshData{
+			for(var i:int;i<treeAry.length;i++){
+				for(var j:int=0;j<treeAry[i].children.length;j++){
+					var obj:Object = treeAry[i].children[j];
+					
+					return obj.data;
+				}
+			}
+			
+			return null;
+		}
+		
+		public function clear():void{
+			treeAry = new ArrayCollection;
+		}
+		
+		public function addAllParticle():void{
+			var ary:ArrayCollection = treeAry;
+			for(var i:int;i<ary.length;i++){
+				for(var j:int=0;j<ary[i].children.length;j++){
+					var obj:Array = ary[i].children[j].particleList;
+					if(obj){
+						for(var h:int=0;h<obj.length;h++){
+							obj[h].visible = ary[i].children[j].check;
+							obj[h].bindTarget = AppDataBone.role;
+							if(h == 0 && obj[h].particleUrl){
+								ParticleManager.getInstance().addParticleByUrl(obj[h].particleUrl,obj[h]);
+							}
+							
+							if(obj[h].isList){
+								var arr:Array = obj[h].nextList;
+								
+								for(var k:int=0;k<arr.length;k++){
+									arr[k].bindTarget = AppDataBone.role;
+								}
+								
+							}
+							
+						}
+					}
+					
+					obj = ary[i].children[j].particleList2;
+					if(obj){
+						for(h=0;h<obj.length;h++){
+							obj[h].visible = ary[i].children[j].check;
+							obj[h].bindTarget = AppDataBone.role;
+							if(h == 0 && obj[h].particleUrl){
+								ParticleManager.getInstance().addParticleByUrl(obj[h].particleUrl,obj[h]);
+							}
+							
+							if(obj[h].isList){
+								arr = obj[h].nextList;
+								
+								for(k=0;k<arr.length;k++){
+									arr[k].bindTarget = AppDataBone.role;
+								}
+								
+							}
+							
+						}
+					}
+
+				}
+			}
+			//addying();
+		}
+		
+		public function addFileMesh(obj:Object):void{
+			MeshDataManager.getInstance().addMesh(Scene_data.md5Root + obj.url,onMeshFileLoad,obj);
+		}
+		
+		private function onMeshFileLoad(meshData:MeshData,obj:Object):void{
+			if(!meshImportUtils){
+				meshImportUtils = new MeshImportSort;
+			}
+			meshImportUtils.processMesh(meshData);
+			obj.data = meshData;
+			obj.data.visible = obj.check;
+			dataAry.addItem(obj);
+			//AppDataBone.role.addMeshLocal(obj.fileName,meshData);
+			
+			//TextureManager.getInstance().addTexture(Scene_data.md5Root + obj.textureLightUrl,onLightTextureLoad,obj);
+			MaterialManager.getInstance().getMaterial(Scene_data.fileRoot + obj.textureUrl,addMaterial,obj,true,Md5MatrialShader.MD5_MATRIAL_SHADER,Md5MatrialShader);
+			
+			if(obj.particleList){
+				AppDataBone.role.addMeshParticle(obj.fileName,obj.particleList);
+			}
+		}
+		
+		private function addMaterial($mt:MaterialTree,info:Object):void{
+			info.data.material = $mt;
+			var ary:Array = info.materialInfoArr
+			for(var i:int = ary.length-1;i>=0;i--){
+				if(!$mt.hasDynamicParam(ary[i].name)){
+					ary.splice(i,1);
+				}
+			}
+			MeshData(info.data).setParamData(info.materialInfoArr);
+			AppDataBone.role.addMeshData(info.fileName,info.data);
+		}
+		
+		private function onLightTextureLoad(textureVo:TextureVo,obj:Object):void{
+			AppDataBone.role.addTextureLightLocal(obj.textureLightName,textureVo.texture);
+			AppDataBone.role.addMeshLightLocal(obj.textureLightName,obj.data);
+		}
+		
+		private function addFileTexture(obj:Object):void{
+			TextureManager.getInstance().addTexture(Scene_data.md5Root + obj.textureUrl,onTextureLoad,obj);
+		}
+		private function onTextureLoad(textureVo:TextureVo,obj:Object):void{
+			obj.texture = textureVo.texture;
+			AppDataBone.role.addTextureLocal(obj.fileName,textureVo.texture);
+			addFileMesh(obj);
+		}
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("meshPanlePos",this.x + "|" + this.y);
+		}
+		
+		[Bindable]
+		public var treeAry:ArrayCollection;
+		private function inits():void{
+			treeAry = new ArrayCollection;
+			var obj:Object = new Object;
+			obj.fileName = "默认";
+			obj.check = -1;
+			obj.children = new ArrayCollection();
+			treeAry.addItem(obj);
+		
+			tree.setStyle("contentBackgroundColor",0x404040);
+		}
+		
+		private var currentItem:TreeItemRenderer;
+		protected function tree_rightClickHandler(event:MouseEvent):void
+		{
+			currentItem = (DisplayObject(event.target).parent) as TreeItemRenderer
+			var _menuFile:NativeMenu = new NativeMenu();  
+			var addType:NativeMenuItem = new NativeMenuItem("创建分类");  
+			addType.addEventListener(Event.SELECT,onMenuAddTpye);
+			var addItem:NativeMenuItem = new NativeMenuItem("创建Mesh");  
+			addItem.addEventListener(Event.SELECT,onMenuAddItem);
+			var line:NativeMenuItem = new NativeMenuItem("line",true)
+				
+			var delItem:NativeMenuItem = new NativeMenuItem("删除");  
+			delItem.addEventListener(Event.SELECT,onMenuDelItem);
+			//del.addEventListener(Event.SELECT,onMenuDelKey);
+			var rename:NativeMenuItem = new NativeMenuItem("重命名");  
+			rename.addEventListener(Event.SELECT,onRenameKey);
+			
+			var expItem:NativeMenuItem = new NativeMenuItem("导出装备");
+			expItem.addEventListener(Event.SELECT,onExpItem);
+			
+			var combineItem:NativeMenuItem = new NativeMenuItem("合并装备");
+			combineItem.addEventListener(Event.SELECT,onCombieItem);
+			
+			if(currentItem){
+				if(Object(currentItem.listData).hasChildren){
+					addItem.enabled = true;
+					rename.enabled = true;
+					expItem.enabled = false;
+					combineItem.enabled = false;
+				}else{
+					addItem.enabled = false;
+					rename.enabled = false;
+				}
+			}else{
+				addItem.enabled = false;
+				delItem.enabled = false;
+				expItem.enabled = false;
+				combineItem.enabled = false;
+			}
+			
+			_menuFile.items = [addType,line,addItem,rename,expItem,combineItem,delItem];  
+			_menuFile.display(stage,stage.mouseX,stage.mouseY);
+		}
+		private function onExpItem(event:Event):void{
+			var target:Object = Object(currentItem.listData).item;
+			new PackageEquipUtils().packageMesh(target);
+			return;
+			var ary:Array = (tree.selectedItems)
+			for (var i:int=0;i<ary.length;i++){
+				getItemIndex(ary[i]);
+			}
+			ary.sortOn("index");
+			
+			expToDb(ary);
+			
+				
+			return;
+			
+		}
+		
+		public function expNewMesh():void{
+			
+		}
+		
+		private function onCombieItem(event:Event):void{
+			var ary:Array = (tree.selectedItems)
+			var meshAry:Vector.<MeshData> = new Vector.<MeshData>;
+			for (var i:int=0;i<ary.length;i++){
+				getItemIndex(ary[i]);
+			}
+			ary.sortOn("index");
+			for (i=0;i<ary.length;i++){
+				meshAry.push(ary[i].data);
+			}
+			new MeshCombineUtils().combineMesh(meshAry);
+		}
+		
+		private function getItemIndex(obj:Object):int{
+			for(var i:int;i<treeAry.length;i++){
+				var ary2:ArrayCollection = treeAry[i].children;
+				for(var j:int=0;j<ary2.length;j++){
+					if(ary2[j] == obj){
+						obj.index = j;
+					}
+				}
+			}
+			return -1;
+		}
+		
+		private function expToDb(obj:Array):void{
+			expMeshPanle.show(this.parent,obj);
+		}
+		
+		private function onMenuAddTpye(event:Event):void{
+			NamePanel.getInstance().show(this.parent,addType,"添加新的分类");
+		}
+		private function onRenameKey(event:Event):void{
+			NamePanel.getInstance().show(this.parent,renameType,"重命名");
+		}
+		private function onMenuDelItem(event:Event):void{
+			var target:Object = Object(currentItem.listData).item;
+			for(var i:int;i<treeAry.length;i++){
+				var rootObj:Object = treeAry[i];
+				if(rootObj == target){
+					treeAry.removeItemAt(i);
+					for(var h:int;h<rootObj.children.length;h++){
+						AppDataBone.role.removeMeshLocal(rootObj.children[h].fileName);
+						removeParticle(rootObj.children[h].particleList);
+					}
+					return;
+				}
+				for(var j:int=0;j<rootObj.children.length;j++){
+					if(target == rootObj.children[j]){
+						AppDataBone.role.removeMeshLocal(target.fileName);
+						rootObj.children.removeItemAt(j);
+						removeParticle(target.particleList);
+						return;
+					}
+				}
+			}
+		}
+		public function removeParticle(ary:Array):void{
+			if(!ary){
+				return;
+			}
+			for(var i:int;i<ary.length;i++){
+				ParticleManager.getInstance().removeParticle(ary[i].particle);
+			}
+		}
+		public function removeMesh():void{
+			
+		}
+		private function onMenuAddItem(event:Event):void{
+			//NamePanel.getInstance().show(this.parent,addItem,"添加新的组合动作");
+			addMeshFile();
+		}
+		
+		private function addType(str:String):void{
+			var obj:Object = new Object;
+			obj.fileName = str;
+			obj.check = -1;
+			obj.children = new ArrayCollection();
+			treeAry.addItemAt(obj,0);
+		}
+		private function renameType(str:String):void{
+			Object(currentItem.listData).item.fileName = str;
+			tree.dataProvider = tree.dataProvider;
+		}
+		private function addItem(str:String):void{
+			//Object(currentItem.listData).item.children.addItem({name:str,check:0})
+			addMeshFile();
+		}
+		
+		private function addying():void{
+			var obj:Object = new Object;
+			obj.visible = true;
+			AppDataBone.particle = obj;
+			ParticleManager.getInstance().addParticleByUrl("ying/y.lyf",obj);
+		}
+		
+		private function getAllFaceNum():void{
+			var meshAry:ArrayCollection = treeAry;
+			var meshDataAry:Array = new Array;
+			for(var i:int=0;i<meshAry.length;i++){
+				for(var j:int=0;j<meshAry[i].children.length;j++){
+					meshDataAry.push(meshAry[i].children[j]);
+				}
+			}
+			
+			var face:int;
+			for(i=0;i<meshDataAry.length;i++){
+				if(meshDataAry[i].data&&meshDataAry[i].data.visible){
+					face += meshDataAry[i].data.faceNum;
+				}
+			}
+//			trace("faceNum" + face)
+			faceNumTxt.text = "面数: " + face;
+		}
+		
+	]]>
+</fx:Script>
+	<!--<mx:Panel width="100%" height="100%"/> -->
+	<mx:Tree id="tree" left="0" right="0" top="0" bottom="40" dataProvider="{treeAry}" dragEnabled="true" click="getAllFaceNum()" dropEnabled="true" allowMultipleSelection="true"
+			 defaultLeafIcon="{null}" itemRenderer="{new ClassFactory(MeshTreeItemRenderer)}" rightClick="tree_rightClickHandler(event)" borderStyle="none"
+			 labelField="fileName">
+	</mx:Tree>
+	<!--<mx:List id="list" x="10" top="39" bottom="45" width="274" dataProvider="{dataAry}" visible="false">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas height="16">
+					<fx:Script>
+						<![CDATA[
+							import mx.controls.Alert;
+							
+							import _Pan3D.texture.TextureManager;
+							import _Pan3D.vo.texture.TextureVo;
+							
+							import _me.Scene_data;
+							
+							import utils.FileConfigUtils;
+							import utils.FilterStringUtils;
+							
+							
+							public function addImg():void{
+								var fileurl:String = outerDocument.lastFileImgUrl;
+								if(!fileurl){
+									fileurl= FileConfigUtils.readConfig().meshImgUrl;
+								}
+								var file:File = new File(fileurl);
+								file.browseForOpen("打开贴图文件",[new FileFilter("img","*.jpg;*png")]);
+								file.addEventListener(Event.SELECT,onSel)
+							}
+							private function onSel(event:Event):void{
+								
+								if(FilterStringUtils.getErrorName(event.target.name)){
+									Alert.show("该文件的文件名存在 大写字母/空格/中文或者其他特殊字符");
+									return;
+								}
+								
+								var url:String = event.target.url;
+								outerDocument.lastFileImgUrl = url;
+								FileConfigUtils.writeConfig("meshImgUrl",File(event.target).parent.url);
+								
+								if(url.indexOf(Scene_data.md5Root) == -1){
+									Alert.show("非工作空间");
+									return;
+								}
+								url = url.substring(Scene_data.md5Root.length);
+								
+								data.textureUrl = url;
+								data.texturePath = File(event.target).nativePath;
+								data.textureName = File(event.target).name;
+								img.text = data.textureName;
+								TextureManager.getInstance().addTexture(Scene_data.md5Root + url,addTexture,data);
+							}
+							private function addTexture(textureVo:TextureVo,info:Object):void{
+								data.texture = textureVo.texture;
+								AppData.role.addTextureLocal(data.fileName,textureVo.texture);
+								AppData.role.addMeshLocal(data.fileName,data.data);
+							}
+						]]>
+					</fx:Script>
+					<mx:Label text="{data.fileName}" y="-2"/>
+					
+					<mx:Label id="img" text="{data.textureName?data.textureName:'添加图片'}" x="140" y="-2" click="addImg()"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>-->
+	<!--<mx:Button x="10" bottom="16" label="添加" click="addMeshFile()"/>-->
+	<!--<mx:Button x="88" bottom="16" label="删除" click="delMesh()"/>-->
+	<!--<mx:Button x="166" bottom="16" label="刷新"/>-->
+	<!--<mx:Label x="6" y="5" width="253" height="26" mouseDown="startDrag()" mouseUp="mouseUpDrag()" click="this.parent.setChildIndex(this,this.parent.numChildren-1)"
+			  text="皮肤管理"/>-->
+	<!--<mx:Button right="0" bottom="0" width="8" height="8" mouseDown="onResizeDown()"/>-->
+	<!--<mx:Button x="311" y="6" width="28" label="X" click="close()"/>-->
+	<!--<mx:UIComponent id="ui" x="10" y="39" visible="false" />-->
+	<mx:Label id="faceNumTxt" x="10" bottom="10" width="148" color="#9c9c9c"/>
+</frame:BasePanel>

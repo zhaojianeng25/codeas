@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="0xffffff" creationComplete="init()"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="300">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		
+		import _Pan3D.particle.Display3DParticle;
+		[Bindable]
+		private var tfAry:ArrayCollection = new ArrayCollection([false,true]);
+		[Bindable]
+		private var alphaAry:ArrayCollection = new ArrayCollection([{id:0,label:"Alpha"},{id:1,label:"加法"},{id:2,label:"色彩增殖"},{id:3,label:"滤色"},{id:4,label:"亮度"}]);
+		
+		//public static var instance:ParticleAttributePanle;
+		private function init():void{
+			drawBg();
+			//instance = this;
+		}
+		/**
+		 * 绘制背景
+		 * */
+		private function drawBg():void{
+			var num:int = 21;
+			var numHeight:int = 25;
+			for(var i:int;i<num;i+=2){
+				ui.graphics.lineStyle(1,0xb7babc);
+				if(!(i%2)){
+					ui.graphics.beginFill(0xf7f7f7,1);
+				}
+				ui.graphics.drawRect(10,i*numHeight,280,numHeight);
+				ui.graphics.endFill();
+			}
+			/* 
+			for(i=5;i<num;i++){
+				trace(30 + 25*i)
+			} 
+			*/
+			var maxY:int = 25 * num;
+			ui.graphics.moveTo(10,0);
+			ui.graphics.lineTo(10,maxY);
+			ui.graphics.moveTo(150,0);
+			ui.graphics.lineTo(150,maxY);
+			ui.graphics.moveTo(290,0);
+			ui.graphics.lineTo(290,maxY);
+		}
+		
+		private function apply():void{
+			
+//			AppData.display3dParticle.width = Number(wTxt.text)*100;
+//			AppData.display3dParticle.height = Number(hTxt.text)*100;
+//			
+//			AppData.display3dParticle.originWidthScale = Number(owTxt.text);
+//			AppData.display3dParticle.originHeightScale = Number(ohTxt.text);
+//			
+//			AppData.display3dParticle.widthFixed = wfix.selectedItem;
+//			AppData.display3dParticle.heightFixed = hfix.selectedItem;
+//			
+//			AppData.display3dParticle.setVertexData();
+//			
+//			AppData.display3dParticle.exchageUV(isUV.selectedItem,isU.selectedItem,isV.selectedItem);
+			
+		}
+		
+		
+		private function setTexture():void{
+			var file:File = new File();
+			file.addEventListener(Event.SELECT,onSel);
+			file.browseForOpen("打开贴图");
+		}
+		private function onSel(event:Event):void{
+			var file:File = event.target as File;
+			AppParticleData.display3dParticle.textureUrl = file.url;
+			texturlTxt.text = file.url;
+		}
+		
+		private function changeAlphaMode():void{
+//			AppData.display3dParticle.alphaMode = alphacb.selectedItem.id;
+		}
+		
+		public function setData(value:Display3DParticle):void{
+//			wTxt.text = String(value.width/100);
+//			hTxt.text = String(value.height/100);
+//			
+//			owTxt.text = String(value.originWidthScale);
+//			ohTxt.text = String(value.originHeightScale);
+//			
+//			wfix.selectedItem = value.widthFixed;
+//			hfix.selectedItem = value.heightFixed;
+//			
+//			alphacb.selectedIndex = value.alphaMode;
+//			
+//			isUV.selectedItem = value.isUV;
+//			isU.selectedItem = value.isU;
+//			isV.selectedItem = value.isV;
+//			
+//			texturlTxt.text = value.textureUrl;
+		}
+		
+		public function getPanleData():void{
+			
+		}
+		
+	]]>
+</fx:Script>
+	<mx:UIComponent id="ui" y="30"/>
+	
+	<mx:Label x="10" y="30" text="宽度"/>
+	<mx:TextInput id="wTxt" x="150" y="30" width="140" borderVisible="false"
+				  contentBackgroundAlpha="0.0" text="1"/>
+	
+	<mx:Label x="10" y="55" text="高度"/>
+	<mx:TextInput id="hTxt" x="150" y="55" width="140" borderVisible="false"
+				  contentBackgroundAlpha="0.0" text="1"/>
+	
+	<mx:Label x="10" y="80" text="紧贴地面"/>
+	<mx:ComboBox x="150" y="82" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Label x="10" y="105" text="使用地面法线"/>
+	<mx:ComboBox x="150" y="107" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Label x="10" y="130" text="宽度比例不变"/>
+	<mx:ComboBox id="wfix" x="150" y="132" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Label x="10" y="155" text="高度比例不变"/>
+	<mx:ComboBox id="hfix" x="150" y="157" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Label x="10" y="180" text="原点宽度比例"/>
+	<mx:TextInput id="owTxt" x="150" y="180" width="140" borderVisible="false"
+				  contentBackgroundAlpha="0.0" text="0.5"/>
+	
+	<mx:Label x="10" y="205" text="原点高度比例"/>
+	<mx:TextInput id="ohTxt" x="150" y="205" width="140" borderVisible="false"
+				  contentBackgroundAlpha="0.0" text="0.5"/>
+	
+	<mx:Label x="10" y="230" text="距视点偏移"/>
+	<mx:TextInput x="150" y="230" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="255" text="Alpha模式"/>
+	<mx:ComboBox id="alphacb" x="150" y="257" width="140" dataProvider="{alphaAry}" labelField="label" close="changeAlphaMode()"/>
+	
+	<mx:Label x="10" y="280" text="贴图路径"/>
+	<mx:TextInput id="texturlTxt" x="150" y="280" width="91" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	<mx:Button x="249" y="282" width="41" label="..." click="setTexture()"/>
+	
+	<mx:Label x="10" y="305" text="U坐标平移速度"/>
+	<mx:TextInput x="150" y="305" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="330" text="V坐标平移速度"/>
+	<mx:TextInput x="150" y="332" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="355" text="动画行数"/>
+	<mx:TextInput x="150" y="355" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="380" text="动画列数"/>
+	<mx:TextInput x="150" y="380" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="405" text="动画间隔时间"/>
+	<mx:TextInput x="150" y="405" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="430" text="显示优先级"/>
+	<mx:TextInput x="150" y="430" width="140" borderVisible="false" contentBackgroundAlpha="0.0"/>
+	
+	<mx:Label x="10" y="455" text="UV坐标互换"/>
+	<mx:ComboBox id="isUV" x="150" y="455" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Label x="10" y="480" text="U坐标翻转"/>
+	<mx:ComboBox id="isU" x="150" y="480" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Label x="10" y="505" text="V坐标翻转"/>
+	<mx:ComboBox id="isV" x="150" y="505" width="140" dataProvider="{tfAry}"/>
+	
+	<mx:Button x="220" bottom="10" label="刷新" click="apply()"/>
+	
+</mx:Canvas>

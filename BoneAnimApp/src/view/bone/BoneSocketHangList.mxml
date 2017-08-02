@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"  creationComplete="creationCompleteHandler(event)"
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#404040"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+<fx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.events.AIREvent;
+		import mx.events.FlexEvent;
+		
+		import spark.components.Window;
+		
+		import _Pan3D.display3D.Display3DMaterialSprite;
+		import _Pan3D.particle.ctrl.CombineParticle;
+		import _Pan3D.particle.ctrl.ParticleManager;
+		
+		import _me.Scene_data;
+		
+		import materials.MaterialTree;
+		
+		import modules.hierarchy.h5.ExpToH5;
+		import modules.hierarchy.h5.ExpToH5Copy;
+		private var win:Window;
+		
+		private var _dataAry:Array;
+		
+		public function show(ary:Array):void{
+			if(list){
+				list.dataProvider = ary;
+			}
+			_dataAry = ary;
+			
+			
+			if(win && !win.closed){
+				return;
+			}
+			
+			
+			win = new Window();
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.height=500;
+			win.width=300;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = true;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom);
+			win.title = "历史列表";
+			
+			
+			win.open(true);
+			
+			
+		}
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		
+		
+		protected function creationCompleteHandler(event:FlexEvent):void
+		{
+			list.dataProvider = _dataAry;
+		}
+		
+		public function changeItem(itemObj:Object):void{
+			for(var i:int;i<_dataAry.length;i++){
+				if(_dataAry[i] != itemObj){
+					if(_dataAry[i].visible){
+						_dataAry[i].visible = false;
+						hideObj(_dataAry[i]);
+					}
+				}
+			}
+			list.dataProvider = _dataAry;
+		}
+		
+		public function hideObj(obj:Object):void{
+			if(obj.type == 1){
+				AppDataBone.sceneLevel.roleLevel.removeChile(obj.data);
+			}else if(obj.type == 2){
+				ParticleManager.getInstance().removeParticle(obj.data);
+			}else if(obj.type == 3){
+				var itemAry:Array = obj.data;
+				for(var j:int=0;j<itemAry.length;j++){
+					if(itemAry[j] is CombineParticle){
+						ParticleManager.getInstance().removeParticle(itemAry[j]);
+					}else if(itemAry[j] is Display3DMaterialSprite){
+						AppDataBone.sceneLevel.roleLevel.removeChile(itemAry[j]);
+					}
+				}
+			}else if(obj.type == 4){
+				AppDataBone.sceneLevel.roleLevel.removeChile(obj.data);
+			}
+		}
+		
+		public function showObj(obj:Object):void{
+			if(obj.type == 1){
+				AppDataBone.sceneLevel.roleLevel.addChild(obj.data);
+			}else if(obj.type == 2){
+				ParticleManager.getInstance().addParticle(obj.data);
+			}else if(obj.type == 3){
+				var itemAry:Array = obj.data;
+				for(var j:int=0;j<itemAry.length;j++){
+					if(itemAry[j] is CombineParticle){
+						ParticleManager.getInstance().addParticle(itemAry[j]);
+					}else if(itemAry[j] is Display3DMaterialSprite){
+						AppDataBone.sceneLevel.roleLevel.addChild(itemAry[j]);
+					}
+				}
+			}else if(obj.type == 4){
+				AppDataBone.sceneLevel.roleLevel.addChild(obj.data);
+			}
+		}
+		
+		
+		
+		private function onDel():void
+		{
+			var index:int = list.selectedIndex;
+			if(index == -1){
+				return;
+			}
+			
+			var item:Object = list.selectedItem;
+			if(item.visible){
+				hideObj(item);
+			}
+			
+			_dataAry.splice(index,1);
+			
+			list.dataProvider = _dataAry;
+			
+			
+		}
+		
+		private var selectItemObj:Object;
+		private function exp():void{
+			var index:int = list.selectedIndex;
+			if(index == -1){
+				return;
+			}
+			
+			selectItemObj = list.selectedItem;
+			
+			if(selectItemObj.type == 2){
+				//var url:String = ExpToH5.getInstance().expParticleToH5(p,this._targetUrl);
+				expParticle();
+			}else if(selectItemObj.type ==1){
+				expPerfab();
+			}else if(selectItemObj.type == 3){
+				expGroup();
+			}
+			
+		}
+		
+		private function expParticle():void{
+			var file:File = new File();
+			file.browseForDirectory("选择目录");
+			file.addEventListener(Event.SELECT,onSelParticle);
+		}
+		
+		protected function onSelParticle(event:Event):void
+		{
+			var file:File = event.target as File;
+			
+			var url:String = ExpToH5.getInstance().expParticleToH5(selectItemObj.data,file.url +　"/");
+			
+			Alert.show(url,"已导出");
+			
+		}
+		
+		private function expPerfab():void{
+			var file:File = new File();
+			file.browseForSave("保存");
+			file.addEventListener(Event.SELECT,onSelPerfab);
+		}
+		
+		
+		protected function onSelPerfab(event:Event):void
+		{
+			var file:File = event.target as File;
+			var rootUrl:String = file.parent.url + "/";
+			var objUrl:String = selectItemObj.data.url;
+			var material:MaterialTree = selectItemObj.data.material;
+			
+			var expObjUrl:String = ExpToH5.getInstance().expObjsToH5(objUrl,rootUrl);
+			var expMaterialUrl:String = ExpToH5Copy.getInstance().expMaterialTreeToH5(material,rootUrl);
+			
+			var byte:ByteArray = new ByteArray;
+			byte.writeInt(1);//长度为1
+			byte.writeInt(1);//类型为0
+			byte.writeUTF(expObjUrl);
+			byte.writeUTF(expMaterialUrl);
+			byte.writeBoolean(false);//isInGroup
+			
+			if(!(file.extension == "txt")){
+				file = new File(file.nativePath + ".txt");
+			}
+			
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeBytes(byte);
+			fs.close();
+			
+			Alert.show("导出成功");
+		}
+		
+		private function expGroup():void{
+			var file:File = new File();
+			file.browseForSave("保存");
+			file.addEventListener(Event.SELECT,onSelGrounp);
+		}
+		
+		protected function onSelGrounp(event:Event):void
+		{
+			var file:File = event.target as File;
+			var rootUrl:String = file.parent.url + "/";
+			
+			var ary:Array = selectItemObj.data;
+			
+			var byte:ByteArray = new ByteArray;
+			byte.writeInt(ary.length);
+			
+			for(var i:int;i<ary.length;i++){
+				if(ary[i] is CombineParticle){
+					var pt:CombineParticle = ary[i];
+					var ptUrl:String = ExpToH5.getInstance().expParticleToH5(pt,rootUrl);
+					byte.writeInt(0);
+					byte.writeUTF(ptUrl);
+					byte.writeBoolean(true);
+					byte.writeFloat(pt.groupPos.x);
+					byte.writeFloat(pt.groupPos.y);
+					byte.writeFloat(pt.groupPos.z);
+					byte.writeFloat(pt.groupRotation.x);
+					byte.writeFloat(pt.groupRotation.y);
+					byte.writeFloat(pt.groupRotation.z);
+					byte.writeFloat(pt.groupScale.x);
+					byte.writeFloat(pt.groupScale.y);
+					byte.writeFloat(pt.groupScale.z);
+				}else if(ary[i] is Display3DMaterialSprite){
+					var dms:Display3DMaterialSprite = ary[i];
+					var objUrl:String = dms.url;
+					var material:MaterialTree = dms.material;
+					var expObjUrl:String = ExpToH5.getInstance().expObjsToH5(objUrl,rootUrl);
+					var expMaterialUrl:String = ExpToH5Copy.getInstance().expMaterialTreeToH5(material,rootUrl);
+					byte.writeInt(1);
+					byte.writeUTF(expObjUrl);
+					byte.writeUTF(expMaterialUrl);
+					byte.writeBoolean(true);
+					byte.writeFloat(dms.groupPos.x);
+					byte.writeFloat(dms.groupPos.y);
+					byte.writeFloat(dms.groupPos.z);
+					byte.writeFloat(dms.groupRotation.x);
+					byte.writeFloat(dms.groupRotation.y);
+					byte.writeFloat(dms.groupRotation.z);
+					byte.writeFloat(dms.groupScale.x);
+					byte.writeFloat(dms.groupScale.y);
+					byte.writeFloat(dms.groupScale.z);
+				}
+			}
+			
+			
+			if(!(file.extension == "txt")){
+				file = new File(file.nativePath + ".txt");
+			}
+			
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeBytes(byte);
+			fs.close();
+			
+			Alert.show("导出成功");
+		}
+		
+	]]>
+</fx:Script>
+	<mx:List id="list" left="5" top="5" bottom="20" right="5" borderStyle="none"
+			 doubleClickEnabled="true">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas height="20" horizontalScrollPolicy="off">
+					
+					<fx:Script>
+						<![CDATA[
+							protected function changeHandler(event:Event):void
+							{
+								data.visible = cb.selected;
+								if(cb.selected){
+									outerDocument.showObj(data);
+								}else{
+									outerDocument.hideObj(data);
+								}
+								outerDocument.changeItem(this.data);
+							}
+						]]>
+					</fx:Script>
+					
+					<mx:CheckBox id="cb" selected="{data.visible}" change="changeHandler(event)"/>
+					<mx:Label x="15" text="{decodeURI(data.url)}"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Button label="删除" bottom="5" x="10" click="onDel()"/>
+	<mx:Button label="导出" bottom="5" x="120" click="exp()"/>
+</mx:Canvas>

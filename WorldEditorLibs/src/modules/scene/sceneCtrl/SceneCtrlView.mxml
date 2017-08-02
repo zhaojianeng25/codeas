@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<frame:BasePanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:frame="common.utils.frame.*" resize="resizeHandler(event)"  
+				 creationComplete="creationCompleteHandler(event)"
+				 addedToStage="resizeHandler(event)" xmlns:btn="common.utils.ui.btn.*" xmlns:txt="common.utils.ui.txt.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import com.greensock.TweenLite;
+		import com.zcp.frame.event.ModuleEventManager;
+		
+		import mx.collections.ArrayCollection;
+		import mx.events.DragEvent;
+		import mx.events.FlexEvent;
+		import mx.managers.DragManager;
+		
+		import PanV2.PositionSpriteV2;
+		import PanV2.SelectModelMath;
+		import PanV2.xyzmove.MathUint;
+		
+		import _me.FpsView;
+		import _me.Scene_data;
+		
+		import common.msg.event.hierarchy.MEvent_Hierarchy_Add;
+		import common.utils.ui.file.FileNode;
+		import common.utils.ui.prefab.PicBut;
+		import common.utils.ui.txt.TextCtrlInput;
+		import common.vo.editmode.EditModeEnum;
+		
+		import mode3d.Model3DStaticMesh;
+		
+		import modules.brower.fileWin.BrowerManage;
+		import modules.capture.CaptureManager;
+		import modules.hierarchy.HierarchyFileNode;
+		import modules.hierarchy.HierarchyNodeType;
+		import modules.scene.SceneEditModeManager;
+		
+		import pack.PrefabStaticMesh;
+		
+		import proxy.top.model.IModel;
+		import proxy.top.render.Render;
+		
+		import render.NewKeyControl;
+		
+		import xyz.MoveScaleRotationLevel;
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+		
+		
+		private var _selectBut:PicBut;
+		private var _rotateBut:PicBut;
+		private var _moveBut:PicBut;
+		private var _scaleBut:PicBut;
+		private var _cameraBut:PicBut;
+		private var _textCtrlInput:TextCtrlInput;
+		private var _textWalkNum:TextCtrlInput
+		
+		
+		private function drawBack():void{
+			this.graphics.clear();
+			this.graphics.lineStyle(1,0x505050);
+			this.graphics.moveTo(0,30);
+			this.graphics.lineTo(this.width,30);
+
+		
+			this.graphics.beginFill(0x404040,0.0);
+			this.graphics.drawRect(0,0,this.width,this.height);
+			this.graphics.endFill();
+			
+		}
+		
+		protected function resizeHandler(event:Event=null):void
+		{
+			drawBack();
+			if(_selectBut){
+				_selectBut.x=this.width-300
+				_moveBut.x=this.width-270
+				_rotateBut.x=this.width-240
+				_scaleBut.x=this.width-210
+				_cameraBut.x=this.width-90
+				_textCtrlInput.x=this.width-60
+				_textWalkNum.x=this.width-30
+					
+				_selectBut.y=5
+				_moveBut.y=5
+				_rotateBut.y=5
+				_scaleBut.y=5
+				_cameraBut.y=5
+				_textCtrlInput.y=5
+				_textWalkNum.y=5
+					
+				_positionSprite.x=-30
+				_positionSprite.y=this.height-150
+
+			}
+		
+		}
+
+		protected function list_dragDropHandler(event:DragEvent):void
+		{
+			var $fileNode:FileNode = event.dragSource.dataForFormat(FileNode.FILE_NODE) as FileNode;
+			if(isCanInPut($fileNode)){
+	
+				if($fileNode as HierarchyFileNode){
+					var $hierarchyFileNode:HierarchyFileNode=HierarchyFileNode($fileNode)
+					if($hierarchyFileNode.type==HierarchyNodeType.Capture){
+						var $iModel:IModel=Render.getMouseHitModel(new Point(Scene_data.stage.mouseX,Scene_data.stage.mouseY))
+						if($iModel){
+							CaptureManager.getInstance().changeImodeCaptureId($iModel,$hierarchyFileNode.id)
+						}
+						return ;
+					}
+				}else{
+					var $evt:MEvent_Hierarchy_Add=new MEvent_Hierarchy_Add(MEvent_Hierarchy_Add.MEVENT_HIERARCHY_ADD)
+					$evt.fileNode=$fileNode
+					ModuleEventManager.dispatchEvent( $evt);
+				}
+			
+			}
+		
+		}
+		private function objToPreFab($obj:Object):PrefabStaticMesh
+		{
+			var prefab:PrefabStaticMesh = new PrefabStaticMesh();
+			for(var i:String in $obj) {
+				prefab[i]=$obj[i]
+			}
+			return prefab
+		}
+		protected function list_dragEnterHandler(event:DragEvent):void
+		{
+			var $fileNode:FileNode = event.dragSource.dataForFormat(FileNode.FILE_NODE) as FileNode;
+			if(isCanInPut($fileNode)){
+				var ui:UIComponent = event.target as UIComponent;
+				DragManager.acceptDragDrop(ui);
+			}
+		}
+		private function isCanInPut($fileNode:FileNode):Boolean
+		{
+			
+			if($fileNode as HierarchyFileNode){
+				var $hierarchyFileNode:HierarchyFileNode=HierarchyFileNode($fileNode)
+				if($hierarchyFileNode.type==HierarchyNodeType.Capture){
+					return true
+				}
+			}
+			if($fileNode.data is PrefabStaticMesh){
+				return true
+			}
+			if($fileNode.data is Model3DStaticMesh){
+				return true
+			}
+			if($fileNode.extension=="prefab"){
+				return true
+			}
+			if($fileNode.extension=="group"){
+				return true
+			}
+			if($fileNode.extension=="lyf"){
+				return true
+			}
+			
+			if($fileNode.extension=="zzw"){
+				return true
+			}
+			
+			
+			return false
+		}
+		private var _positionSprite:PositionSpriteV2;
+		
+		private var _postingui:UIComponent=new UIComponent
+		
+		protected function creationCompleteHandler(event:FlexEvent):void
+		{
+			var ary:ArrayCollection = new ArrayCollection([{name:"镜头",type:0},{name:"左视图",type:1},{name:"侧视图",type:2},{name:"顶视图",type:3},{name:"默认镜头",type:4}]);
+			cb.dataProvider = ary;
+			
+
+				
+			new FpsView(ui,10,30);
+			addButs();	
+			
+		
+			_positionSprite=new PositionSpriteV2()
+	
+			this.addChild(_postingui)
+			_postingui.addChild(_positionSprite)
+			
+			addEvets();
+			resizeHandler()
+			
+		}
+		protected function changeFun():void
+		{
+			if(cb.selectedIndex==3){
+				Scene_data.topViewMatrx3D=new Matrix3D();
+				Scene_data.cam3D.y=300;
+				Scene_data.cam3D.x=0;
+				Scene_data.cam3D.z=0;
+				MathUint.makeTopView();
+				Scene_data.stage.addEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel)
+	
+
+			}else{
+				Scene_data.topViewMatrx3D=null;
+				Scene_data.stage.removeEventListener(MouseEvent.MOUSE_WHEEL,onMouseWheel)
+			}
+			
+		}
+		
+		
+
+		
+
+		
+		private function addButs():void
+		{
+			
+			_selectBut=new PicBut
+			_selectBut.setBitmapdata(BrowerManage.getIcon("Select"))
+			this.addChild(_selectBut)
+			_moveBut=new PicBut
+			_moveBut.setBitmapdata(BrowerManage.getIcon("Move"))
+			this.addChild(_moveBut)
+			_rotateBut=new PicBut
+			_rotateBut.setBitmapdata(BrowerManage.getIcon("Rotate"))
+			this.addChild(_rotateBut)
+			_scaleBut=new PicBut
+			_scaleBut.setBitmapdata(BrowerManage.getIcon("Scale"))
+			this.addChild(_scaleBut)
+			_cameraBut=new PicBut
+			_cameraBut.setBitmapdata(BrowerManage.getIcon("Camera"))
+			this.addChild(_cameraBut)
+				
+			_textCtrlInput= new TextCtrlInput;
+			_textCtrlInput.text=String(Scene_data.cam3D.distance);
+			
+			_textCtrlInput.minNum=0
+			_textCtrlInput.maxNum=2000
+			_textCtrlInput.height = 18;
+			_textCtrlInput.width=50;
+			this.addChild(_textCtrlInput)
+			_textCtrlInput.changFun = onCamDisChange;
+			
+			_textWalkNum= new TextCtrlInput;
+			_textWalkNum.text=String(NewKeyControl.speedNum);
+			_textWalkNum.minNum=0
+			_textWalkNum.maxNum=2000
+			_textWalkNum.height = 18;
+			_textWalkNum.width=50;
+			
+			this.addChild(_textWalkNum)
+			_textWalkNum.changFun = onCamWalkNum;
+			
+			
+			
+		}
+		protected function onCamDisChange(value:Number):void
+		{
+			
+			Scene_data.cam3D.distance=value
+				
+				
+			if(Scene_data.selectVec){
+				var  $m:Matrix3D=new Matrix3D;
+				$m.appendRotation(-Scene_data.cam3D.rotationX, Vector3D.X_AXIS);
+				$m.appendRotation(-Scene_data.cam3D.rotationY, Vector3D.Y_AXIS);
+				$m.appendTranslation( Scene_data.selectVec.x, Scene_data.selectVec.y, Scene_data.selectVec.z)
+				var $p:Vector3D=$m.transformVector(new Vector3D(0,0,-Scene_data.cam3D.distance))
+				TweenLite.to(Scene_data.cam3D, 0.4, {x:$p.x, y:$p.y,z:$p.z}); 
+			}
+			
+		}
+		protected function onCamWalkNum(value:Number):void
+		{
+			
+			NewKeyControl.speedNum=value
+			
+		}
+		
+		private function addEvets():void
+		{
+		
+		
+			this.addEventListener(DragEvent.DRAG_ENTER,list_dragEnterHandler)
+			this.addEventListener(DragEvent.DRAG_DROP,list_dragDropHandler)
+			this.addEventListener(Event.ADDED_TO_STAGE,onAddToStage)
+				
+			_selectBut.addEventListener(MouseEvent.CLICK,_selectButClik)
+			_moveBut.addEventListener(MouseEvent.CLICK,_moveButClik)
+			_scaleBut.addEventListener(MouseEvent.CLICK,_scaleButClik)
+			_rotateBut.addEventListener(MouseEvent.CLICK,_rotateButClik)
+				
+			_cameraBut.addEventListener(MouseEvent.CLICK,_cameraButClik)
+
+			
+		}
+		
+		protected function _selectButClik(event:MouseEvent):void
+		{
+			MoveScaleRotationLevel.getInstance().statceType=3
+		}
+		
+		protected function _moveButClik(event:MouseEvent):void
+		{
+			MoveScaleRotationLevel.getInstance().statceType=0
+
+		}
+		protected function _scaleButClik(event:MouseEvent):void
+		{
+			MoveScaleRotationLevel.getInstance().statceType=1
+		}
+		protected function _rotateButClik(event:MouseEvent):void
+		{
+			MoveScaleRotationLevel.getInstance().statceType=2
+		}
+		protected function _cameraButClik(event:MouseEvent):void
+		{
+			MoveScaleRotationLevel.getInstance().statceType=3
+				
+		
+			
+		}
+		
+	
+		
+		protected function onAddToStage(event:Event):void
+		{
+			SceneEditModeManager.changeMode(EditModeEnum.EDIT_WORLD)
+			
+		}
+		
+
+		
+		protected function onMouseWheel(event:MouseEvent):void
+		{
+			MathUint.makeTopView()
+			
+		}
+		
+	]]>
+</fx:Script>
+
+	
+	<mx:ComboBox id="cb" right="100" y="5" width="70" height="20" color="0xb0b0b0" chromeColor="#575656" labelField="name" change="changeFun()"/>
+
+
+	<!--<s:TextInput right="15" width="40" y="25" height="20" textDecoration="underline"/>-->
+	<mx:UIComponent id="ui"/>
+</frame:BasePanel>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="BaseAPI.model.A3DMomObject3DUnitBase"/>
+    <classEntry path="A3dAPI.render.Render"/>
+    <classEntry path="proxy.a3d.virtualCsv.Obj3DCsvManager"/>
+    <classEntry path="proxy.a3d.virtualCsv.TextureCsvManager"/>
+    <classEntry path="proxy.top.TopProxyManager"/>
+    <classEntry path="proxy.a3d.ProxyA3d"/>
+    <classEntry path="proxy.pan3d.render.RenderPan3d"/>
+    <classEntry path="proxy.top.render.IRender"/>
+    <classEntry path="proxy.pan3d.model.ProxyPan3dModel"/>
+    <classEntry path="proxy.top.ground.IGround"/>
+    <classEntry path="proxy.pan3d.ground.ProxyPan3dGround"/>
+    <classEntry path="proxy.a3d.virtualCsv.CsvManager"/>
+    <classEntry path="proxy.top.model.ISky"/>
+    <classEntry path="proxy.pan3d.model.ProxyPan3dSky"/>
+    <classEntry path="proxy.top.model.INavMesh"/>
+    <classEntry path="proxy.pan3d.navMesh.ProxyPan3dNavMesh"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

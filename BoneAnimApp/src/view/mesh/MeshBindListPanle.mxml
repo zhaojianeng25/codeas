@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<frame:BasePanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" creationComplete="onCom(event)"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:frame="common.utils.frame.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.events.FlexEvent;
+		import mx.events.ListEvent;
+		
+		import _me.Scene_data;
+		
+		import common.utils.frame.ReflectionData;
+		
+		import view.bone.BonePanel;
+		private static var instance:MeshBindListPanle;
+		public var info:Object;
+		private var isFirst:Boolean = true;
+		[Bindable]
+		private var ary:ArrayCollection = new ArrayCollection;
+		
+		private var currentMeshData:Object;
+		public static function getInstance():MeshBindListPanle{
+			if(!instance){
+				instance = new MeshBindListPanle;
+			}
+			return instance;
+		}
+		
+		public function showData($obj:Object):void{
+			txt.text = "当前Mesh:     " + $obj.fileName;
+			currentMeshData = $obj;
+			ary = new ArrayCollection($obj.particleList);
+			propPanle.visible = false;
+		}
+		
+		private function addData():void{
+			if(!currentMeshData){
+				return;
+			}
+			var obj:Object = new Object;
+			obj.name = "none";
+			obj.url = "";
+			obj.visible = true;
+			ary.addItem(obj);
+		}
+		
+		private function delData():void{
+			var item:Object = list.selectedItem;
+			ary.removeItem(item);
+			
+			refreshParticle();
+		}
+		
+		private function initView():void{
+			var ary:Array =
+				[
+					{Type:ReflectionData.TextLabelEnabel,Label:"插孔:",GetFun:getName,SetFun:setName,Category:"属性"},
+					{Type:ReflectionData.Btn,Label:"更改插孔",SetFun:chgSocket,Category:"属性"},
+					{Type:ReflectionData.TextLabelEnabel,Label:"特效路径:",GetFun:getUrl,SetFun:setUrl,Category:"属性"},
+					{Type:ReflectionData.Btn,Label:"修改路径",SetFun:chgUrl,Category:"属性"},
+				]
+			propPanle.creat(ary);
+			propPanle.refreshView();
+			propPanle.visible = false;
+		}
+		
+		public function chgSocket():void{
+			var _menuFile:NativeMenu = new NativeMenu();  
+			
+			var ary:Array = new Array;
+			
+			var _socketList:Array = BonePanel.getInstance().getAllInfo().socket as Array;
+			
+			for(var i:int;i<_socketList.length;i++){
+				var addType:NativeMenuItem = new NativeMenuItem(_socketList[i].name);  
+				addType.addEventListener(Event.SELECT,onMenuSel);
+				addType.data = _socketList[i].name;
+				ary.push(addType);
+			}
+			
+			_menuFile.items = ary;  
+			_menuFile.display(stage,stage.mouseX,stage.mouseY);
+			
+		}
+		
+		protected function onMenuSel(event:Event):void
+		{
+			var key:String = event.target.data as String;
+			selectItem.name = key;
+			refresh();
+			
+			refreshParticle();
+		}
+		
+		private function refreshParticle():void{
+			AppDataBone.role.removeAllMeshParticle(currentMeshData.fileName);
+			AppDataBone.role.addMeshParticle(currentMeshData.fileName,ary.source);
+			
+			currentMeshData.particleList = ary.source;
+		}
+		
+		private function refresh():void{
+			propPanle.refreshView();
+			list.dataProvider = ary;
+		}
+		
+		public function chgUrl():void{
+			var file:File = new File;
+			file.browseForOpen("选择特效",[new FileFilter("lyf","*.lyf")]);
+			file.addEventListener(Event.SELECT,onSel);
+		}
+		
+		protected function onSel(event:Event):void
+		{
+			var file:File = event.target as File;
+			var url:String = file.url.replace(Scene_data.fileRoot,"");
+			selectItem.url = url;
+			
+			refresh();
+			
+			refreshParticle();
+		}
+		
+		public function setName(value:String):void{
+			
+		}
+		public function getName():String{
+			if(selectItem){
+				return selectItem.name;
+			}else{
+				return "name";
+			}
+			
+		}
+		
+		public function setUrl(value:String):void{
+			
+		}
+		public function getUrl():String{
+			if(selectItem){
+				return selectItem.url;
+			}else{
+				return "";
+			}
+		}
+		
+		protected function onCom(event:FlexEvent):void
+		{
+			initView();
+		}
+		
+		private var selectItem:Object;
+		protected function list_itemClickHandler(event:ListEvent):void
+		{
+			selectItem = list.selectedItem;
+			propPanle.visible = true;
+			propPanle.refreshView();
+		}
+		
+	]]>
+</fx:Script>
+	<mx:List id="list" left="5" top="20" bottom="230" right="5" dataProvider="{ary}" borderStyle="none" itemClick="list_itemClickHandler(event)"
+			 doubleClickEnabled="true">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas height="20" horizontalScrollPolicy="off">
+					<mx:Label width="80" text="{data.name}" height="20" color="#ff0000" fontWeight="bold" />
+					<mx:Label x="80" width="123" text="{data.url}" height="20" buttonMode="true"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Label id="txt" x="5" width="100%" height="20" fontWeight="bold"/>
+	<mx:Button x="10" bottom="200" width="50" label="添加" click="addData()"/>
+	<mx:Button x="69" bottom="200" width="50" label="删除" click="delData()"/>
+	<frame:BaseReflectionView id="propPanle" left="0" top="{this.height - 180}" bottom="0" right="0">
+		
+	</frame:BaseReflectionView>
+</frame:BasePanel>

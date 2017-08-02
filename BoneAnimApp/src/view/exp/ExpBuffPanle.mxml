@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="288" height="350">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import com.maclema.mysql.ResultSet;
+		
+		import db.DBManager;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.events.ListEvent;
+		
+		import utils.FileConfigUtils;
+		private var isFirst:Boolean = true;
+		private var _info:Object;
+		private var _defaultStr:String = "输入对此buff的描述";
+
+		private var selectObj:Object;
+		/**
+		 * 添加到显示列表
+		 * */
+		public function show(container:DisplayObjectContainer,obj:Object):void{
+			container.addChild(this);
+			
+			if(isFirst){
+				var str:String = FileConfigUtils.readConfig().particleExpPanlePos;
+				if(!str){
+					this.x = (container.width - this.width)*0.5;
+					this.y = (container.height - this.height)*0.5;
+				}else{
+					var arys:Array = str.split("|");
+					this.x = arys[0];
+					this.y = arys[1];
+				}
+			}
+			isFirst = false;
+			
+			_info = obj;
+			setData();
+		}
+		/**
+		 * 查询该粒子是否存在相关buff
+		 * 
+		 * */
+		public function setData():void{
+			var sql:String =  "select * from t_avatars_buff where source_id=" + _info.id +"";
+			DBManager.getInstance().executeQuery(sql,querySuc,error);
+		}
+		
+		private function error(value:*):void
+		{
+			trace(value)
+		}
+		/**
+		 * 将查询的结果列表显示
+		 * 
+		 * */
+		private function querySuc(rs:ResultSet):void{
+			var ary:Object = new ArrayCollection;
+			while(rs.next()){
+				var obj:Object = new Object;
+				obj.id = rs.getInt("f_id");
+				obj.desc = rs.getString("f_desc");
+				obj.version = rs.getInt("f_version");
+				ary.addItem(obj);
+			}
+			dg.dataProvider = ary;
+			expTitle.text = "正在导出:" + _info.name;
+		}
+		
+		
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("particleExpPanlePos",this.x + "|" + this.y);
+		}
+		
+		protected function descTxt_clickHandler(event:MouseEvent):void{
+			if(descTxt.text == _defaultStr){
+				descTxt.text = "";
+			}
+			
+		}
+		
+		protected function dg_itemClickHandler(event:ListEvent):void
+		{
+			descTxt.text = dg.selectedItem.desc;
+		}
+		
+		public function updateBuff():void{
+			if(!AppDataBone.isAuthorize){
+				Alert.show("你没有权限！");
+			}
+			selectObj = dg.selectedItem;
+			if(!selectObj){
+				Alert.show("请选择要更新的条目")
+				return;
+			}
+			var sql:String = "update t_avatars_buff set f_version=" + (selectObj.version+1) + ",f_desc='" + descTxt.text + "' where f_id=" + selectObj.id;
+			DBManager.getInstance().executeUpdate(sql,updateSuc,error);
+			
+		}
+		
+		public function updateSuc(value:Object):void{
+			
+			var rootUrl:String = File.desktopDirectory.url + "/buff/bid";
+			
+			if(AppDataBone.projectType == 3){
+				rootUrl = File.desktopDirectory.url + "/fs/buff/bid";
+			}
+			
+			var file:File = new File(rootUrl + selectObj.id + ".lyfb")
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeObject(_info);
+			fs.close();
+			Alert.show("更新成功\n已经保存到桌面 buff/bid" + selectObj.id + ".lyfb");
+			setData();
+		}
+		
+		public function insertBuff():void{
+			if(!AppDataBone.isAuthorize){
+				Alert.show("你没有权限！");
+			}
+			if(descTxt.text == _defaultStr){
+				Alert.show("你还没有输入对该buff的描述");
+				return;
+			}
+			var sql:String =  "insert into t_avatars_buff (source_id,source_name,f_desc) value(" + _info.id + " , '" + _info.name + "','" + descTxt.text + "');";
+			DBManager.getInstance().executeUpdate(sql,insertSuc,error);
+		}
+		private function insertSuc(obj:Object=null):void{
+			var rootUrl:String = File.desktopDirectory.url + "/buff/bid";
+			
+			if(AppDataBone.projectType == 3){
+				rootUrl = File.desktopDirectory.url + "/fs/buff/bid";
+			}
+			
+			var sqlId:int = obj.insertID;
+			
+			var file:File = new File(rootUrl + sqlId + ".lyfb")
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeObject(_info);
+			fs.close();
+			Alert.show("插入成功\n已经保存到桌面 buff/bid" + sqlId + ".lyfb");
+			setData();
+			
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:Label id="expTitle" x="13" y="44" width="265" text="正在导出：1.lyf"/>
+	<mx:TextArea id="descTxt" x="13" y="212" width="265" height="69" text="输入对此buff的描述" click="descTxt_clickHandler(event)"/>
+	<mx:Label x="13" y="68" width="265" text="查询到已经存在可能相关buff"/>
+	<mx:DataGrid id="dg" x="13" y="95" width="265" height="108" itemClick="dg_itemClickHandler(event)">
+		<mx:columns>
+			<mx:DataGridColumn dataField="id" headerText="id" width="30"/>
+			<mx:DataGridColumn dataField="desc" headerText="描述" />
+			<mx:DataGridColumn dataField="version" headerText="版本号" width="45" />
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:Button x="30" y="299" label="更新buff" click="updateBuff()"/>
+	<mx:Button x="110" y="299" label="插入buff" click="insertBuff()"/>
+	<mx:Button x="190" y="299" label="关闭" click="close()"/>
+	<mx:Label x="7" y="6" width="243" fontWeight="bold" text="Buff导出"  mouseDown="startDrag()" mouseUp="mouseUpDrag()"/>
+</mx:Canvas> 

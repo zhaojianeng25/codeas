@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" implements="view.IAnimItem" 
+		   xmlns:s="library://ns.adobe.com/flex/spark"  creationComplete="init()"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="350" height="30">
+	<fx:Declarations>
+		<!-- @author liuyanfei QQ:421537900
+		 	 文本条目
+		-->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		[Bindable]
+		public var setData:Object;
+		/* public function setData(value:Object):void{
+			txt.text = value.text;
+			valueTxt.text = value.value;
+		} */
+		private function init():void{
+			this.graphics.lineStyle(1,0xcccccc);
+			this.graphics.moveTo(0,28);
+			this.graphics.lineTo(350,28);
+			
+			this.graphics.moveTo(100,0);
+			this.graphics.lineTo(100,30);
+		}
+		public function get itemData():Object{
+			var obj:Object = new Object;
+			obj.value = valueTxt.text;
+			obj.type = setData.type;
+			return obj;
+		}
+	]]>
+</fx:Script>	
+	<mx:Label id="txt" x="5" y="4" width="151" height="20" text="{setData.text}"/>
+	<mx:TextInput id="valueTxt" x="106" y="3" width="166" text="{setData.value}" />
+</mx:Canvas>

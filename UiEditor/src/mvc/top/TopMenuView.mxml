@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Menu xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zcp.frame.event.ModuleEventManager;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexNativeMenuEvent;
+			
+			import spark.collections.Sort;
+			import spark.collections.SortField;
+			
+			import _me.Scene_data;
+			
+			import common.GameUIInstance;
+			
+			import modules.scene.sceneSave.FilePathManager;
+			
+			import mvc.centen.discenten.DisCentenEvent;
+			import mvc.left.panelleft.PanelModel;
+			import mvc.left.picleft.PicLeftEvent;
+			import mvc.lua.LuaModel;
+			import mvc.project.ProjectEvent;
+			import mvc.scene.UiSceneEvent;
+			
+			import vo.FileInfoType;
+			import vo.H5UIFileNode;
+			import vo.HistoryModel;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+
+			
+			
+		
+			public function showMenu():void{
+				//GameUIInstance.application.addElement(this);
+				GameUIInstance.application.menu = fnm;
+				//GameUIInstance.stage.addEventListener(KeyboardEvent.KEY_DOWN,onKey);
+				
+				Scene_data.stage.addEventListener(KeyboardEvent.KEY_DOWN,onStageKeyDown)	;
+			}
+			
+			protected function itemClickHandler(event:FlexNativeMenuEvent):void
+			{
+				var type:int = event.item.@id;
+				
+
+				switch(type)
+				{
+					case 0:
+					{
+						openUiFile()
+						break;
+					}
+					case 1:
+					{
+						Alert.show("是否要新建立","提示",3,null,function (event:CloseEvent):void
+						{
+							if(event.detail==Alert.YES)
+							{
+								UiData.makeNewUiFile();
+							}
+			
+						})
+							
+				
+						break;
+					}
+					case 2:
+					{
+						saveUiFile()
+						
+						break;
+					}
+					case 3:
+					{
+						saveAsUiFile()
+						
+						break;
+					}
+					case 4:
+					{
+						refreshBmp()
+						
+						break;
+					}
+					case 20:
+					{
+						addInfoNode()
+						
+						break;
+					}
+					case 21:
+					{
+						add9InfoNode()
+						
+						break;
+					}
+					case 22:
+					{
+						ModuleEventManager.dispatchEvent( new PicLeftEvent(PicLeftEvent.SHOW_PIC_LEFT))
+						
+						break;
+					}
+					case 23:
+					{
+						ModuleEventManager.dispatchEvent( new UiSceneEvent(UiSceneEvent.SHOW_HIDE_LINE))
+						
+						break;
+					}
+					case 30:
+					{
+						UiData.makeCopy()
+						
+						break;
+					}
+					case 31:
+					{
+						UiData.paste()
+						
+						break;
+					}
+					case 32:
+					{
+			
+						ModuleEventManager.dispatchEvent( new DisCentenEvent(DisCentenEvent.DELE_SELECT_NODE));
+						
+						break;
+					}
+					case 33:
+					{
+						HistoryModel.getInstance().cancelScene()
+						
+						break;
+					}
+					case 34:
+					{
+						HistoryModel.getInstance().nextScene()
+						
+						break;
+					}
+						
+					case 35:
+					{
+						this.sortItem()
+						
+						break;
+					}
+					case 36:
+					{
+						this.clearNoJoin()
+						
+						break;
+					}
+						
+					case 40:
+					{
+						expH5Xml()
+						
+						break;
+					}
+					case 41:
+					{
+						writeYb()
+					    //LuaModel.getInstance().luaExpCsv()
+						
+						break;
+					}
+					case 50:
+					{
+						ClearH5spaceModel.getInstance().run()
+						
+						break;
+					}
+					case 51:
+					{
+						makeFrameMove()
+						
+						break;
+					}
+					case 52:
+					{
+						ClearH5spaceModel.getInstance().runTwo()
+						
+						break;
+					}
+					case 53:
+					{
+						
+						MakeJsBagModel.getInstance().run()
+						
+						break;
+					}
+						
+					default:
+					{
+						break;
+					}
+				}
+				
+			}
+			private function sortItem():void
+			{
+				var sort:Sort=new Sort();  
+				sort.fields=[new SortField("name",false)];  
+				UiData.nodeItem.sort=sort;  
+				UiData.nodeItem.refresh();//更新  
+			}
+		
+
+			private function writeYb():void
+			{
+				
+				var url:String="file:///C:/Users/pan/Desktop/Yb.ts";
+				
+			
+				var str:String=""
+					
+					
+				str+="class Yb {\n"
+					
+				for(var i:uint=0;i<20;i++){
+				
+					str+="   public key"+String(i)+":number="+String(i)+"\n"
+				
+				}	
+				
+				str+="  constructor() {\n"
+				str+="  }\n"
+					
+				
+				for(var j:uint=0;j<100000;j++){
+					
+					str+="    public Fun"+String(j)+"(): number \n"
+					str+="    { \n"
+					str+="         var ae:number="+String(j)+"\n"
+					str+="         return ae \n"
+					str+="    } \n"
+					
+				}	
+					
+					
+				str+="}"
+				
+				writeToXml(new File(url),str)
+				
+			}
+			
+			private  function writeToXml($file:File,str:String):void
+			{
+				
+			
+				var fs:FileStream = new FileStream();
+				fs.open($file, FileMode.WRITE);
+				
+				for(var i:int = 0; i < str.length; i++)
+				{
+					fs.writeMultiByte(str.substr(i,1),"utf-8");
+				}
+				
+				fs.close();
+				
+			}
+			protected function onKey(event:KeyboardEvent = null):void
+			{
+			
+				
+			}
+			
+
+			private function openUiFile():void
+			{
+		
+				var $file:File=new File(FilePathManager.getInstance().getPathByUid("UiEditor"))
+				var txtFilter:FileFilter = new FileFilter("Text", ".h5ui;*.h5ui;");
+				
+				
+				$file.browseForOpen("打开工程文件 ",[txtFilter]);
+				$file.addEventListener(Event.SELECT,onSelect);
+				function onSelect(e:Event):void
+				{
+		
+					var $CentenEvent:ProjectEvent=new ProjectEvent(ProjectEvent.OPEN_PROJECT_FILE)
+					$CentenEvent.url=$file.url
+						
+					FilePathManager.getInstance().setPathByUid("UiEditor",$file.parent.url)	
+						
+					ModuleEventManager.dispatchEvent( $CentenEvent);
+
+				} 
+				
+			}
+			
+			private function saveUiFile():void
+			{
+				
+				
+				var $CentenEvent:DisCentenEvent=new DisCentenEvent(DisCentenEvent.SAVE_H5UI_PROJECT_FILE)
+				$CentenEvent.saveH5UIchangeFile=false
+				ModuleEventManager.dispatchEvent( $CentenEvent);
+				
+			}
+			
+			private function saveAsUiFile():void
+			{
+				
+				var $CentenEvent:DisCentenEvent=new DisCentenEvent(DisCentenEvent.SAVE_H5UI_PROJECT_FILE)
+				$CentenEvent.saveH5UIchangeFile=true
+				ModuleEventManager.dispatchEvent( $CentenEvent);
+				
+			}
+			
+	
+			
+			private function addInfoNode():void
+			{
+				var $H5UIFileNode:H5UIFileNode=new H5UIFileNode
+				$H5UIFileNode.name="NewName";
+				$H5UIFileNode.type=FileInfoType.baseUi
+				$H5UIFileNode.rect=new Rectangle(0,0,100,80)
+				UiData.nodeItem.addItem($H5UIFileNode)
+				ModuleEventManager.dispatchEvent( new UiSceneEvent(UiSceneEvent.REFRESH_SCENE_DATA));
+				
+			}
+			
+			private function add9InfoNode():void
+			{
+				var $H5UIFileNode:H5UIFileNode=new H5UIFileNode
+				$H5UIFileNode.name="NewName";
+				$H5UIFileNode.type=FileInfoType.ui9
+				$H5UIFileNode.rect=new Rectangle(0,0,100,80)
+				$H5UIFileNode.rect9=new Rectangle(0,0,10,10)
+				UiData.nodeItem.addItem($H5UIFileNode)
+				ModuleEventManager.dispatchEvent( new UiSceneEvent(UiSceneEvent.REFRESH_SCENE_DATA));
+				
+			}
+			
+			private function expH5Xml():void
+			{
+				
+
+				var file:File=new File;
+				file.browseForSave("保存文件");
+				file.addEventListener(Event.SELECT,onSelect);
+				function onSelect(e:Event):void
+				{
+				
+					//trace(file.parent.nativePath,file.name.replace(file.extension,"")
+				
+					UiData.saveToH5xml(file.parent.nativePath,file.name.replace("."+file.extension,""))
+				}
+				
+			}
+			
+			private function refreshBmp():void
+			{
+				ModuleEventManager.dispatchEvent( new UiSceneEvent(UiSceneEvent.REFRESH_SCENE_BITMAPDATA));
+				
+			}
+			
+	
+			
+			private function makeFrameMove():void
+			{
+				MakeFrameMove.getInstance().run()
+				
+			}
+			
+
+
+			
+	
+			
+			protected function onStageKeyDown(event:KeyboardEvent):void
+			{
+				if(event.ctrlKey){
+					if(event.keyCode==Keyboard.S){
+						saveUiFile()
+					}
+					if(event.keyCode==Keyboard.G){
+						expH5Xml()
+					}
+				}
+				
+			}
+			
+			private function clearNoJoin():void
+			{
+			
+				var $dic:Dictionary=new Dictionary
+					
+				var $has:Array=PanelModel.getInstance().getPanelNodeItemToSave();
+				for(var j:Number=0;j<$has.length;j++){
+					for(var k:Number=0;k<$has[j].item.length;k++){
+						for(var u:Number=0;u<$has[j].item[k].dataItem.length;u++){
+							var $useName:String=$has[j].item[k].dataItem[u]
+							$dic[$useName]=true
+						}
+						
+					}
+				}
+				
+				var $deleStr:String=""
+				var $arr:ArrayCollection=UiData.nodeItem;
+				for(var i:Number=$arr.length-1;i>=0;i--){
+				    if($dic[$arr[i].name]){
+						trace($arr[i].name)
+					}else{
+						$deleStr+="&"+$arr[i].name
+						UiData.nodeItem.removeItemAt(i)
+					}
+					
+				}
+				UiData.nodeItem.refresh();
+				
+				if($deleStr.length){
+					Alert.show($deleStr)
+				}else{
+					Alert.show("无需清理对象")
+				}
+				
+
+				
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<mx:FlexNativeMenu id="fnm" dataProvider="{TopMenuData.menuXml}" itemClick="itemClickHandler(event)"
+					   labelField="@label" showRoot="false"/>
+</mx:Menu>

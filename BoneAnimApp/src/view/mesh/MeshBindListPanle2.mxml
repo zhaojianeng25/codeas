@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="186" height="450">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.particle.ctrl.CombineParticle;
+		import _Pan3D.particle.ctrl.ParticleManager;
+		
+		import mx.collections.ArrayCollection;
+		import mx.events.ListEvent;
+		
+		import utils.FileConfigUtils;
+		private static var instance:MeshBindListPanle2;
+		public var info:Object;
+		private var isFirst:Boolean = true;
+		[Bindable]
+		private var ary:ArrayCollection;
+		public static function getInstance():MeshBindListPanle2{
+			if(!instance){
+				instance = new MeshBindListPanle2;
+			}
+			return instance;
+		}
+		public function show(container:DisplayObjectContainer,info:Object):void{
+			container.addChild(this);
+			
+			if(isFirst){
+				var str:String = FileConfigUtils.readConfig().meshBindListPanlePos2;
+				if(!str){
+					this.x = (container.width - this.width)*0.5;
+					this.y = (container.height - this.height)*0.5;
+				}else{
+					var arys:Array = str.split("|");
+					this.x = arys[0];
+					this.y = arys[1];
+				}
+			}
+			isFirst = false;
+			this.info = info;
+			if(info.particleList2){
+				ary = new ArrayCollection;
+				for(var i:int;i<info.particleList2.length;i++){
+					ary.addItem(info.particleList2[i]);
+				}
+			}else{
+				ary = null;
+			}
+		}
+		public function addParticle():void{
+			MeshBindPanle.getInstance().show(this.parentDocument.parent,null,onParticle);
+		}
+		public function onParticle(obj:Object):void{
+			if(!info.particleList2){
+				info.particleList2 = new Array;
+				ary = new ArrayCollection();
+			}
+			
+			if(info.particleList2.indexOf(obj) == -1){
+				info.particleList2.push(obj);
+				ary.addItem(obj);
+			}
+			
+			ary.refresh();
+			
+		}
+		
+		public function addList():void{
+			info.particleList2 = new Array;
+			ary = new ArrayCollection();
+			
+			for(var i:int;i<5;i++){
+				var obj:Object = new Object;
+				info.particleList2.push(obj);
+				ary.addItem(obj);
+				obj.indexID = i;
+			}
+		}
+		
+		public function addParticleList():void{
+			var index:int = list.selectedIndex;
+			var obj:Object = info.particleList2[index];
+			obj.isList = true;
+			
+			ary.refresh();
+		}
+		
+		public function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		public function del():void{
+			var index:int = list.selectedIndex;
+			var obj:Object = info.particleList2[index];
+			if(obj){
+				if(obj.particle){
+					ParticleManager.getInstance().removeParticle(obj.particle);
+				}
+				
+				if(obj.isList){
+					var arr:Array = obj.nextList;
+					for(var i:int;i<arr.length;i++){
+						if(arr[i].particle){
+							ParticleManager.getInstance().removeParticle(arr[i].particle);
+						}
+					}
+				}
+				
+			}
+			var newObj:Object = new Object;
+			newObj.indexID = obj.indexID;
+			ary[index] = newObj;
+			info.particleList2[index] = newObj;
+			ary.refresh();
+		}
+		
+		protected function itemDoubleClick(event:ListEvent):void
+		{
+			if(list.selectedItem.isList){
+				showPartileListPanle(list.selectedItem);
+				//MeshBindPanle.getInstance().close();
+			}else{
+				MeshBindPanle.getInstance().show(this.parentDocument.parent,list.selectedItem,onParticle);
+				nextParticlePanle.close();
+			}
+			
+			for(var i:int;i<ary.length;i++){
+				var obj:Object = ary[i];
+				if(obj){
+					if(obj.particle){
+						ParticleManager.getInstance().removeParticle(obj.particle);
+					}
+					
+					if(obj.isList){
+						var arr:Array = obj.nextList;
+						if(arr){
+							for(var j:int;j<arr.length;j++){
+								if(arr[j].particle){
+									ParticleManager.getInstance().removeParticle(arr[j].particle);
+								}
+							}
+						}
+					}
+					
+				}
+			}
+			
+			obj = ary[list.selectedIndex]
+			if(obj){
+				if(obj.particle){
+					ParticleManager.getInstance().addParticle(obj.particle);
+				}else if(obj.particleUrl){
+					ParticleManager.getInstance().addParticleByUrl(obj.particleUrl,obj);
+				}
+				
+				if(obj.isList){
+					arr = obj.nextList;
+					if(arr){
+						for(i = 0;i<arr.length;i++){
+							if(arr[i].particle){
+								ParticleManager.getInstance().addParticle(arr[i].particle);
+							}else if(arr[i].particleUrl){
+								ParticleManager.getInstance().addParticleByUrl(arr[i].particleUrl,arr[i]);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		private var nextParticlePanle:NextParticleListPanle = new NextParticleListPanle;
+		public function showPartileListPanle(obj:Object):void{
+			nextParticlePanle.show(this.parent,obj);
+		}
+		
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("meshBindListPanlePos2",this.x + "|" + this.y);
+		}
+		
+		private var _copyList:Array;
+		
+		private function copy():void{
+			_copyList = new Array;
+			for(var i:int;i<ary.length;i++){
+				_copyList.push(ary[i]);
+			}
+		}
+		
+		private function past():void{
+			info.particleList2 = new Array;
+			ary = new ArrayCollection();
+			
+			for(var i:int;i<_copyList.length;i++){
+				var sourceObj:Object = (_copyList[i]);
+				var obj:Object = new Object;
+				for(var key:String in sourceObj){
+					if(key == "bindTarget" || key == "particle" || key == "mx_internal_uid"){
+						continue;
+					}
+					obj[key] = sourceObj[key];
+					obj.bindTarget = AppDataBone.role;
+				}
+				
+				info.particleList2.push(obj);
+				ary.addItem(obj);
+				obj.indexID = i;
+			}
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:List id="list" x="13" top="43" bottom="60" width="161" dataProvider="{ary}"
+			 doubleClickEnabled="true" itemDoubleClick="itemDoubleClick(event)">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas height="20" horizontalScrollPolicy="off">
+					<mx:Label width="40" text="{data.indexID}" height="20" color="#ff0000" fontWeight="bold" />
+					<mx:Label x="40" width="123" text="{data.isList? '绑定列表' : data.particleName}" height="20" buttonMode="true"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Button x="10" bottom="31" width="50" label="添加" click="addList()"/>
+	<mx:Button x="10" bottom="4" width="67" label="设定列表" fontSize="10" click="addParticleList()"/>
+	<mx:Button x="69" bottom="31" width="50" label="清理" click="del()"/>
+	<mx:Button x="127" bottom="31" width="50" label="关闭" click="close()"/>
+	<mx:Button x="85" bottom="3" width="46" label="复制" click="copy()"/>
+	<mx:Button x="131" bottom="3" width="46" label="粘贴" click="past()"/>
+	<mx:Label x="10" y="5" width="176" fontWeight="bold" text="绑定粒子列表2" mouseDown="startDrag()" mouseUp="mouseUpDrag()"/>
+</mx:Canvas>

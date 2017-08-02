@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" x="300" y="30"
+		  width="178" height="158" layout="absolute" title="路径设定">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _me.Scene_data;
+		
+		import common.AppData;
+		private function clickHandler():void{
+			var file:File = new File;
+			file.browseForDirectory("选择工作空间");
+			file.addEventListener(Event.SELECT,onSel);
+		}
+		
+		protected function onSel(event:Event):void{
+			var str:String = event.target.url;
+			var endCode:String = str.charAt(str.length-1);
+			if(endCode != "/"){
+				str += "/";
+			}
+			Scene_data.md5Root = str;
+			Scene_data.fileRoot = str;
+			writeFile();
+			close();
+		}
+		
+		
+		
+		private function clickHandler2():void{
+			var file:File = new File;
+			file.browseForDirectory("选择粒子特效路径");
+			file.addEventListener(Event.SELECT,onSel2);
+		}
+		protected function onSel2(event:Event):void{
+			var str:String = event.target.url;
+			var endCode:String = str.charAt(str.length-1);
+			if(endCode != "/"){
+				str += "/";
+			}
+			AppData.expSpaceUrl=str;
+			writeFile();
+			close();
+		}
+		
+		private function writeFile():void{
+			var file:File = new File(File.documentsDirectory.url + "/md5Config.cfg");
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			var obj:Object=new Object();
+			obj.fileRoot=Scene_data.fileRoot
+			obj.expSpaceUrl=AppData.expSpaceUrl
+			fs.writeObject(obj);
+			fs.close();
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+		
+	]]>
+</fx:Script>
+	<mx:Button y="10" left="10" right="10" label="工作空间选择" click="clickHandler()"/>
+	<mx:Button y="41" left="10" right="10" label="Exp导出目录" click="clickHandler2()"/>
+	<mx:Button x="53" y="94" label="关闭" click="close()"/>
+</mx:Panel>

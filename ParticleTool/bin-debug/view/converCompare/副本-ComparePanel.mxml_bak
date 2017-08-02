@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="232" height="168">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+ <fx:Script>
+	 <![CDATA[
+		 import _Pan3D.display3D.Display3D;
+		 import _Pan3D.particle.Display3DParticle;
+		 import _Pan3D.particle.ball.Display3DBallPartilce;
+		 import _Pan3D.particle.ball.Display3DBallShader;
+		 import _Pan3D.particle.ball.Display3DNewBallPartilce;
+		 import _Pan3D.particle.ball.Display3DNewBallShader;
+		 import _Pan3D.program.Program3DManager;
+		 
+		 import _me.Scene_data;
+		 
+		 import utils.ParticleManagerTool;
+		 
+		 import view.ParticleItem;
+		 import view.TimeLineSprite;
+		 private static var _instance:ComparePanel;
+		 
+		 //private var display:Display3DBallPartilce;
+
+		 public var timeline:TimeLineSprite;
+
+		 private var display:Display3DParticle;
+		 public static function getInstance():ComparePanel{
+			 if(!_instance){
+				 _instance = new ComparePanel;
+				 _instance.initDisplay();
+				 _instance.initTimeLine();
+			 }
+			 return _instance;
+		 }
+		 
+		 private function initDisplay():void{
+//			 display = new Display3DBallPartilce(Scene_data.context3D);
+//			 Program3DManager.getInstance().registe(Display3DBallShader.DISPLAY3DBALLSHADER,Display3DBallShader);
+//			 display.setProgram3D(Program3DManager.getInstance().getProgram(Display3DBallShader.DISPLAY3DBALLSHADER));
+//			 display.id = 2008;
+		 }
+		 public function show(container:DisplayObjectContainer):void{
+			 container.addChild(this);
+			 x = 1130;
+			 y = 573;
+		 }
+		 public function get isShow():Boolean{
+			 return Boolean(this.parent);
+		 }
+		 
+		 public function setAllInfo(obj:Object):void{
+			 timeline.particleItem.display3D.setAllInfo(obj);
+			 if(AppData.timeline){
+				 var obj:Object = AppData.timeline.getAllInfo();
+				 timeline.setAllInfo(obj.timeline);
+			 }
+		 }
+		 
+		 public function update():void{
+		 }
+		 
+		 public function initTimeLine():void{
+			 var par:ParticleItem = new ParticleItem(20);//粒子条目
+			 timeline = new TimeLineSprite();//时间轴
+			 par.timeline = timeline;
+			 timeline.particleItem = par;
+			 ParticleManagerTool.getInstance().addTimeLine(timeline);
+		 }
+		 
+		 
+		 
+		 
+		 
+		 protected function cb_clickHandler(event:MouseEvent):void
+		 {
+			 var display:Display3DParticle = timeline.particleItem.display3D;
+			 if(!cb.selected){
+				 if(display.parent){
+					 display.parent.removeChild(display);
+				 }
+			 }else{
+				 AppData.particleLevel.addParticle(display);
+			 }
+		 }
+		 
+		 private function readInfo():void{
+			
+		 }
+		 
+	 ]]>
+ </fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:Button x="203" y="5" width="24" height="21" label="X"/>
+	<mx:CheckBox id="cb" x="16" y="65" label="新版本椭球" click="cb_clickHandler(event)"/>
+	<mx:CheckBox x="16" y="95" label="旧版本椭球" selected="true"/>
+	<mx:Label x="6" y="5" width="189" fontWeight="bold" text="对比控制" mouseDown="this.startDrag()" mouseUp="this.stopDrag()"/>
+	<mx:Button x="15" y="130" label="读取数据"/>
+</mx:Canvas>
