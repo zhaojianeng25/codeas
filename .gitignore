@@ -1,14 +1,1 @@
-*.air
-*.swf
-*.swc
-*.actionScriptProperties
-*.flexProperties
-*.project
-.air
-.swf
-.swc
-.actionScriptProperties
-.flexProperties
-.project
-
 *.swf
