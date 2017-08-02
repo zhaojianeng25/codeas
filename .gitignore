@@ -1,5 +1,5 @@
-.air
-.swf
-.actionScriptProperties
-.flexProperties
-.project
+*.air
+*.swf
+*.actionScriptProperties
+*.flexProperties
+*.project
