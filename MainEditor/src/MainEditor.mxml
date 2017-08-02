@@ -82,7 +82,7 @@
 				LoadManager.getInstance().addSingleLoad(loaderinfo);
 			
 
-				trace("请求加更新SVN1123453")
+				trace("请求加更新SVN1123453789")
 			}
 			
 			private function config_end():void
