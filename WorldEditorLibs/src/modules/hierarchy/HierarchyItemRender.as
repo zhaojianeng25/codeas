@@ -33,7 +33,6 @@ package modules.hierarchy
 	import common.utils.ui.prefab.PicBut;
 	
 	import modules.brower.fileWin.BrowerManage;
-	import modules.hierarchy.h5.ExpPrefabToH5;
 
 	public class HierarchyItemRender extends TreeItemRenderer
 	{
@@ -257,11 +256,7 @@ package modules.hierarchy
 			_menuFile.addItem(item);
 			item.addEventListener(Event.SELECT,onFindModelId);
 			
-			if($selfNode.type==HierarchyNodeType.Prefab&&false){
-				item = new NativeMenuItem("导出H5文件")
-				_menuFile.addItem(item);
-				item.addEventListener(Event.SELECT,outH5file);
-			}
+
 		
 
 		}
@@ -274,15 +269,7 @@ package modules.hierarchy
 			
 		}
 		
-		protected function outH5file(event:Event):void
-		{
-			var $selfNode:HierarchyFileNode = this.data as HierarchyFileNode;
-			if($selfNode){
-				ExpPrefabToH5.getInstance().expToH5($selfNode)
-			}
-	
-			
-		}
+
 		private var isTreeSelect:Boolean
 		private function getTreeSelect():Boolean
 		{

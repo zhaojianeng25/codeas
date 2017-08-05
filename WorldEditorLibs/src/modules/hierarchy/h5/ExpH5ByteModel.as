@@ -1,18 +1,25 @@
 package modules.hierarchy.h5
 {
+	import flash.display.Bitmap;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	import flash.utils.ByteArray;
+	import flash.utils.Dictionary;
 	
 	import mx.controls.Alert;
+	import mx.graphics.codec.PNGEncoder;
+	
+	import _Pan3D.load.LoadInfo;
+	import _Pan3D.load.LoadManager;
 	
 	import common.AppData;
 	
 	import materials.MaterialTree;
 	
-	import org.aszip.saving.Method;
-	import org.aszip.zip.ASZip;
+	import modules.hierarchy.FileSaveModel;
+	
+	import org.aszip.encoding.PNGEnc;
 
 	public class ExpH5ByteModel
 	{
@@ -29,6 +36,7 @@ package modules.hierarchy.h5
 		}
 		public function clear():void
 		{
+		
 			_picByte=new ByteArray;
 			_basePicBype=new ByteArray;
 			_objsByte=new ByteArray;
@@ -44,6 +52,7 @@ package modules.hierarchy.h5
 			_lyfByteNum=0;
 			addInfoStr=""
 		}
+		private var _minPicItemDic:Dictionary;
 		private var _picByte:ByteArray;
 		private var _objsByte:ByteArray;
 		private var _materialByte:ByteArray;
@@ -73,21 +82,54 @@ package modules.hierarchy.h5
 				_picByteNum++	
 				$fs.close();
 			}
-			addBasePic($file,$url)
+
+			addBasePic($file,$url);
+
 		}
+		private function onLoadMinBmp($bmp:Bitmap,url:String):void
+		{
+			_minPicItemDic[url]=$bmp.bitmapData;
+			var $finish:Boolean=true
+			for(var $temp:String in _minPicItemDic ){
+				if(_minPicItemDic[$temp]==null){
+					$finish=false;
+				}
+			}
+			if($finish){
+				_minBmpFun()
+			}
+		}
+		private var  _minBmpFun:Function;
+		public function addMinBitmapByItem($arr:Array,$bfun:Function):void
+		{
+			_minPicItemDic=new Dictionary;
+			_minBmpFun=$bfun
+			for(var i:uint=0;i<$arr.length;i++){
+				if(!_minPicItemDic.hasOwnProperty($arr[i]))
+				{
+					_minPicItemDic[$arr[i]]=null;	
+				}
+			}
+			for(var $temp:String in _minPicItemDic ){
+				LoadManager.getInstance().addSingleLoad(new LoadInfo($temp,LoadInfo.BITMAP,onLoadMinBmp,0,$temp));
+			}
+		}
+			
 		private function addBasePic($file:File,$url:String):void
 		{
 			if($file.exists){
 				var $fs:FileStream = new FileStream;
 				$fs.open($file,FileMode.READ);
-				_basePicBype.writeUTF($url)
-				_basePicBype.writeInt($fs.bytesAvailable)
+				_basePicBype.writeUTF($url);
 				var $byte:ByteArray=new ByteArray;
 				$fs.readBytes($byte,0,$fs.bytesAvailable);
-				_basePicBype.writeBytes($byte,0,$byte.length)
-				$fs.close()
-					
-			
+				if(_minPicItemDic.hasOwnProperty($file.url)&&FileSaveModel.expPicQualityType<100){  //只处理jpg  //=0为100%品质输出
+					trace("优化"+FileSaveModel.expPicQualityType+"%",$file.url)
+					$byte=FileSaveModel.getInstance().getMinByteForPicBigBitmapData(_minPicItemDic[$file.url],$file);
+				}
+				_basePicBype.writeInt($byte.length);
+				_basePicBype.writeBytes($byte,0,$byte.length);
+				$fs.close();
 
 			}else{
 				Alert.show("没有文件",$file.url)
@@ -186,103 +228,9 @@ package modules.hierarchy.h5
 				Alert.show("没有文件",$file.url)
 			}
 		}
-		public function saveFile($sceneFile:File):void
-		{
-			saveBaseFile($sceneFile)
 	
 		
-			var $file:File = new File($sceneFile.url.replace(".xml","_base.txt"));
-			var $fs:FileStream = new FileStream;
-			$fs.open($file,FileMode.WRITE);
-			$fs.writeInt(1)
-			$fs.writeInt(_picByteNum)
-			$fs.writeBytes(_picByte,0,_picByte.length)
-				
-			$fs.writeInt(2)
-			$fs.writeInt(_objsByteNum)
-			$fs.writeBytes(_objsByte,0,_objsByte.length)
-				
-			$fs.writeInt(3)
-			$fs.writeInt(_materialByteNum)
-			$fs.writeBytes(_materialByte,0,_materialByte.length);
-			
-			$fs.writeInt(4)
-			$fs.writeInt(_lyfByteNum)
-			$fs.writeBytes(_lyfByte,0,_lyfByte.length);
-			
-	
-			var $fsScene:FileStream = new FileStream;
-			$fsScene.open($sceneFile,FileMode.READ);
-			var $byte:ByteArray=new ByteArray;
-			$fsScene.readBytes($byte,0,$fsScene.bytesAvailable);
-			$fs.writeInt(5)
-			$fs.writeInt($byte.length)
-			$fs.writeBytes($byte,0,$byte.length);
-			
-			$fsScene.close()
-			$fs.close();
-			
-		}
-		public function saveBaseFile($sceneFile:File):void
-		{
-			
-			
-			var $file:File = new File($sceneFile.url.replace(".xml",".txt"));
-			var $fs:FileStream = new FileStream;
-			$fs.open($file,FileMode.WRITE);
-			$fs.writeInt(1)
-			$fs.writeInt(_picByteNum)
-			$fs.writeBytes(_basePicBype,0,_basePicBype.length)
-			
-			$fs.writeInt(2)
-			$fs.writeInt(_objsByteNum)
-			$fs.writeBytes(_objsByte,0,_objsByte.length)
-			
-			$fs.writeInt(3)
-			$fs.writeInt(_materialByteNum)
-			$fs.writeBytes(_materialByte,0,_materialByte.length);
-			
-			$fs.writeInt(4)
-			$fs.writeInt(_lyfByteNum)
-			$fs.writeBytes(_lyfByte,0,_lyfByte.length);
-			
-			var $fsScene:FileStream = new FileStream;
-			$fsScene.open($sceneFile,FileMode.READ);
-			var $byte:ByteArray=new ByteArray;
-			$fsScene.readBytes($byte,0,$fsScene.bytesAvailable);
-			
-			$fs.writeInt(5)
-			$fs.writeInt($byte.length)
-			$fs.writeBytes($byte,0,$byte.length);
-			
-			$fsScene.close()
-			$fs.close();
-			
-		}
-		public function boneAnimAppWriteByte($fs:ByteArray,$havePic:Boolean):void
-		{
-			
-			$fs.writeInt(1)
-			$fs.writeInt(_picByteNum)
-			if($havePic){
 
-				$fs.writeBytes(_basePicBype,0,_basePicBype.length)
-			}else{
-				$fs.writeBytes(_picByte,0,_picByte.length)
-			}
-			
-			$fs.writeInt(2)
-			$fs.writeInt(_objsByteNum)
-			$fs.writeBytes(_objsByte,0,_objsByte.length)
-			
-			$fs.writeInt(3)
-			$fs.writeInt(_materialByteNum)
-			$fs.writeBytes(_materialByte,0,_materialByte.length);
-			
-			$fs.writeInt(4)
-			$fs.writeInt(_lyfByteNum)
-			$fs.writeBytes(_lyfByte,0,_lyfByte.length);
-		}
 		private var tatolInfo:String;
 		public var addInfoStr:String;
 		public function  WriteByte($fs:ByteArray,$havePic:Boolean,$arr:Array,showalert:Boolean=true):void

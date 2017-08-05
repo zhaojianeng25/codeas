@@ -25,6 +25,7 @@ package modules.expres
 	import common.utils.ui.check.CheckLabelBox;
 	
 	import modules.brower.fileTip.RadiostiyInfoEndBut;
+	import modules.hierarchy.FileSaveModel;
 	import modules.scene.sceneSave.FilePathManager;
 	
 	public class ExpResPanel extends BasePanel
@@ -47,6 +48,7 @@ package modules.expres
 			addBack();
 			addSearch()
 			addTbCombobox();
+			addQualityComboBox();
 	
 			addList();
 			addButs();
@@ -89,9 +91,9 @@ package modules.expres
 		}
 
 		
-		public static function initExpPanel($bfun:Function,$tbList:Array=null,$suffix:Boolean=false):void
+		public static function initExpPanel($bfun:Function,$tbList:Array=null):void
 		{
-			$suffix=false
+		
 				
 			if($tbList){
 				useTabelName=$tbList;
@@ -118,9 +120,7 @@ package modules.expres
 			_sceneConfigPanel.setStyle("right",0);
 			_sceneConfigPanel.setStyle("top",0);
 			_sceneConfigPanel.setStyle("bottom",0);
-			if($suffix){
-				_sceneConfigPanel.addRoleTypeComboBox()
-			}
+	
 			$win.addElement(_sceneConfigPanel);
 			$win.addEventListener(AIREvent.WINDOW_COMPLETE,windowComplete)
 
@@ -277,29 +277,34 @@ package modules.expres
 			
 		}
 		
-		private var roleTypeComboBox:ComLabelBox
-		public function addRoleTypeComboBox():void
+		private var qualityComboBox:ComLabelBox
+		public function addQualityComboBox():void
 		{
-			this.roleTypeComboBox = new ComLabelBox;
-			this.roleTypeComboBox.label = "选角色类型 "
-			this.roleTypeComboBox.width = 200;
-			this.roleTypeComboBox.x=5
-			this.roleTypeComboBox.y=5
-			this.roleTypeComboBox.height = 18;
-			this.roleTypeComboBox.changFun=changeRoleTypeComboBox
-			this.addChild(this.roleTypeComboBox)
+			this.qualityComboBox = new ComLabelBox;
+			this.qualityComboBox.label = "导出品质 "
+			this.qualityComboBox.width = 200;
+			this.qualityComboBox.x=5
+			this.qualityComboBox.y=5
+			this.qualityComboBox.height = 18;
+			this.qualityComboBox.changFun=changeQualityeComboBox
+			this.addChild(this.qualityComboBox)
 				
+			var  $data:Array=new Array();
+			$data.push({name:"100%",type:100});
+			$data.push({name:"75%",type:75});
+			$data.push({name:"50%",type:50});
+			$data.push({name:"25%",type:25});
+			qualityComboBox.data =$data;
+			
+
+			qualityComboBox.selectIndex=1;
+			FileSaveModel.expPicQualityType=75;
 
 		}
-		private function changeRoleTypeComboBox(value:Object):void
+		private function changeQualityeComboBox(value:Object):void
 		{
-			if(value.type>0){
-				_suffixLabelText=value.type;
-			}else{
-				_suffixLabelText=null;
-			}
-
-		
+			FileSaveModel.expPicQualityType=value.type;
+			trace(FileSaveModel.expPicQualityType)
 		}
 		private function changeDrawType(value:Object):void
 		{
@@ -499,27 +504,11 @@ package modules.expres
 					changeDrawType({name:lastTableName})
 				}
 
-				if(roleTypeComboBox){
-				//	initRoleTypeCom();
-				}
+			
 			})
 			
 		}
-		private function initRoleTypeCom():void
-		{
-			var $idItem:Vector.<String>=ExpResModel.getInstance().getListByTabelAndfield("tb_char_info","id");
-			var $nameItem:Vector.<String>=ExpResModel.getInstance().getListByTabelAndfield("tb_char_info","name");
-			
-			var  $data:Array=new Array();
-			$data.push({name:"无",type:0})
-			for(var i:uint=0;i<$idItem.length;i++){
-				var $tempObj:Object=new Object;
-				$tempObj.name=$nameItem[i];
-				$tempObj.type=$idItem[i]
-				$data.push($tempObj)
-			}
-			roleTypeComboBox.data =$data;
-		}
+
 
 	
 
@@ -575,9 +564,9 @@ package modules.expres
 				
 
 				
-			if(roleTypeComboBox){
-				roleTypeComboBox.y=this.height-40
-				roleTypeComboBox.x=130
+			if(qualityComboBox){
+				qualityComboBox.y=this.height-40
+				qualityComboBox.x=110
 			}
 
 		//	roleTypeComboBox.visible=this.needsuffix;

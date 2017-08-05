@@ -85,7 +85,7 @@ package modules.hierarchy.h5
 			_lyfItem=new Array
 			_particleUrlDic=new Dictionary
 				
-			 myTimer = new Timer(100, 0);
+			 myTimer = new Timer(1000, 0);
 			 myTimer.addEventListener(TimerEvent.TIMER, timerHandler);
 
 		}
@@ -98,17 +98,18 @@ package modules.hierarchy.h5
 			}
 			if($canWirte){
 				myTimer.stop();
-				if(Boolean(_bFun)){
-					var tempFun:Function=_bFun;
-					_bFun=null
-					countData()
-					tempFun();	
-			
-				
-				}
+				//将图片转的bitmapdata加载进来，做为图像优化
+				ExpH5ByteModel.getInstance().addMinBitmapByItem(_picItem,minBmpFinish)
 			}
-			trace("here")
-			
+		}
+		private function minBmpFinish():void
+		{
+			if(Boolean(_bFun)){
+				var tempFun:Function=_bFun;
+				_bFun=null;
+				countData();
+				tempFun();	
+			}
 		}
 		private var myTimer:Timer;
 		public function run():void
@@ -724,7 +725,7 @@ package modules.hierarchy.h5
 					Alert.show("没有文件",fileName)
 				}
 				if(ExpResourcesModel.expAllPic==false){
-					_willdeleFileItem.push(_picItem[i])
+					_willdeleFileItem.push(_picItem[i]);
 				}
 			}
 			for(i=0;i<_objsItem.length;i++)

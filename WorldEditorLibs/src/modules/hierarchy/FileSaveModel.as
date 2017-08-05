@@ -4,6 +4,8 @@ package modules.hierarchy
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
+	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
 	import flash.utils.ByteArray;
 	
 	import mx.graphics.codec.JPEGEncoder;
@@ -60,10 +62,14 @@ package modules.hierarchy
 			}
 			
 		}
-	
+	    
+		private var lastJpgNum:Number=100
 		public function initJpgQuality($num:uint):void
 		{
-			jpgEncoder = new JPEGEncoder($num);
+			if(!jpgEncoder||lastJpgNum!=$num){
+				lastJpgNum=$num
+				jpgEncoder = new JPEGEncoder($num);
+			}
 		}
 			
 			
@@ -111,6 +117,40 @@ package modules.hierarchy
 			by = null;
 			fs.close();
 		}
+		public static var expPicQualityType:Number=0
+		public  function getMinByteForPicBigBitmapData($bitmapdata:BitmapData,$file:File):ByteArray
+		{
+			var $isPng:Boolean=Boolean($file.extension=="png")
+			var $byte:ByteArray
+			
+			if($isPng){ //png缩小一半
+				if(!pngEncoder){
+					pngEncoder = new PNGEncoder();
+				}
+				var $m:Matrix=new Matrix;
+				var $pngscale:Number=1;
+				var minsize:Number=Math.min($bitmapdata.width,$bitmapdata.height);
+				
+				var $tempScale:Number=(FileSaveModel.expPicQualityType/100*minsize);
+				var $w:uint=Math.pow(2,Math.ceil(Math.log($tempScale)/Math.log(2)))
+				if($w==$tempScale&&$tempScale>32){
+					$pngscale=minsize/$tempScale;
+				}
+				var $bmpPng:BitmapData=new BitmapData($bitmapdata.width/$pngscale,$bitmapdata.height/$pngscale,true,0x00000000);
+				$m.scale(1/$pngscale,1/$pngscale)
+				$bmpPng.draw($bitmapdata,$m);
+				$byte = pngEncoder.encode($bmpPng);
+			}else{
+				this.initJpgQuality(FileSaveModel.expPicQualityType);//jpg品质降到50
+				var $bmpJpg:BitmapData=new BitmapData($bitmapdata.width,$bitmapdata.height,false,0x000000);
+				$bmpJpg.draw($bitmapdata);
+				$byte = jpgEncoder.encode($bmpJpg);
+			}
+			
+			return $byte;
+			
+		}
+			
 		public static function saveByteToFile($by:ByteArray,$url:String):void
 		{
 

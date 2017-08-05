@@ -156,15 +156,11 @@ package view.mesh
 				writeSocketList(byte,socketDic);
 				ExpH5ByteModel.getInstance().addInfoStr="\n----------------\nmesh数据 :"+byte.length/1000+"k";
 				var actionByte:ByteArray = getAction();
+				actionByte.compress();
+				byte.writeInt(actionByte.length);
 				byte.writeBytes(actionByte,0,actionByte.length);
-				
-	
-				
-				ExpH5ByteModel.getInstance().WriteByte(byte,includeImg,[1,3,4])
-				
-				$bfun(byte)
-				
-				
+				ExpH5ByteModel.getInstance().WriteByte(byte,includeImg,[1,3,4]);
+				$bfun(byte);
 			}
 			
 	

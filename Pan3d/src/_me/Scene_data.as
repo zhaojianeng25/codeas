@@ -206,7 +206,7 @@
 		/**
 		 * 引擎版本号 
 		 */		
-		public static var version:int = 28; 
+		public static var version:int = 30; 
 		
 		public static var allBuffNum:int;
 		

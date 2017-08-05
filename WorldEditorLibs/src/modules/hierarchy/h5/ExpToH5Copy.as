@@ -336,6 +336,7 @@ package modules.hierarchy.h5
 			
 			if(GroundData.showTerrain){
 				$jasobj.groundItem=makeGroundUrl();
+				TerrainOutH5DataModel.getInstance().savesixteenBigJpg(_rootUrl,getTerrainName());  //写入图谱片
 			}
 			
 			var buildItem:Array=new Array;
@@ -566,37 +567,12 @@ package modules.hierarchy.h5
 			$fsScene.close();
 			_sceneFileXml.deleteFile();
 			
-			/*
-			var $byte:ByteArray=new ByteArray;
-			var fileByte:ByteArray=new ByteArray;
-			var fs:FileStream = new FileStream;
-			var newUrl1:String = _rootUrl + "map/" + getTerrainName()+".txt"
-			MakeResFileList.getInstance().pushUrl(newUrl1)
-			fs.open(new File(newUrl1),FileMode.WRITE);
-			fs.writeInt(Scene_data.version);
-		
-			$byte=new ByteArray;
-			ExpH5ByteModel.getInstance().WriteByte($byte,true,[1,2,3,4]);
-			fs.writeBytes($byte,0,$byte.length);			
-			fs.writeInt(5)
-			
 
-				
-			var astarByte:ByteArray=getAstarItemByte();  //A星数据
-			fs.writeBytes(astarByte,0,astarByte.length);
-			trace("A星:"+astarByte.length/1000+"k")
-			fs.writeInt($Scenebyte.length)
-			fs.writeBytes($Scenebyte,0,$Scenebyte.length);
-			trace("场景:"+$Scenebyte.length/1000+"k")
 			
-			trace("fs.bytesAvailable")
+			var astarByte:ByteArray=getAstarItemByte();  //A星数据
+			var terrainByte:ByteArray=TerrainOutH5DataModel.getInstance().makeTerrainH5IdInfoByteArray(getTerrainName());
 		
 			
-			fs.close();
-			*/
-			
-			var astarByte:ByteArray=getAstarItemByte();  //A星数据
-			var terrainByte:ByteArray=TerrainOutH5DataModel.getInstance().makeTerrainH5IdInfoByteArray()
 			ExpH5ByteModel.getInstance().addInfoStr="\nA星:"+astarByte.length/1024+"k\n"
 			ExpH5ByteModel.getInstance().addInfoStr+="场景:"+$Scenebyte.length/1024+"k\n"
 			ExpH5ByteModel.getInstance().addInfoStr+="地面信息图:"+terrainByte.length/1024+"k\n"

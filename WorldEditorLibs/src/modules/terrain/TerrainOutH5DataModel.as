@@ -1,24 +1,17 @@
 package modules.terrain
 {
 	import flash.display.BitmapData;
-	import flash.filesystem.File;
-	import flash.filesystem.FileMode;
-	import flash.filesystem.FileStream;
 	import flash.geom.Matrix;
 	import flash.geom.Point;
 	import flash.geom.Vector3D;
 	import flash.utils.ByteArray;
 	
 	import mx.controls.Alert;
-	import mx.graphics.codec.JPEGEncoder;
 	
 	import _Pan3D.core.MathCore;
-	import _Pan3D.utils.Cn2en;
-	
-	import common.AppData;
 	
 	import modules.hierarchy.FileSaveModel;
-	import modules.hierarchy.h5.ExpH5ByteModel;
+	import modules.hierarchy.h5.ExpResourcesModel;
 	
 	import render.ground.TerrainEditorData;
 	
@@ -38,36 +31,18 @@ package modules.terrain
 			}
 			return instance;
 		}
-		private var _saveTourl:String="file:///E:/codets/game/arpg/arpg/res/map/terrain/"
-		private function outH5Data():void{
-			
-			var $fileUrl:String=_saveTourl+"1.txt";
-			var fs:FileStream = new FileStream;
-			fs.open(new File($fileUrl),FileMode.WRITE);
-			
-			var $sceneFileByte:ByteArray=new ByteArray;
-			
-//			var a:ByteArray=this.meshIdMapData();
-//			var b:ByteArray=this.meshInfoMapData();
-//			$sceneFileByte.writeBytes(a,0,a.length);
-//			$sceneFileByte.writeBytes(b,0,b.length);
-			
-			var c:ByteArray=this.meshIdMapArrToArr();
-			$sceneFileByte.writeBytes(c,0,c.length);
 
-			fs.writeBytes($sceneFileByte,0,$sceneFileByte.length);		
-			fs.close();
-			
-		}
+
 		//生存地面信息图
-		public function makeTerrainH5IdInfoByteArray():ByteArray
+		public function makeTerrainH5IdInfoByteArray(_terrainName:String):ByteArray
 		{
 			var $sceneFileByte:ByteArray=new ByteArray
 			if(GroundData.showTerrain){
-				var $terrainData:ByteArray=	this.meshIdMapArrToArr()
+				var $terrainData:ByteArray=	this.meshIdMapArrToArr();
+				$terrainData.writeUTF("map/"+_terrainName+"/six.jpg");
+				$terrainData.compress();
 				$sceneFileByte.writeInt($terrainData.length)
 				$sceneFileByte.writeBytes($terrainData,0,$terrainData.length);
-				this.savesixteenBigJpg();
 			}else{
 				$sceneFileByte.writeInt(0);
 			}
@@ -206,98 +181,40 @@ package modules.terrain
 			$pinfo.z=$idArr[2].num;
 		}
 		
+	//	private var _saveTourl:String="file:///E:/codets/game/arpg/arpg/res/map/terrain/"
+		public function  savesixteenBigJpg(_rootUrl:String,_terrainName:String):void
+		{
+			if(GroundData.showTerrain){
+				if(TerrainEditorData.sixteenslotBmpArr.length!=4){
+				    Alert.show("地面贴图数量导出H5斩时设置为4种")
+				}
+				TerrainEditorData.sixteenUvSize=256
+				var $num128:Number=TerrainEditorData.sixteenUvSize;
+				var $bigBitmapData:BitmapData=new BitmapData($num128*2,$num128*2);
+				for(var i:uint=0;i<TerrainEditorData.sixteenslotBmpArr.length;i++)
+				{
+					var $pos:Point=new Point();
+					$pos.x=(i%2)*$num128
+					$pos.y=Math.floor(i/2)*$num128
+					var $bmp:BitmapData=TerrainEditorData.sixteenslotBmpArr[i];
+					var $m:Matrix=new Matrix();
+					$m.scale($num128/$bmp.width,$num128/$bmp.height)
+					$m.tx=$pos.x;
+					$m.ty=$pos.y;
+					$bigBitmapData.draw($bmp,$m);
+				}
+				var $sixTeemUrl:String = this.getSixUrl(_rootUrl,_terrainName);
+
+				FileSaveModel.getInstance().saveBitmapdataToJpg($bigBitmapData,$sixTeemUrl)
+				ExpResourcesModel.getInstance().picItem.push($sixTeemUrl);
+			}
+		}
+		private function getSixUrl(_rootUrl:String,_terrainName:String):String
+		{
+			var $sixTeemUrl:String = _rootUrl + "map/"+_terrainName+"/six.jpg"
+			return $sixTeemUrl;
+		}
+
 		
-		private function  savesixteenBigJpg():void
-		{
-			TerrainEditorData.sixteenUvSize=256
-			var $num128:Number=TerrainEditorData.sixteenUvSize;
-			var $bigBitmapData:BitmapData=new BitmapData($num128*2,$num128*2);
-			for(var i:uint=0;i<TerrainEditorData.sixteenslotBmpArr.length;i++)
-			{
-				var $pos:Point=new Point();
-				$pos.x=(i%2)*$num128
-				$pos.y=Math.floor(i/2)*$num128
-				var $bmp:BitmapData=TerrainEditorData.sixteenslotBmpArr[i];
-				var $m:Matrix=new Matrix();
-				$m.scale($num128/$bmp.width,$num128/$bmp.height)
-				$m.tx=$pos.x;
-				$m.ty=$pos.y;
-
-				$bigBitmapData.draw($bmp,$m);
-				
-			}
-			var $sixTeemUrl:String=_saveTourl+"six.jpg";
-			FileSaveModel.getInstance().saveBitmapdataToJpg($bigBitmapData,$sixTeemUrl)
-			
-		}
-
-		/*
-		public function Cn2enFun($str:String):String
-		{
-			
-			return Cn2en.toPinyin(decodeURI($str))
-		}
-		private function  savesixteenBmpurl():ByteArray
-		{
-			var $byte:ByteArray=new ByteArray;
-			for(var i:uint=0;i<TerrainEditorData.sixTeenFileNodeArr.length;i++)
-			{
-				var $fileName:String=AppData.workSpaceUrl+TerrainEditorData.sixTeenFileNodeArr[i]
-				var $file:File=new File($fileName)
-				if($file.exists){
-					var $newFileName:String=Cn2enFun($file.name);
-					var $tourl:String=_saveTourl+"b"+i+"_"+$newFileName;
-					$byte.writeUTF($newFileName);
-					var destination:File = File.documentsDirectory;
-					destination = destination.resolvePath($tourl);
-					$file.copyTo(destination, true);
-				}else{
-					Alert.show("文件不存在",$file.url);
-				}
-			}
-			return $byte
-			
-		}
-
-		private function meshIdMapData():ByteArray
-		{
-			var bigIdMapBmp:BitmapData=	TerrainEditorData.bigIdMapBmp
-			var $byte:ByteArray=new ByteArray;
-			$byte.writeInt(bigIdMapBmp.width)
-			$byte.writeInt(bigIdMapBmp.height)
-			for(var i:Number=0;i<bigIdMapBmp.width;i++)
-			{
-				var $str:String="";
-				for(var j:Number=0;j<bigIdMapBmp.height;j++)
-				{
-					var $p:Vector3D=	MathCore.hexToArgb(bigIdMapBmp.getPixel32(i,j));
-					$byte.writeByte($p.x-128);
-					$byte.writeByte($p.y-128);
-					$byte.writeByte($p.z-128);
-				}
-			}
-			return $byte;
-		}
-		private function meshInfoMapData():ByteArray
-		{
-			var bigInfoMapBmp:BitmapData=	TerrainEditorData.bigInfoMapBmp
-			var $byte:ByteArray=new ByteArray;
-			$byte.writeInt(bigInfoMapBmp.width)
-			$byte.writeInt(bigInfoMapBmp.height)
-			for(var i:Number=0;i<bigInfoMapBmp.width;i++)
-			{
-				var $str:String=""
-				for(var j:Number=0;j<bigInfoMapBmp.height;j++)
-				{
-					var $p:Vector3D=MathCore.hexToArgb(bigInfoMapBmp.getPixel32(i,j));
-					$byte.writeByte($p.x-128);
-					$byte.writeByte($p.y-128);
-					$byte.writeByte($p.z-128);
-
-				}
-			}
-			return $byte
-		}
-		*/
 	}
 }

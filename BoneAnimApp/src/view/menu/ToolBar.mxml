@@ -466,11 +466,7 @@
 			if(this.isUi){
 				file1Url = file.parent.url + "/role/ui/" + fileName + ".txt";
 			}
-	
-			var file2Url:String = file.parent.url + "/role/" + fileName + "_base.txt"
-				
-			
-			
+
 			new RoleExpNew().exp(this.isUi,meshAry,meshDic,objDic,particleDic,socketDic,rootUrl,fileName,true,aFun)
 		
 			function aFun($byte:ByteArray):void
@@ -484,55 +480,12 @@
 				fs.close();
 				
 
-				
-				//saveBaseFile()
 			}
 			
-			function saveBaseFile():void
-			{
-				new RoleExpNew().exp(this.isUi,meshAry,meshDic,objDic,particleDic,socketDic,rootUrl,fileName,false,bFun)
-			}
+	
 			
-			function bFun($byte:ByteArray):void
-			{
-				
-				var fs:FileStream = new FileStream;
-				file = new File(file2Url);
-				fs.open(file,FileMode.WRITE);
+			
 		
-				fs.writeBytes($byte);
-				fs.close();
-		
-				MakeResFileList.getInstance().pushUrl(file1Url);
-				MakeResFileList.getInstance().pushUrl(file2Url);
-				MakeResFileList.getInstance().saveFileListToH5(rootUrl+"/","role",fileName);
-				
-				
-			
-			}
-			
-			
-			/*
-			return 
-			
-			var byteBase:ByteArray = new RoleExpNew().exp(meshAry,meshDic,objDic,particleDic,socketDic,file.parent.url,fileName,false);
-
-			
-			
-			var fs:FileStream = new FileStream;
-			
-			file = new File(file1Url);
-			fs.open(file,FileMode.WRITE);
-			fs.writeBytes(byte);
-			fs.close();
-			
-			file = new File(file2Url);
-			fs.open(file,FileMode.WRITE);
-			fs.writeBytes(byteBase);
-			fs.close();
-			
-			Alert.show("角色资源已导出");
-			*/
 		}
 		
 		private function meshFilter(sourceAry:ArrayCollection):Array{

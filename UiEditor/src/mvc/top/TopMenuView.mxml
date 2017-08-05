@@ -205,6 +205,13 @@
 						
 						break;
 					}
+					case 54:
+					{
+						
+						ZipMinJsModel.getInstance().run()
+						
+						break;
+					}
 						
 					default:
 					{

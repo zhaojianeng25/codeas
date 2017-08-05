@@ -76,7 +76,6 @@
     <classEntry path="modules.cradiosity.CradiosityEvent"/>
     <classEntry path="modules.cradiosity.CradiosityModule"/>
     <classEntry path="modules.hierarchy.GroupMaterialMath"/>
-    <classEntry path="modules.hierarchy.h5.ExpPrefabToH5"/>
     <classEntry path="modules.hierarchy.h5.ExpToH5MergeModel"/>
     <classEntry path="modules.materials.MaterialSaveModel"/>
     <classEntry path="modules.hierarchy.h5.ExpLyfTxtToByteFile"/>
