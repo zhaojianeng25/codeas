@@ -9,9 +9,9 @@ package mvc.top
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
-	import flash.geom.Point;
-	import flash.utils.Dictionary;
 	import flash.utils.Timer;
+	import flash.utils.getTimer;
+	import flash.utils.setTimeout;
 	
 	import mx.controls.Alert;
 
@@ -27,371 +27,7 @@ package mvc.top
 			}
 			return instance;
 		}
-		private function countVal():void
-		{
-
-			keyDis=new Dictionary
-			makeSystemVal()
-			//var htmlFile:File=new File(JsBagRootUrl+"dest/sss.js");
-			var htmlFile:File=new File(JsBagRootUrl+"dest/h5web.js");
-			var $fsScene:FileStream = new FileStream;
-			$fsScene.open(htmlFile,FileMode.READ);
-			var $str:String = $fsScene.readUTFBytes($fsScene.bytesAvailable)
-			$fsScene.close()
-		
-	        var  j:uint;
-			for(j=65;j<=90;j++){
-			
-				keyArr.push(String.fromCharCode(j))
-				keyArr.push(String.fromCharCode(j+(97-65)))
-
-				
-			}
-
-//			$str="base/cube/e"
-//			trace($str)
-			var lines:Array=	ERT($str)
-			_jsFileItem=new Vector.<String>;
-			for(var i:uint = 0; i < lines.length; i++){
-				meshLineStr(lines[i])
-			}
-	
-			var tempArr:Array=new Array;
-			for(var k:Object in keyDis)
-			{
-				var tempObj:Object=new Object;
-				tempObj.name=k;
-				tempObj.num=keyDis[k]
-				tempArr.push(tempObj)
-			}
-			tempArr.sortOn(["num"],[Array.NUMERIC]);
-			canChangeValDic=new Dictionary
-			var testDic:Dictionary=new Dictionary
-			
-			for(var w:uint=0;w<tempArr.length;w++){
-				
-				if("B_money_icon"==tempArr[w].name){
-				
-					trace(tempArr[w].name)
-				}
-				
-				tempArr[w].val=tempArr[w].name
-				
-				if(tempArr[w].num>=240){//287
-					tempArr[w].val="idccav0001_"+String(w);
-					canChangeValDic[tempArr[w].name]=tempArr[w];
-					trace("-")
-				}
-				trace(tempArr[w].name,tempArr[w].num,tempArr[w].val);
-				
-			}
-			trace("----------")
-			for each(var disobj:Object in canChangeValDic){
-			
-				trace(disobj.name)
-			}
-			trace("共=>",tempArr.length);
-			outStr=""
-			for( i = 0; i < lines.length; i++){
-		
-				replayValMath(lines[i])
-			}
-
-			writeToXml(new File(JsBagRootUrl+"dest/out.js"),outStr)
-			
-			Alert.show("over")
-	
-		}
-		private function meshLineStr($str:String):void
-		{
-			
-			var lll:String=$str;
-			if($str.indexOf("//")!=-1){
-				var anum:uint=$str.indexOf("//");
-				$str=  $str.substring(0,anum);
-			}
-			
-			
-			
-			var strVal:String=""
-			var lastId:uint=0
-			for(var i:uint=0;i<$str.length;i++)
-			{
-				var $tempstr:String=$str.substr(i,1)
-				if(isValStr($tempstr)){
-					strVal+=$tempstr
-				}else{
-					
-					
-			
-					if(isValByString(strVal,$str.substr(lastId,1))){
-						
-						if(strVal=="e"){
-						
-						
-							trace($str.substr(lastId,1))
-							trace($str)
-							trace("---------------")
-							
-						}
-						pushTemValToItem(strVal)
-					}
-					strVal=""
-					lastId=i;
-				}
-			}
-			
-			
-		}
-		private function isValByString(strVal:String,eeee:String):Boolean
-		{
-			if(strVal.length && eeee!=String.fromCharCode(92)&& eeee!=String.fromCharCode(47)&& eeee!="\""){
-				return true
-			}else{
-			
-				return false
-			}
-		
-		}
-		private function makeSystemVal():void
-		{
-			
-			
-			
-			
-			systemVal=new Array;
-			
-			systemVal.push("null");
-			systemVal.push("EVENT");
-			systemVal.push("prototype");
-			
-			systemVal.push("x");
-			systemVal.push("y");
-			systemVal.push("z");
-			systemVal.push("w");
-			systemVal.push("true");
-			systemVal.push("length");
-			systemVal.push("push");
-			systemVal.push("Object");
-			systemVal.push("getInstance");
-			systemVal.push("value");
-
-			systemVal.push("Math");
-		
-		
-
-			
-			systemVal.push("hasOwnProperty");
-			
-			
-			systemVal.push("break");
-			systemVal.push("do");
-			systemVal.push("instanceof");
-			systemVal.push("typeof"); 
-			
-			systemVal.push("case");
-			systemVal.push("else");
-			systemVal.push("new");
-			systemVal.push("var"); 
-			
-			systemVal.push("catch"); 
-			
-			systemVal.push("finally");
-			systemVal.push("return");
-			systemVal.push("void");
-			systemVal.push("continue");
-			systemVal.push("for ");
-			systemVal.push("switch ");
-			systemVal.push("while"); 
-			
-			systemVal.push("debugger"); 
-			systemVal.push("function");
-			systemVal.push("this");
-			systemVal.push("with"); 
-			systemVal.push("default");
-			systemVal.push("if"); 
-			systemVal.push("throw"); 
-			systemVal.push("delete"); 
-			systemVal.push("in");
-			systemVal.push("try"); 
-			
-			
-			systemVal.push("break");
-			systemVal.push("case");
-			systemVal.push("catch");
-			systemVal.push("continue");
-			systemVal.push("default");
-			systemVal.push("delete");
-			systemVal.push("do");
-			systemVal.push("else");
-			systemVal.push("finally");
-			systemVal.push("for");
-			systemVal.push("function");
-			systemVal.push("if");
-			systemVal.push("in");
-			systemVal.push("instanceof");
-			systemVal.push("new");
-			systemVal.push("return");
-			systemVal.push("switch");
-			systemVal.push("this");
-			systemVal.push("throw");
-			systemVal.push("try");
-			systemVal.push("typeof");
-			systemVal.push("var");
-			systemVal.push("void");
-			systemVal.push("while");
-			systemVal.push("with");
-			
-			
-			
-			systemVal.push("abstract");
-			systemVal.push("boolean");
-			systemVal.push("byte");
-			systemVal.push("char");
-			systemVal.push("class");
-			systemVal.push("const");
-			systemVal.push("debugger");
-			systemVal.push("double");
-			systemVal.push("enum");
-			systemVal.push("export");
-			systemVal.push("extends");
-			systemVal.push("fimal");
-			systemVal.push("float");
-			systemVal.push("goto");
-			systemVal.push("implements");
-			systemVal.push("import");
-			systemVal.push("int");
-			systemVal.push("interface");
-			systemVal.push("long");
-			systemVal.push("mative");
-			systemVal.push("package");
-			systemVal.push("private");
-			systemVal.push("protected");
-			systemVal.push("public");
-			systemVal.push("short");
-			systemVal.push("static");
-			systemVal.push("super");
-			systemVal.push("synchronized");
-			systemVal.push("throws");
-			systemVal.push("transient");
-			systemVal.push("volatile");	
-			
-			
-			
-		}
-		private var canChangeValDic:Dictionary
 		private var outStr:String;
-		private function replayValMath($str:String):void
-		{
-	
-	
-			var tempobj:Point=new Point(0,0)
-			var strVal:String=""
-			var arr: Vector.<Point>=new Vector.<Point>
-			var lastId:uint=0
-			for(var i:uint=0;i<$str.length;i++)
-			{
-				var $tempstr:String=$str.substr(i,1)
-				if(isValStr($tempstr)){
-					strVal+=$tempstr
-				}else{
-					if(isValByString(strVal,$str.substr(lastId,1))){
-						tempobj.y=i;
-						arr.push(tempobj)
-						
-					}
-					tempobj=new Point
-					tempobj.x=(i+1)
-					strVal=""
-					lastId=i;
-						
-				}
-			}
-			
-			var kstr:String=""
-				
-				
-			for(var j:uint=0;j<arr.length;j++){
-				if(j==0){
-					kstr+=($str.substring(0,arr[j].x))
-				}
-				var tempVar:String=$str.substring(arr[j].x,arr[j].y)
-				kstr+=changeValMash(tempVar);
-				
-				if(j<(arr.length-1)){
-					kstr+=($str.substring(arr[j].y,arr[j+1].x))
-				}else{
-					kstr+=($str.substring(arr[j].y,$str.length))
-				}
-			}
-			if(arr.length<1){
-				kstr=$str
-			}
-		
-			outStr+=kstr
-
-			
-		
-		}
-		private function changeValMash($str:String):String
-		{
-		
-			if(canChangeValDic.hasOwnProperty($str)){
-				return canChangeValDic[$str].val	
-			}
-
-			return $str
-		}
-
-		private var keyDis:Dictionary
-		private var keyArr:Array=["0","1","2","3","4","5","6","7","8","9","_","$"];
-	
-		private var nk:Number=0
-		private function pushTemValToItem($str:String):void
-		{
-			if(isNaN(Number($str))&&testIsSystem($str)){
-			
-				
-				if(keyDis.hasOwnProperty($str)){
-					keyDis[$str]=keyDis[$str]+1
-				}else{
-					keyDis[$str]=1
-				}
-				
-			}
-		
-		}
-		private function testIsSystem($str:String):Boolean
-		{
-			for(var i:uint=0;i<systemVal.length;i++){
-			
-				 if(systemVal[i]==$str){
-				 
-					 return false
-				 }
-			}
-		
-			return true
-		}
-		
-		private var systemVal:Array
-		private function isValStr($key:String):Boolean
-		{
-			for(var i:uint=0;i<keyArr.length;i++)
-			{
-				if(keyArr[i]==$key){
-					return true
-				}
-			
-			
-			}
-		
-			return false
-			
-		}
-	
-		//private var ProjectUrl:String="file:///E:/codets/game/arpg/arpg/";
-		//private var ProjectUrl:String="file:///E:/codets/game/arpglocal/arpglocal/";
 		private var ProjectUrl:String="file:///E:/codets/game/arpg/arpg/";
 		private var JsBagRootUrl:String="file:///f:/jsbag/";
 		
@@ -400,16 +36,12 @@ package mvc.top
 			var file:File=new File()
 			file.addEventListener(Event.SELECT,onFileWorkChg);
 			file.browseForDirectory("选择文件夹");
-		
-			//Alert.show("文件生成完成")
-	
 		}
 		
 		protected function onFileWorkChg(event:Event):void
 		{
 			var $selectFile:File=event.target as File
 			ProjectUrl=$selectFile.url+"/"
-			trace($selectFile.url)
 			this.selectFileIndex()
 			
 		}
@@ -418,6 +50,7 @@ package mvc.top
 			var htmlFile:File=new File(ProjectUrl+"index.html");
 			
 			if(htmlFile.exists){
+				this.clearOldMinFile();
 				var $fsScene:FileStream = new FileStream;
 				$fsScene.open(htmlFile,FileMode.READ);
 				var $str:String = $fsScene.readUTFBytes($fsScene.bytesAvailable)
@@ -429,16 +62,32 @@ package mvc.top
 				}
 				moveJsToBagRoot();
 				buildGruntfile();
-				
-				
 				runComand();
-				
-				moveResFile();
+			//	moveResFile();
 				
 			}else{
-				
-				
 				Alert.show(htmlFile.url)
+			}
+			
+		}
+		private function clearOldMinFile():void
+		{
+			OutTxtModel.getInstance().initSceneConfigPanel("");
+			//JsBagRootUrl
+			var $arr:Array=new Array();
+			$arr.push("h5web.js");
+			$arr.push("h5web.min.js");
+			$arr.push("h5web.zip.js");
+			for(var i:Number=0;i<$arr.length;i++)
+			{
+				var $file:File=new File(JsBagRootUrl+"dest/"+$arr[i])
+				if($file.exists)
+				{
+					trace("删除文件",decodeURI($file.url));
+					
+					OutTxtModel.getInstance().addLine("删除文件"+$file.url);
+					$file.deleteFile();
+				}
 			}
 			
 		}
@@ -448,85 +97,44 @@ package mvc.top
 		{
 			OutTxtModel.getInstance().initSceneConfigPanel("");
 			resFileItem=getInFolderFile(new File(ProjectUrl+"res"));
-			writemanifest();
-	
+
 			fileID=0
 			myTimer = new Timer(10, 0);
 			myTimer.addEventListener(TimerEvent.TIMER, timerHandler);
 			myTimer.start();
 		}
-		private function writemanifest():void
-		{
-			var str:String="";
-			str+="CACHE MANIFEST\n";
-			str+="#v1.0.0\n";
-			str+="CACHE:\n";
-			
-
-			
-			
-			str+="res/map/slg_city.txt\n";
-			str+="res/map/slg_map.txt\n";
-	
-		
-			
-			str+="NETWORK:\n";
-			str+="*\n";
-			str+="FALLBACK:\n";
-			str+="index.html\n";
-				
-				
-			writeToXml(new File(JsBagRootUrl+"dest/cache.manifest"),str)
-
-		
-		}
 		private var myTimer:Timer;
-		private var fileID:Number
+		private var fileID:Number;
 		protected function timerHandler(event:TimerEvent):void
 		{
 			if(fileID<resFileItem.length){
 				var url:String=resFileItem[fileID].url.replace(ProjectUrl,"")
-				
 				moveFile(resFileItem[fileID],JsBagRootUrl+"dest/"+url)
-
-				
 				fileID++
-					OutTxtModel.getInstance().addLine(String(fileID)+"/"+String(resFileItem.length)+"->"+url);
+				OutTxtModel.getInstance().addLine(String(fileID)+"/"+String(resFileItem.length)+"->"+url);
 			}else{
 				Alert.show("文件生成完成")
-					
 				myTimer.stop()
-			
 			}
 		}
 		private function getInFolderFile($sonFile:File):Vector.<File>
 		{
 			
 			var $fileItem:Vector.<File>=new Vector.<File>
-			
 			if($sonFile.exists && $sonFile.isDirectory)
 			{
 				var arr:Array=$sonFile.getDirectoryListing();
 				for each(var $tempFile:File in arr)
 				{
 					if($tempFile.isDirectory){
-						
-						
 						$fileItem=$fileItem.concat(getInFolderFile($tempFile))
-						
-						
 					}else{
-						
 						$fileItem.push($tempFile)
 					}
-					
 				}
 			}else{
-				
 				$fileItem.push($sonFile)
-				
 			}
-			
 			return $fileItem
 		}
 		
@@ -544,8 +152,6 @@ package mvc.top
 				str+="'src/"+_jsFileItem[i]+"',\n";
 			}
 				
-				
-				
 			str+="],\n"
 			str+="dest: 'dest/h5web.js'\n"
 			str+="}\n"
@@ -555,15 +161,13 @@ package mvc.top
 			
 			str+="banner:"+"'"+String.fromCharCode(92)+"n'\n";
 				
-			
-				
-				
+
 		//	banner: '\n'
 				
 			str+="	},\n"
 			str+="bulid: {\n"
 			str+="	src: 'dest/h5web.js',\n"
-			str+="		dest: 'dest/h5web.min.js'\n"
+			str+="	dest: 'dest/h5web.min.js'\n"
 			str+="	}\n"
 			str+="	}\n"
 			str+="});\n"
@@ -577,12 +181,11 @@ package mvc.top
 
 			str+="};\n"
 				
-				
+
 				
 			writeToXml(new File(JsBagRootUrl+"Gruntfile.js"),str)
-			
-			
-			
+
+			OutTxtModel.getInstance().addLine("生存--->Gruntfile.js");
 		}
 		private  function writeToXml($file:File,str:String):void
 		{
@@ -606,27 +209,21 @@ package mvc.top
 			for(var i:uint=0;i<_jsFileItem.length;i++){
 			
 			     var jsFile:File= new File(ProjectUrl+_jsFileItem[i]);
-				 if(jsFile.exists){
-					 
+				 if(jsFile.exists ){
+					 /*
 					 if(jsFile.name=="UiStage.js"){
-					
 						 changeFpsFile(_jsFileItem[i])
 					 }else{
-					 
 						 moveFile(jsFile,JsBagRootUrl+"src/"+_jsFileItem[i])
 					 }
-					 
-			
-				 
+					 */
+					 moveFile(jsFile,JsBagRootUrl+"src/"+_jsFileItem[i])
+		
 				 }else{
-				 
-				 
+					 OutTxtModel.getInstance().addLine("!!!!没有文件->"+jsFile.url);
 				 }
-				
-				
-				
 			}
-			
+			OutTxtModel.getInstance().addLine("移动文件Js文件数量=>"+_jsFileItem.length.toString());
 		}
 		private function changeFpsFile(fpsUrl:String):void
 		{
@@ -717,8 +314,11 @@ package mvc.top
 		private function runComand():void
 		{
 			var exePath:String = "C:/Windows/System32/cmd.exe";//exe路径，经过测试，直接从system32下复制到程序的目录下也是没有问题的，前提是你的程序都是默认安装的。环境变量也没变
-			
+
 			var shellPath:String = "F:/a.bat"
+			OutTxtModel.getInstance().addLine("执行--->"+shellPath);
+			OutTxtModel.getInstance().addLine("正在生成min.js--->"+getTimer().toString());
+			
 			var info:NativeProcessStartupInfo = new NativeProcessStartupInfo();//启动参数
 			info.executable = new File(exePath);
 			var processArg:Vector.<String> = new Vector.<String>();
@@ -734,19 +334,25 @@ package mvc.top
 			
 		//	Alert.show("文件生成完成")
 				
+	
 		
 		}
-		
-		protected function packageOverHandler(event:NativeProcessExitEvent):void
+		protected function packageOverHandler(event:NativeProcessExitEvent=null):void
 		{
-				//Alert.show("11111")
+			var $minfile:File=new  File(JsBagRootUrl+"dest/h5web.min.js");
+			OutTxtModel.getInstance().addLine("正在生成--->zip.js");
+			if($minfile.exists){
+				ZipMinJsModel.getInstance().changeZipByFile($minfile)
+			}else{
+				setTimeout(packageOverHandler,1000);
+			}
 			
 		}
 		
 		protected function outputHandler(event:ProgressEvent):void
 		{
-			//Alert.show("3333")
-			
+	
+		
 		}
 		
 	}

@@ -25,7 +25,7 @@
   <flashCatalyst validateFlashCatalystCompatibility="false"/>
   <buildTargets>
     <buildTarget buildTargetName="default" platformId="default">
-      <airSettings airCertificatePath="E:/codeas/key/key.p12" airTimestamp="false" anePathSet="true" version="1">
+      <airSettings airCertificatePath="E:/aliyun/key/key.p12" airTimestamp="false" anePathSet="true" version="1">
         <airExcludes/>
         <anePaths/>
         <newLaunchParams/>

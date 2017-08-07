@@ -8,6 +8,8 @@ package mvc.top
 	import flash.net.FileFilter;
 	import flash.utils.ByteArray;
 	
+	import mx.controls.Alert;
+	
 	import modules.scene.sceneSave.FilePathManager;
 
 	public class ZipMinJsModel
@@ -33,7 +35,7 @@ package mvc.top
 			$file.addEventListener(Event.SELECT,onSelect);
 			function onSelect(e:Event):void
 			{
-				
+				/*
 				var $fsScene:FileStream = new FileStream;
 				$fsScene.open($file,FileMode.READ);
 				var minbyte:ByteArray=new ByteArray;
@@ -41,9 +43,25 @@ package mvc.top
 				$fsScene.close();
 				var toFilename:String=$file.url.replace(".min.js",".zip.js")
 				writeFileToaa(toFilename,minbyte)
+				*/
+				this.changeZipByFile($file)
 			} 
 			
 			
+		}
+		public function changeZipByFile($file:File):void
+		{
+			if($file.exists){
+				var $fsScene:FileStream = new FileStream;
+				$fsScene.open($file,FileMode.READ);
+				var minbyte:ByteArray=new ByteArray;
+				$fsScene.readBytes(minbyte,0,$fsScene.bytesAvailable);
+				$fsScene.close();
+				var toFilename:String=$file.url.replace(".min.js",".zip.js")
+				writeFileToaa(toFilename,minbyte);
+			}else{
+			   Alert.show($file.url,"警告");
+			}
 		}
 		
 		private function writeFileToaa(_toFilename:String,minbyte:ByteArray):void
