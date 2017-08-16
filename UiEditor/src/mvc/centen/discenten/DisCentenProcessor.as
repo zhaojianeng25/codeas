@@ -43,6 +43,7 @@ package mvc.centen.discenten
 	import mvc.left.panelleft.PanelModel;
 	import mvc.project.ProjectEvent;
 	import mvc.scene.UiSceneEvent;
+	import mvc.top.SavePngZipModel;
 	
 	import vo.FileDataVo;
 	import vo.FileInfoType;
@@ -443,7 +444,6 @@ package mvc.centen.discenten
 			if(UiData.isNewH5UI){
 				//如果是新场景将只能另存为
 				$changeUrl=true;
-
 			}
 			
 			if($changeUrl){
@@ -495,6 +495,8 @@ package mvc.centen.discenten
 			
 			Alert.show($file.name,"保存完毕")
 			UiData.isNewH5UI=false
+				
+			//SavePngZipModel.getInstance().saveJpngBy()
 		}
 		
 		protected function onRightClick(event:MouseEvent):void

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!-- test_update.xml -->
 <update
  xmlns="http://ns.adobe.com/air/framework/update/description/1.0">
- <versionNumber>2.9.1</versionNumber>
+ <versionNumber>2.9.2</versionNumber>
 <url>http://192.168.88.25/codeas/BoneAnimApp/output/BoneAnimApp.air</url>
  <description>
   <text xml:lang="en_US">更新啦</text>

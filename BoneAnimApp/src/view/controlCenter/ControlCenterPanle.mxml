@@ -960,11 +960,13 @@
 			fs.close();
 			
 			
+			/*
 			var $baseFileUrl:String= file.parent.url + "/skill/" + file.name.replace(".txt","_base_byte.txt");
 			MakeResFileList.getInstance().pushUrl($baseFileUrl)
 			fs.open(new File($baseFileUrl),FileMode.WRITE);
 			this.writeData(fs,file,str,$skillByte,false)
 			fs.close();
+			*/
 		}
 		private function writeData(fs:FileStream,file:File,str:String,$skillByte:ByteArray,haspic:Boolean):void
 		{

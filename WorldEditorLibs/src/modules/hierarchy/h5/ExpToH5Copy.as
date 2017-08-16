@@ -107,35 +107,6 @@ package modules.hierarchy.h5
 			
 			
 		}
-		public function expParticleToH5($CombineParticle:CombineParticle,$root:String):String
-		{
-			var $picArr:Array=new Array;
-			var a:Array=$CombineParticle.getMaterialTexUrlAry()
-			$picArr=$picArr.concat(a)
-			var b:Array=$CombineParticle.getMaterialAry();
-			for(var materialTreeId:uint=0;materialTreeId<b.length;materialTreeId++){
-				$picArr=$picArr.concat(MaterialTree(b[materialTreeId]).getTxtList())
-			}
-			for(var i:uint=0;i<$picArr.length;i++){
-				var picUrl:String=$picArr[i];
-				if(picUrl){
-					var picFile:File=new File(AppData.workSpaceUrl+picUrl)
-					var toPicUrl:String=decodeURI($root)+Cn2enFun(picUrl)
-					moveFile(picFile,toPicUrl)	
-				}
-			}
-			var lyfFile:File=new File(decodeURI($CombineParticle.url.replace(".lyf",".txt")))
-			if(lyfFile.exists){
-				var toXmlUrl:String=decodeURI($root)+Cn2enFun(lyfFile.url.replace(AppData.workSpaceUrl,""));
-				moveFile(lyfFile,toXmlUrl)
-				return Cn2enFun(lyfFile.url.replace(AppData.workSpaceUrl,""))
-			}else{
-				Alert.show(decodeURI(lyfFile.url),"无地址提示")
-				return null
-			}
-			
-			
-		}
 
 		
 		private function makeGroundUrl():Array

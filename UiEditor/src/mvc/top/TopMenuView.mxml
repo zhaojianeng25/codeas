@@ -26,7 +26,6 @@
 			import mvc.centen.discenten.DisCentenEvent;
 			import mvc.left.panelleft.PanelModel;
 			import mvc.left.picleft.PicLeftEvent;
-			import mvc.lua.LuaModel;
 			import mvc.project.ProjectEvent;
 			import mvc.scene.UiSceneEvent;
 			

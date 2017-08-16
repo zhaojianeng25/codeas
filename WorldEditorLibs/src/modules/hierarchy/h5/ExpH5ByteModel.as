@@ -8,7 +8,6 @@ package modules.hierarchy.h5
 	import flash.utils.Dictionary;
 	
 	import mx.controls.Alert;
-	import mx.graphics.codec.PNGEncoder;
 	
 	import _Pan3D.load.LoadInfo;
 	import _Pan3D.load.LoadManager;
@@ -18,8 +17,6 @@ package modules.hierarchy.h5
 	import materials.MaterialTree;
 	
 	import modules.hierarchy.FileSaveModel;
-	
-	import org.aszip.encoding.PNGEnc;
 
 	public class ExpH5ByteModel
 	{

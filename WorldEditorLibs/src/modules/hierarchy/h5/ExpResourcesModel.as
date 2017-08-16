@@ -519,26 +519,10 @@ package modules.hierarchy.h5
 			
 		
 			
-			var lyfFile:File=new File(decodeURI(url.replace(".lyf",".txt")))
+			var lyfFile:File=new File(decodeURI(url.replace(".lyf","_byte.txt")))
 			if(lyfFile.exists){
 				
-				/*
-				var toXmlUrl:String=decodeURI($root)+this.Cn2enFun(lyfFile.url.replace(AppData.workSpaceUrl,""));
-				this.moveFile(lyfFile,toXmlUrl)
-				if(expByteInfo){
-					var lyfByteFile:File=new File(url.replace(".lyf","_byte.txt"))
-					if(lyfByteFile.exists){
-						var toXmlByteUrl:String=decodeURI($root)+this.Cn2enFun(lyfByteFile.url.replace(AppData.workSpaceUrl,""));
-						this.moveFile(lyfByteFile,toXmlByteUrl)
-					}else{
-						//Alert.show(decodeURI(lyfByteFile.url),"无地址_byte.txt");
-						
-						ExpLyfTxtToByteFile.getInstance().buildLyfByUrl(url);
-				
-					}
-				}
-				*/
-				
+		
 				return this.Cn2enFun(lyfFile.url.replace(AppData.workSpaceUrl,""))
 			}else{
 				Alert.show(decodeURI(lyfFile.url),"无地址提示1")
@@ -588,11 +572,9 @@ package modules.hierarchy.h5
 				}
 			}
 			
-			var lyfFile:File=new File(decodeURI($CombineParticle.url.replace(".lyf",".txt")))
+			var lyfFile:File=new File(decodeURI($CombineParticle.url.replace(".lyf","_byte.txt")))
 			if(lyfFile.exists){
 				var toXmlUrl:String=decodeURI($root)+this.Cn2enFun(lyfFile.url.replace(AppData.workSpaceUrl,""));
-				//this.moveFile(lyfFile,toXmlUrl);
-				//_lyfItem.push(toXmlUrl);
 				return this.Cn2enFun(lyfFile.url.replace(AppData.workSpaceUrl,""))
 			}else{
 				Alert.show(decodeURI(lyfFile.url),"无地址提示2")
@@ -724,9 +706,9 @@ package modules.hierarchy.h5
 				}else{
 					Alert.show("没有文件",fileName)
 				}
-				if(ExpResourcesModel.expAllPic==false){
-					_willdeleFileItem.push(_picItem[i]);
-				}
+				//if(ExpResourcesModel.expAllPic==false){
+				_willdeleFileItem.push(_picItem[i]);
+				
 			}
 			for(i=0;i<_objsItem.length;i++)
 			{

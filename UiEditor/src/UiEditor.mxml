@@ -73,7 +73,7 @@
 				this.initConfig();
 				this.initView()
 
-			//	this.outTabel();
+				this.outTabel();
 
 			
 			}
@@ -84,10 +84,14 @@
 
 			//	id,distance,mcd,num,hurt_percent,cannot_defence_hure,fight_value,uplevel_item,need_level,uplevel_cost,type_effect
 			//	int,int,int,int,int,int,int,array,int,array,array
-				var $stra:String="id,mapid,name,monster,passRewardId,passRewardCnt,fpRewardId,fpRewardCnt,times,limLev"
-				var $strb:String="int,int,string,array,array,array,array,array,int,int";
+//				var $stra:String="id,mapid,name,monster,passRewardId,passRewardCnt,fpRewardId,fpRewardCnt,times,limLev"
+//				var $strb:String="int,int,string,array,array,array,array,array,int,int";
 
-
+				
+				var $stra:String="id,mapid,name,level,advisepoint,showitems,nextId,goldReward,expReward,suitScore,suitScoreChange,bossId"
+				var $strb:String="int,int,string,int,int,array,int,array,array,int,int,int";
+				
+				
 	
 				
 				var A:Array=$stra.split(",");

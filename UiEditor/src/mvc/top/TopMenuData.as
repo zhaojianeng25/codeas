@@ -47,7 +47,8 @@ package  mvc.top
 <menuitem label="删除Glist文件" id="50"/> 
 <menuitem label="清理H5工作目录" id="52"/> 
 	<menuitem label="合并系列动画" id="51"/> 
-	<menuitem label="打包项目" id="53"/> 
+<menuitem label="打包项目" id="53"/> 
+<menuitem label="zipFile" id="54"/> 
 
 		
 				</menuitem>
