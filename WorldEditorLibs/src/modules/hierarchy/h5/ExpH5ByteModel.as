@@ -148,8 +148,9 @@ package modules.hierarchy.h5
 				trace("materailTree.directLight",materailTree.directLight);
 				
 				var $fileUrl:String=decodeURI(AppData.workSpaceUrl+$objUrl)
+	
 				if(materailTree.useNormal){
-					useNormalUrlObj[AppData.workSpaceUrl+$objUrl]=true
+					useNormalUrlObj[$fileUrl]=true
 				}
 				if(materailTree.usePbr){
 					usePbrUrlObj[$fileUrl]=true
