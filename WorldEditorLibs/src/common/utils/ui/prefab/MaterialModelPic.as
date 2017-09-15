@@ -112,8 +112,9 @@ package common.utils.ui.prefab
 			if($data){
 				//(@10eb7ba1)
 	
-				var $ITile:ITile=ITile($data)
-				_labelTxt.text=$ITile.getName()
+				var $ITile:ITile=ITile($data);
+				var $baseName:String=$ITile.getName()
+				_labelTxt.text=decodeURI($baseName)
 				trace(_labelTxt.text)
 				if($ITile.getBitmapData()){
 					_iconBmp.setBitmapdata($ITile.getBitmapData(),64,64)

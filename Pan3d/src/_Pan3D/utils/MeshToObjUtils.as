@@ -152,12 +152,12 @@ package  _Pan3D.utils
 			}
 			return t;
 		}
-		
-		public function processBoneNew(targetAry:Vector.<ObjectBone>):Vector.<ObjectBone>{
-			
+		public static function getStorNewTargerArr(targetAry:Vector.<ObjectBone>):Vector.<ObjectBone>
+		{
 			var newTargetAry:Vector.<ObjectBone> = new Vector.<ObjectBone>;
-			//添加bip骨骼到新数组
-			for(var i:int;i<targetAry.length;i++){
+			var i:int
+			
+			for(i = 0;i<targetAry.length;i++){
 				if(targetAry[i].name.indexOf("Bip") != -1){
 					newTargetAry.push(targetAry[i]);
 				}
@@ -175,9 +175,18 @@ package  _Pan3D.utils
 				}
 			}
 			
+			
+			return newTargetAry
+		}
+		public function processBoneNew(targetAry:Vector.<ObjectBone>):Vector.<ObjectBone>{
+			
+			var newTargetAry:Vector.<ObjectBone> = MeshToObjUtils.getStorNewTargerArr(targetAry);
+			//添加bip骨骼到新数组
+		
+			
 			var mapkeyAry:Array = new Array;//新旧ID映射关系
 			
-			for(i = 0;i<targetAry.length;i++){
+			for(var i:int = 0;i<targetAry.length;i++){
 				var index:int = newTargetAry.indexOf(targetAry[i]);
 				mapkeyAry.push(index);
 			}

@@ -31,7 +31,6 @@
 			
 			import _me.Scene_data;
 			
-			
 			import common.AppData;
 			import common.GameUIInstance;
 			
@@ -39,6 +38,7 @@
 			import manager.MouseManager;
 			
 			import modules.brower.BrowerPanel;
+			import modules.hierarchy.h5.ExpAllSpaceLyfToH5;
 			
 			import mvc.UiModuleList;
 			import mvc.centen.discenten.DisCentenEvent;
@@ -49,7 +49,7 @@
 			import mvc.top.TopEvent;
 			
 			import out.ExpAllLyfFileToH5;
-			import modules.hierarchy.h5.ExpAllSpaceLyfToH5;
+			import out.OldObjsToNewObjs;
 			
 			import render.ground.TerrainEditorData;
 			
@@ -75,8 +75,10 @@
 
 				this.outTabel();
 
+				//OldObjsToNewObjs.getInstance().outAll();
 			
 			}
+	
 			
 		
 			private function outTabel():void

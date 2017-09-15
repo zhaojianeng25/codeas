@@ -1,13 +1,5 @@
 package view.meshSort
 {
-	import _Pan3D.base.MeshData;
-	import _Pan3D.base.ObjectBone;
-	import _Pan3D.base.ObjectTri;
-	import _Pan3D.base.ObjectUv;
-	import _Pan3D.base.ObjectWeight;
-	
-	import _me.Scene_data;
-	
 	import flash.events.Event;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -15,8 +7,18 @@ package view.meshSort
 	
 	import mx.collections.ArrayCollection;
 	
+	import _Pan3D.base.MeshData;
+	import _Pan3D.base.ObjectBone;
+	import _Pan3D.base.ObjectTri;
+	import _Pan3D.base.ObjectUv;
+	import _Pan3D.base.ObjectWeight;
+	import _Pan3D.utils.MeshToObjUtils;
+	
+	import _me.Scene_data;
+	
 	import view.action.ActionPanel;
 	import view.mesh.MeshPanel;
+
 	/**
 	 * 
 	 * @author liuyanfei QQ:421537900
@@ -140,29 +142,12 @@ package view.meshSort
 		public function processBoneNew(targetAry:Vector.<ObjectBone>,action:Object):void{
 
 			
-			var newTargetAry:Vector.<ObjectBone> = new Vector.<ObjectBone>;
-			//添加bip骨骼到新数组
-			for(var i:int;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("Bip") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加weapon骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("weapon") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加剩余的骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(newTargetAry.indexOf(targetAry[i]) == -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
+	
+			var newTargetAry:Vector.<ObjectBone> = MeshToObjUtils.getStorNewTargerArr(targetAry);
 			
 			var mapkeyAry:Array = new Array;//新旧ID映射关系
 			
-			for(i = 0;i<targetAry.length;i++){
+			for(var i:int = 0;i<targetAry.length;i++){
 				var index:int = newTargetAry.indexOf(targetAry[i]);
 				mapkeyAry.push(index);
 			}
@@ -318,29 +303,12 @@ package view.meshSort
 		 * 
 		 */		
 		public function getMapValue(targetAry:Vector.<ObjectBone>):Array{
-			var newTargetAry:Vector.<ObjectBone> = new Vector.<ObjectBone>;
-			//添加bip骨骼到新数组
-			for(var i:int;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("Bip") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加weapon骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("weapon") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加剩余的骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(newTargetAry.indexOf(targetAry[i]) == -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
+		
+			var newTargetAry:Vector.<ObjectBone> = MeshToObjUtils.getStorNewTargerArr(targetAry);
 			
 			var mapkeyAry:Array = new Array;//新旧ID映射关系
 			
-			for(i = 0;i<targetAry.length;i++){
+			for(var i:int = 0;i<targetAry.length;i++){
 				var index:int = newTargetAry.indexOf(targetAry[i]);
 				mapkeyAry.push(index);
 			}

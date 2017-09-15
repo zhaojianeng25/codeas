@@ -1116,14 +1116,12 @@ package modules.materials.treedata
 					this.useLightMap = true;
 				}
 				
-				if(this.noLight){
+				if(this.noLight&&!this.directLight){
 					str = resultStr + SPACE + EQU + SPACE + VEC4 + LEFT_PARENTH + pNodeDiffuse.getComponentID(inputDiffuse.parentNodeItem.id) + COMMA + "1.0" + RIGHT_PARENTH + END;
 				}else{
 					str = FT + regtempLightMap.id + XYZ + SPACE + EQU + SPACE + FT + regtempLightMap.id + XYZ + SPACE + MUL_MATH 
 						+ SPACE + pNodeDiffuse.getComponentID(inputDiffuse.parentNodeItem.id) + END;
 				}
-				
-				
 				strVec.push(str);
 				
 				pNodeDiffuse.releaseUse();

@@ -1313,10 +1313,13 @@ package modules.hierarchy
 							var $buildModel:IModel=Render.creatDisplay3DModel($buildMesh.prefabStaticMesh,$tempNode.id)
 							$tempNode.iModel=$buildModel
 							$tempNode.data=$buildMesh
-							CaptureManager.getInstance().getCaptureVoById($buildMesh.captureId,function ($textureCubeMapVo:TextureCubeMapVo):void{
-								$buildModel.setEnvCubeMap($textureCubeMapVo)
 								
-							})
+							if($buildMesh.captureId>0){
+								CaptureManager.getInstance().getCaptureVoById($buildMesh.captureId,function ($textureCubeMapVo:TextureCubeMapVo):void{
+									$buildModel.setEnvCubeMap($textureCubeMapVo);
+								})
+							}
+								
 						}
 			
 				

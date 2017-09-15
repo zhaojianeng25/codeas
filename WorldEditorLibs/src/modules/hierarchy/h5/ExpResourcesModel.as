@@ -239,9 +239,10 @@ package modules.hierarchy.h5
 				if($file.exists){
 					$fs.open($file,FileMode.READ);
 					var $objList:Object = $fs.readObject();
-					var $hasPbr:Boolean=ExpH5ByteModel.getInstance().usePbrUrlObj[$file.url]
-					var $hasNormal:Boolean=ExpH5ByteModel.getInstance().useNormalUrlObj[$file.url]
-					var $hasDirectLight:Boolean=ExpH5ByteModel.getInstance().directLightUrlObj[$file.url]
+					var $fileUrlUrl:String=decodeURI($file.url);
+					var $hasPbr:Boolean=ExpH5ByteModel.getInstance().usePbrUrlObj[$fileUrlUrl]
+					var $hasNormal:Boolean=ExpH5ByteModel.getInstance().useNormalUrlObj[$fileUrlUrl]
+					var $hasDirectLight:Boolean=ExpH5ByteModel.getInstance().directLightUrlObj[$fileUrlUrl]
 					writeFile($objList,$toFileUrl,$hasNormal,$hasPbr,$hasDirectLight)
 				}
 			}

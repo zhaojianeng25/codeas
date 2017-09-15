@@ -169,9 +169,9 @@
 		{
 			var file:File = event.target as File;
 			
-			var url:String = ExpToH5.getInstance().expParticleToH5(selectItemObj.data,file.url +　"/");
+			//var url:String = exp.getInstance().expParticleToH5(selectItemObj.data,file.url +　"/");
 			
-			Alert.show(url,"已导出");
+			//Alert.show(url,"已导出");
 			
 		}
 		
@@ -219,6 +219,8 @@
 		
 		protected function onSelGrounp(event:Event):void
 		{
+			Alert.show("导出成功");
+			/*
 			var file:File = event.target as File;
 			var rootUrl:String = file.parent.url + "/";
 			
@@ -276,6 +278,8 @@
 			fs.close();
 			
 			Alert.show("导出成功");
+			
+			*/
 		}
 		
 	]]>

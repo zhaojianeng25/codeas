@@ -141,9 +141,13 @@ package _Pan3D.light
 			if(obj)
 			{
 				SkyBoxUrl=obj.SkyBoxUrl
+				if(SkyBoxUrl==""){
+					SkyBoxUrl="assets/white.jpg"
+				}
 			}else{
-				SkyBoxUrl=""
+				SkyBoxUrl="assets/white.jpg"
 			}
+			
 			if(obj && obj.ClearColor)
 			{
 				ClearColor=new Vector3D(obj.ClearColor.x,obj.ClearColor.y,obj.ClearColor.z);

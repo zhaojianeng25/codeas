@@ -49,6 +49,7 @@
 			import modules.prefabs.PrefabRenderToBmpModel;
 			import modules.sceneConfig.SceneConfigEvent;
 			import modules.terrain.TerrainOutH5DataModel;
+			import modules.terrain.TerrainSmoothModel;
 			
 			import render.build.BuildManager;
 			import render.ground.GroundManager;
@@ -163,6 +164,8 @@
 					ModuleEventManager.dispatchEvent(new MEvent_Material(MEvent_Material.MEVENT_MATERIAL_COMBINE_LIGHTMAP));
 				}else if(type == 23){
 			
+				}else if(type == 2005){
+					TerrainSmoothModel.getInstance().smoothLightPic();
 				}
 				
 				

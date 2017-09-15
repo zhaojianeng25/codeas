@@ -1,16 +1,5 @@
 package utils
 {
-	import _Pan3D.base.MeshData;
-	import _Pan3D.base.ObjectBone;
-	import _Pan3D.base.ObjectTri;
-	import _Pan3D.base.ObjectUv;
-	import _Pan3D.base.ObjectWeight;
-	import _Pan3D.load.LoadInfo;
-	import _Pan3D.load.LoadManager;
-	import _Pan3D.role.MeshUtils;
-	
-	import _me.Scene_data;
-	
 	import flash.events.Event;
 	import flash.filesystem.File;
 	import flash.filesystem.FileMode;
@@ -19,6 +8,18 @@ package utils
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.utils.ByteArray;
+	
+	import _Pan3D.base.MeshData;
+	import _Pan3D.base.ObjectBone;
+	import _Pan3D.base.ObjectTri;
+	import _Pan3D.base.ObjectUv;
+	import _Pan3D.base.ObjectWeight;
+	import _Pan3D.load.LoadInfo;
+	import _Pan3D.load.LoadManager;
+	import _Pan3D.role.MeshUtils;
+	import _Pan3D.utils.MeshToObjUtils;
+	
+	import _me.Scene_data;
 	
 	import view.byteFile.MeshFileToByteUtils;
 
@@ -222,29 +223,12 @@ package utils
 		
 		public function processBoneNew(targetAry:Vector.<ObjectBone>):Vector.<ObjectBone>{
 			
-			var newTargetAry:Vector.<ObjectBone> = new Vector.<ObjectBone>;
-			//添加bip骨骼到新数组
-			for(var i:int;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("Bip") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加weapon骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("weapon") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加剩余的骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(newTargetAry.indexOf(targetAry[i]) == -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
+
+			var newTargetAry:Vector.<ObjectBone> = MeshToObjUtils.getStorNewTargerArr(targetAry);
 			
 			var mapkeyAry:Array = new Array;//新旧ID映射关系
 			
-			for(i = 0;i<targetAry.length;i++){
+			for(var i:int = 0;i<targetAry.length;i++){
 				var index:int = newTargetAry.indexOf(targetAry[i]);
 				mapkeyAry.push(index);
 			}

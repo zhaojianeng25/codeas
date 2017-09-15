@@ -538,13 +538,14 @@ package _Pan3D.display3D
 			_context.setVertexBufferAt(0, null);
 			_context.setVertexBufferAt(1, null);
 			_context.setVertexBufferAt(2, null);
+			
 			if(material.usePbr){
 				_context.setVertexBufferAt(3,null);
 				if(material.useNormal){
 					_context.setVertexBufferAt(4,null);
 					_context.setVertexBufferAt(5,null);
 				}
-			}else if(material.hasFresnel || material.lightProbe){
+			}else if(material.hasFresnel || material.lightProbe||material.directLight){
 				_context.setVertexBufferAt(3,null);
 			}
 			

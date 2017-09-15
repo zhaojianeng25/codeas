@@ -8,6 +8,7 @@ package view.meshSort
 	import _Pan3D.display3D.analysis.AnalysisServer;
 	import _Pan3D.display3D.analysis.Md5animAnalysis;
 	import _Pan3D.role.AnimDataManager;
+	import _Pan3D.utils.MeshToObjUtils;
 	
 	import _me.Scene_data;
 
@@ -31,29 +32,11 @@ package view.meshSort
 		 */		
 		public function processBoneNew(targetAry:Vector.<ObjectBone>,action:Object):Object{
 			
-			var newTargetAry:Vector.<ObjectBone> = new Vector.<ObjectBone>;
-			//添加bip骨骼到新数组
-			for(var i:int;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("Bip") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加weapon骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("weapon") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加剩余的骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(newTargetAry.indexOf(targetAry[i]) == -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			
+
+			var newTargetAry:Vector.<ObjectBone> = MeshToObjUtils.getStorNewTargerArr(targetAry);
 			var mapkeyAry:Array = new Array;//新旧ID映射关系
 			
-			for(i = 0;i<targetAry.length;i++){
+			for(var i:Number = 0;i<targetAry.length;i++){
 				var index:int = newTargetAry.indexOf(targetAry[i]);
 				mapkeyAry.push(index);
 			}

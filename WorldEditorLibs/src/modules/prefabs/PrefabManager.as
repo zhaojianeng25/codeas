@@ -69,8 +69,9 @@ package modules.prefabs
 			for(var i:String in $obj) {
 				prefab[i]=$obj[i]
 			}
-			
+		
 			if(prefab.materialUrl&&AppData.workSpaceUrl){
+				//prefab.materialUrl=encodeURI(prefab.materialUrl)
 				prefab.material = MaterialTreeManager.getMaterial(AppData.workSpaceUrl+prefab.materialUrl);
 			}
 			

@@ -58,6 +58,7 @@ package  modules.brower.fileWin
 	import mode3d.XFileMode3DStaticMesh;
 	
 	import modules.brower.fileTip.InputWindow;
+	import modules.expres.ExpTo3dmaxByObjs;
 	import modules.hierarchy.h5.ExpGroupToH5Model;
 	import modules.materials.CubeMapManager;
 	import modules.materials.view.MaterialTreeManager;
@@ -235,6 +236,11 @@ package  modules.brower.fileWin
 					item.addEventListener(Event.SELECT,onExpToH5);
 					_menuFile.addItem(item);
 				}
+				if(_fileData.file.extension=="objs"){
+					item = new NativeMenuItem("导出3dmaxObj");
+					item.addEventListener(Event.SELECT,onExp3Dmaxobj);
+					_menuFile.addItem(item);
+				}
 			}
 
 			
@@ -250,6 +256,13 @@ package  modules.brower.fileWin
 			
 		}
 		
+		protected function onExp3Dmaxobj(event:Event):void
+		{
+			if(_fileData.file){
+				var _sonFile:File=_fileData.file
+				ExpTo3dmaxByObjs.getInstance().expByUrl(_sonFile.url)
+			}
+		}
 		protected function onExpToH5(event:Event):void
 		{
 			if(_fileData.file){

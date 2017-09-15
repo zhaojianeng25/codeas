@@ -227,25 +227,25 @@ package modules.expres
 		protected function _btnEndClik(event:MouseEvent):void
 		{
 			// TODO Auto-generated method stub
-			
+			var obj:ExpResFunVo=new ExpResFunVo;
 		    if(_tree.selectedItem){
-				var obj:ExpResFunVo=new ExpResFunVo;
+			
 				obj.id=_tree.selectedItem.id;
-				for (var str:String in _tree.selectedItem){
-					//obj[str]=_tree.selectedItem[str]
-				}
 				obj.isUi=this.isUi;
-//				if(this._suffixLabelText){
-//					obj.suffix=this._suffixLabelText;
-//				}
-				
 				selectBackFun(obj);
 			}else{
-		
-				if(ExpResModel.getInstance().hasTbData){
-					trace("请选取导出的目标")
-				}else{
-					this.notTbData();
+				var $str:String=_searchTxt.text
+				if($str.length){
+					obj.id=$str;
+					obj.isUi=this.isUi;
+					selectBackFun(obj);
+				}
+				else{
+					if(ExpResModel.getInstance().hasTbData){
+						trace("请选取导出的目标")
+					}else{
+						this.notTbData();
+					}
 				}
 			}
 		}

@@ -819,8 +819,10 @@ package modules.materials.treedata
 					str += MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA + FC + THREE + X;
 					strVec.push(str);
 				}else if(this.directLight){
+					
+//					MOV + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultLightUvReg.id; 
+//					MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA + FC + THREE + X;
 					str = MOV + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultLightUvReg.id; 
-					//str += MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA + FC + THREE + X;
 					strVec.push(str);
 				}else if(this.noLight){
 					
@@ -836,7 +838,13 @@ package modules.materials.treedata
 				}
 				if(this.noLight){
 					//str = MOV + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultUvReg.id + LN;
-					str = MOV + SPACE + FT + regtempLightMap.id + COMMA + pNodeDiffuse.getComponentID(5);
+					if(this.directLight){
+						str = MUL + SPACE + FT + regtempLightMap.id +  COMMA+ COMMA + VI + defaultLightUvReg.id
+						str = MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA +  pNodeDiffuse.getComponentID(inputDiffuse.parentNodeItem.id);
+					}else{
+						str = MOV + SPACE + FT + regtempLightMap.id + COMMA + pNodeDiffuse.getComponentID(5);
+					}
+					
 				}else{
 					str = MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA +  pNodeDiffuse.getComponentID(inputDiffuse.parentNodeItem.id);
 				}

@@ -105,6 +105,8 @@
     <classEntry path="modules.expres.ExpResFunVo"/>
     <classEntry path="modules.hierarchy.h5.ExpAllSpaceLyfToH5"/>
     <classEntry path="modules.terrain.TerrainOutH5DataModel"/>
+    <classEntry path="modules.terrain.TerrainSmoothModel"/>
+    <classEntry path="modules.expres.ExpTo3dmaxByObjs"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

@@ -444,6 +444,12 @@ package modules.hierarchy.h5
 		private function getAstarItemByte():ByteArray
 		{
 			var $byte:ByteArray=new ByteArray;
+			if(!_navMeshStaticMeshToByte.astarItem){
+				
+				Alert.show("A星数据没")
+				return $byte
+			}
+			
 			if(_navMeshStaticMeshToByte){
 				$byte.writeBoolean(true);
 				

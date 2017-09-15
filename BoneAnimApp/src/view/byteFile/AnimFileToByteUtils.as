@@ -14,6 +14,7 @@ package view.byteFile
 	import _Pan3D.base.MeshData;
 	import _Pan3D.base.ObjectBone;
 	import _Pan3D.display3D.analysis.AnalysisServer;
+	import _Pan3D.utils.MeshToObjUtils;
 	
 	import view.mesh.MeshPanel;
 
@@ -384,6 +385,9 @@ package view.byteFile
 						itemAry.pop();
 					}
 					for(var j:int=0;j<itemAry.length;j++){
+						if(isNaN(Number(itemAry[j]))){
+						 trace("cccccc")
+						}
 						numAry.push(Number(itemAry[j]));
 					}
 				}
@@ -397,11 +401,13 @@ package view.byteFile
 		 * 
 		 */		
 		private function isFrame(str:String):Boolean{
-			if(str.indexOf("baseframe") == -1 && str.indexOf("frame") != -1){
+			if(str.indexOf("baseframe") == -1 && str.indexOf("frame") != -1 && str.indexOf("BoneScale") == -1){
 				return true;
 			}else{
 				return false;
 			}
+			
+			
 		}
 			
 		private function getBaseFrameStr(ary:Array):String{
@@ -432,29 +438,12 @@ package view.byteFile
 		
 		public function processBoneNew(targetAry:Vector.<ObjectBone>):Vector.<ObjectBone>{
 			
-			var newTargetAry:Vector.<ObjectBone> = new Vector.<ObjectBone>;
-			//添加bip骨骼到新数组
-			for(var i:int;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("Bip") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加weapon骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(targetAry[i].name.indexOf("weapon") != -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
-			//添加剩余的骨骼到新数组
-			for(i = 0;i<targetAry.length;i++){
-				if(newTargetAry.indexOf(targetAry[i]) == -1){
-					newTargetAry.push(targetAry[i]);
-				}
-			}
+	
+			var newTargetAry:Vector.<ObjectBone> = MeshToObjUtils.getStorNewTargerArr(targetAry);
 			
 			var mapkeyAry:Array = new Array;//新旧ID映射关系
 			
-			for(i = 0;i<targetAry.length;i++){
+			for(var i:int = 0;i<targetAry.length;i++){
 				var index:int = newTargetAry.indexOf(targetAry[i]);
 				mapkeyAry.push(index);
 			}
