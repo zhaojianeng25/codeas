@@ -650,7 +650,7 @@ package modules.hierarchy
 			_shiftKeyDown=event.shiftKey
 		
 				
-			if((event.keyCode==27 ||event.keyCode==Keyboard.Q) && AppData.editMode==EditModeEnum.EDIT_WORLD&&!_isMouseRightDown){
+			if((event.keyCode==27 ) && AppData.editMode==EditModeEnum.EDIT_WORLD&&!_isMouseRightDown){
 				_tree.selectedItems=[];
 				slectImodelTriClear()
 			

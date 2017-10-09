@@ -69,6 +69,7 @@ package PanV2
 			_context3D.setTextureAt(6,null)
 			
 		}
+		public static var modelScaleNum:Number=1
 		public static function  scanHitModel($arr:Vector.<Display3DSprite>,$mouse:Point):uint
 		{
 			resetVa();
@@ -112,7 +113,10 @@ package PanV2
 				color.y=int(i/0xff)%0xff
 				color.scaleBy(1/0xff)
 				if($arr[i].objData&&$arr[i].objData.indexBuffer&&$arr[i].visible){
-					$context3D.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 8, $arr[i].posMatrix, true);
+					
+					var $m:Matrix3D= $arr[i].posMatrix.clone()
+					$m.appendScale(1/SelectModelMath.modelScaleNum,1/SelectModelMath.modelScaleNum,1/SelectModelMath.modelScaleNum)
+					$context3D.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 8, $m, true);
 					$context3D.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT,0,Vector.<Number>( [color.x,color.y,0,1]));   
 					$context3D.setVertexBufferAt(0, $arr[i].objData.vertexBuffer, 0, Context3DVertexBufferFormat.FLOAT_3);
 					$context3D.drawTriangles($arr[i].objData.indexBuffer, 0, -1);

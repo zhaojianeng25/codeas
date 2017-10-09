@@ -18,7 +18,9 @@ package view.menu
 					<menuitem label="项目配置" action="9"/>
 					<menuitem label="授权" action="10"/>
 				</menuitem>
-				<menuitem label="角色" action="8">
+				<menuitem label="添加">
+				 <menuitem label="角色" action="8"/>
+				 <menuitem label="模型" action="11"/>
 				</menuitem>
 			</root>
 		public function MenuData()

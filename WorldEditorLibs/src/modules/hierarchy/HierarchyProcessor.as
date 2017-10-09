@@ -1113,7 +1113,7 @@ package modules.hierarchy
 						
 					if($tempFileNode.type==HierarchyNodeType.Prefab){
 						var $url:String=Render.lightUvRoot+"build"+$tempFileNode.id+".jpg"
-						FileSaveModel.getInstance().deleFile($url)
+					//	FileSaveModel.getInstance().deleFile($url)
 					}
 					if($tempFileNode.iModel){
 						Render.deleDisplay3DModel($tempFileNode.iModel)

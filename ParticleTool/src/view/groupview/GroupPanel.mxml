@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#404040" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="200" height="100">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.events.AIREvent;
+		
+		import spark.components.Window;
+		
+		import _Pan3D.display3D.Display3DMaterialSprite;
+		import _Pan3D.load.LoadInfo;
+		import _Pan3D.load.LoadManager;
+		import _Pan3D.program.shaders.MaterialShader;
+		import _Pan3D.utils.MaterialManager;
+		
+		import _me.Scene_data;
+		
+		import materials.MaterialTree;
+	
+		private static var instance:GroupPanel;
+
+		private var win:Window;
+
+		private var _menuFile:NativeMenu;
+		public static function getInstance():GroupPanel{
+			if(!instance){
+				instance = new GroupPanel;
+			}
+			return instance;
+		}
+		
+		public function show():void{
+			win = new Window(); 
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.width=200;
+			win.height=100;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = false;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom);
+			win.title = "模型设置";
+			win.open(true);
+		}
+		
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		
+		private function close():void{
+			
+		}
+		
+		
+		protected function onMenuAddItem():void
+		{
+			var file:File = new File;
+			file.addEventListener(Event.SELECT,loadRole);
+			var txtFilter:FileFilter = new FileFilter("Text", ".prefab;*.prefab;");
+			
+			
+			file.browseForOpen("打开工程文件 ",[txtFilter]);
+
+		}
+		
+		public function loadRole(event:Event):void{
+			var file:File = event.target as File;
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.READ);
+			var roleData:Object = fs.readObject();
+			fs.close();
+			this.loadPrefab(file.url)
+		}
+	
+		private function loadPrefab($url:String):void{
+			var loaderinfo:LoadInfo = new LoadInfo($url,LoadInfo.BYTE,onPrefabLoad,0);
+			LoadManager.getInstance().addSingleLoad(loaderinfo);
+		}
+		private var prefabSprite:Display3DMaterialSprite
+		private function onPrefabLoad(byte:ByteArray):void
+		{
+			
+			var obj:Object = byte.readObject();
+			if(!prefabSprite){
+				prefabSprite=new Display3DMaterialSprite(Scene_data.context3D);
+			}
+
+			MaterialManager.getInstance().getMaterial(Scene_data.fileRoot + obj.materialUrl,addMaterial,prefabSprite,true,MaterialShader.MODEL_SHADER,MaterialShader);
+			prefabSprite.url = Scene_data.fileRoot +  obj.axoFileName;
+			prefabSprite.setMaterialParam(obj.materialInfoArr);
+			if(!prefabSprite.parent){
+				AppParticleData.roleContanier.addChild(prefabSprite);
+			}
+	
+
+		}
+		private function addMaterial($mt:MaterialTree,info:Object):void{
+			info.material = $mt;
+		}
+		private function visibleChg():void
+		{
+			if(prefabSprite){
+				if(!prefabSprite.parent){
+					AppParticleData.roleContanier.addChild(prefabSprite);
+				}else{
+					AppParticleData.roleContanier.removeChild(prefabSprite);
+				}
+			}
+			
+		}
+
+		
+	]]>
+</fx:Script>
+	<mx:Button x="10" y="10" label="添加" click="onMenuAddItem()"/>
+
+	<mx:CheckBox id="cbvisible" x="94" y="10" label="是否显示模型" change="visibleChg()" selected="true"/>
+</mx:Canvas>

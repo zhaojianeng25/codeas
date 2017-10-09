@@ -1,6 +1,5 @@
 package  render
 {
-	import com.adobe.utils.PerspectiveMatrix3D;
 	import com.greensock.TweenLite;
 	
 	import flash.events.Event;
@@ -11,6 +10,7 @@ package  render
 	import flash.geom.Point;
 	import flash.geom.Vector3D;
 	import flash.ui.Keyboard;
+	import flash.utils.getQualifiedClassName;
 	
 	import PanV2.xyzmove.MathUint;
 	
@@ -19,8 +19,6 @@ package  render
 	import _Pan3D.core.Quaternion;
 	
 	import _me.Scene_data;
-	
-	import common.AppData;
 	
 	import modules.scene.sceneCtrl.SceneCtrlView;
 	
@@ -326,7 +324,7 @@ package  render
 					event.target.parent.parent.setFocus();
 				}
 			}
-			if(event.keyCode==Keyboard.F)
+			if(event.keyCode==Keyboard.F&&getQualifiedClassName(event.target).search("SceneCtrlView")!=-1)
 			{
 				FouceTo(event.ctrlKey)
 			}

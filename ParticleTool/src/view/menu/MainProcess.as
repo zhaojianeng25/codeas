@@ -37,6 +37,7 @@ package view.menu
 	import view.authorize.AuthorizePanle;
 	import view.config.ConfigPanle;
 	import view.dbSel.DbSelPanle;
+	import view.groupview.GroupPanel;
 	import view.roleView.RolePanle;
 
 	public class MainProcess
@@ -100,6 +101,10 @@ package view.menu
 					break;
 				case 10:
 					showAuthorize();
+					break;
+				case 11:
+					GroupPanel.getInstance().show();
+					break;
 				default:
 					break;
 			}
