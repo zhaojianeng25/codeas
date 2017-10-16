@@ -124,7 +124,7 @@ package PanV2
 			}
 			$context3D.setVertexBufferAt(0, null);
 			$context3D.drawToBitmapData(bmp);
-			$context3D.configureBackBuffer(Scene_data.stage3DVO.width, Scene_data.stage3DVO.height,0, true);
+			$context3D.configureBackBuffer(Scene_data.stage3DVO.width, Scene_data.stage3DVO.height,4, true);
 			var tomouse:Point=new Point(bmp.width/2,bmp.height/2)
 			var eeee:Vector3D=	MathCore.hexToArgb(bmp.getPixel32(tomouse.x,tomouse.y))
 				

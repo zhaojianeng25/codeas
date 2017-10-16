@@ -356,8 +356,8 @@ package modules.hierarchy.h5
 				for(i=0;i<$objData.normals.length/3;i++)
 				{
 					$normalsNew.push($objData.normals[i*3+0]*+1)
-					$normalsNew.push($objData.normals[i*3+2]*-1)
 					$normalsNew.push($objData.normals[i*3+1]*+1)
+					$normalsNew.push($objData.normals[i*3+2]*+1)
 				}
 				this.writeVecFloatToInt($normalsNew,fs)
 			}else{

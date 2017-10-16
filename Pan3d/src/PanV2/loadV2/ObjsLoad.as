@@ -162,11 +162,12 @@ package  PanV2.loadV2
 		{
 			var $objData:ObjData=new ObjData
 			var $context3D:Context3D=Scene_data.context3D
-			$objData.normals=new Vector.<Number>
-			for(var i:uint=0;i<$obj.vertices.length/3;i++){
-				$objData.normals.push($obj.normals[i*3+0],-$obj.normals[i*3+2],$obj.normals[i*3+1])
-			}
+//			$objData.normals=new Vector.<Number>
+//			for(var i:uint=0;i<$obj.vertices.length/3;i++){
+//				$objData.normals.push($obj.normals[i*3+0],-$obj.normals[i*3+2],$obj.normals[i*3+1])
+//			}
 			$objData.vertices=$obj.vertices
+			$objData.normals=$obj.normals
 			$objData.uvs=$obj.uvs
 			$objData.lightUvs=this.getLightUvsByte($obj.lightUvs)
 			$objData.indexs=$obj.indexs

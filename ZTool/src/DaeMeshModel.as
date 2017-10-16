@@ -6,6 +6,7 @@ package
 	
 	import away3d.core.base.IMaterialOwner;
 	import away3d.core.base.SubMesh;
+	import away3d.core.math.Quaternion;
 	import away3d.events.ParserEvent;
 	import away3d.loaders.parsers.DAEParser;
 	import away3d.materials.MaterialBase;
@@ -61,23 +62,35 @@ package
 						var tempSub:SubMesh=SubMesh($owners[k])
 						var $m:Matrix3D=tempSub.inverseSceneTransform.clone()
 			
+						
+				
+							
 						$m.invert()
-						//var $mNum:Matrix3D=$m.clone()
+						var $mNrm:Matrix3D=$m.clone()
+						var $nrmQ:Quaternion=new Quaternion()	
+						$nrmQ.fromMatrix($mNrm)
+						$nrmQ.toMatrix3D($mNrm)
+						var $anglea:Vector3D= $nrmQ.toEulerAngles()
+						$anglea.scaleBy(180/Math.PI)
+						trace($anglea)
+					
 							
 						$m.appendScale($scaleNum40,$scaleNum40,$scaleNum40)
 						for(var i:uint=0;i<tempSub.vertexData.length/13;i++){
 							var $p:Vector3D=new Vector3D(tempSub.vertexData[i*13+0],tempSub.vertexData[i*13+1],tempSub.vertexData[i*13+2])
 							//$p.scaleBy($scaleNum40)
 							$p=$m.transformVector($p)
-								
+							
+						
 							
 							var $n:Vector3D=new Vector3D(tempSub.vertexData[i*13+3],tempSub.vertexData[i*13+4],tempSub.vertexData[i*13+5])
-						//	$n=$mNum.transformVector($n)
-								
+							$n=$mNrm.transformVector($n)
+
 
 							tempData.vertices.push($p.x,$p.y,$p.z);
-							tempData.normals.push($n.x,$n.y,$n.z);
-							
+							tempData.normals.push($n.x,$n.y,$n.z);  //编辑器导入时法线不是正确的，
+						//	tempData.normals.push($n.x,$n.z,$n.y*-1);  //编辑器导入时法线不是正
+				
 							
 							//tempData.normals.push(tempSub.vertexData[i*13+3],tempSub.vertexData[i*13+4],tempSub.vertexData[i*13+5])
 							tempData.uvs.push(tempSub.vertexData[i*13+9],tempSub.vertexData[i*13+10])

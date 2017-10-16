@@ -91,7 +91,7 @@ package xyz.base
 			}
 			$context3D.setVertexBufferAt(0, null);
 			$context3D.drawToBitmapData(bmp);
-			$context3D.configureBackBuffer(TooMathMoveUint.stage3Drec.width, TooMathMoveUint.stage3Drec.height,0, true);
+			$context3D.configureBackBuffer(TooMathMoveUint.stage3Drec.width, TooMathMoveUint.stage3Drec.height,4, true);
 
 			
 			var tomouse:Point=new Point($mouse.x-TooMathMoveUint.stage3Drec.x,$mouse.y-TooMathMoveUint.stage3Drec.y)

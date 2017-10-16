@@ -80,6 +80,8 @@ package proxy.pan3d.model
 		{
 		}
 		
+
+		
 		public function addStage():void
 		{
 			
