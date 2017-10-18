@@ -59,7 +59,7 @@ package proxy.top.render
 	{
 		private static var renderContext:RenderPan3d;
 		public static var lightUvRoot:String;
-		public static var posScale:Number=1
+
 		public function Render()
 		{
 			
@@ -193,9 +193,9 @@ package proxy.top.render
 				for (var i:uint=0;i<$arr.length;i++)
 				{
 					var k:TooXyzPosData=new TooXyzPosData;
-					k.x=$arr[i].x/Render.posScale
-					k.y=$arr[i].y/Render.posScale
-					k.z=$arr[i].z/Render.posScale
+					k.x=$arr[i].x
+					k.y=$arr[i].y
+					k.z=$arr[i].z
 					k.scale_x=$arr[i].scaleX
 					k.scale_y=$arr[i].scaleY
 					k.scale_z=$arr[i].scaleZ
@@ -225,9 +225,9 @@ package proxy.top.render
 				var $iModel:IModel=IModel($XyzMoveData.modelItem[i])
 				var $dataPos:TooXyzPosData=$XyzMoveData.dataItem[i]
 				
-				$iModel.x=$dataPos.x*Render.posScale
-				$iModel.y=$dataPos.y*Render.posScale
-				$iModel.z=$dataPos.z*Render.posScale
+				$iModel.x=$dataPos.x
+				$iModel.y=$dataPos.y
+				$iModel.z=$dataPos.z
 				
 				$iModel.rotationX=$dataPos.angle_x
 				$iModel.rotationY=$dataPos.angle_y
