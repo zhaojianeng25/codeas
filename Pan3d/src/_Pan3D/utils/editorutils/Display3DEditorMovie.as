@@ -37,7 +37,7 @@ package _Pan3D.utils.editorutils
 		private var _skillMode:Boolean;
 		private var _textureLightDic:Object;
 		
-		public var fileScale:Number = 1;
+		public var fileScale:Number = 1.001;  //特殊设定一个默认值
 		
 		public function Display3DEditorMovie(context:Context3D)
 		{
@@ -682,6 +682,21 @@ package _Pan3D.utils.editorutils
 			return null;
 		}
 
+		public function getMeshDic():Object{
+			return this._meshDic;
+		}
+		
+		public function getObjDic():Dictionary{
+			return this._objDic;
+		}
+		
+		public function getParticleDic():Object{
+			return this._particleList;
+		}
+		
+		public function getSocketDic():Object{
+			return this._socketDic;
+		}
 		
 	}
 }

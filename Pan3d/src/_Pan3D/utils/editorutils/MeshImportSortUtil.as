@@ -139,7 +139,7 @@ package _Pan3D.utils.editorutils
 		private function getboneNum(ary:Array):Array{
 			var numAry:Array = new Array;
 			for(var i:int;i<ary.length;i++){
-				if(numAry.indexOf(ary[i]) == -1){
+				if(numAry.indexOf(ary[i]) == -1 &&ary[i]!=0){
 					numAry.push(ary[i]);
 				}
 			}

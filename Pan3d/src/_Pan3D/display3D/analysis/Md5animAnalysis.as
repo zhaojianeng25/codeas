@@ -286,8 +286,8 @@ package _Pan3D.display3D.analysis {
 				_temp.qz=_hierarchyitem[i].qz;
 				
 				
-				trace(_hierarchyitem[i].startIndex)
-				trace("--------------")
+//				trace(_hierarchyitem[i].startIndex)
+//				trace("--------------")
 				
 				
 			

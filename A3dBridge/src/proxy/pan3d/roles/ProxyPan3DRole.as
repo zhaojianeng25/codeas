@@ -57,7 +57,10 @@ package proxy.pan3d.roles
 				new RoleLoadUtils(obj).setRoleData(sprite,obj)
 				
 				sprite.name ="ccav";
-				sprite.fileScale = roleData.scale;
+
+				if(sprite.fileScale==1.001){
+					sprite.fileScale = roleData.scale;
+				}
 	
 				sprite.play("stand");
 				sprite.updatePosMatrix();

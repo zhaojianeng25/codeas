@@ -137,9 +137,9 @@ package _Pan3D.display3D.analysis {
 					
 					i++;
 				}
-				trace(_str)
-				trace(_s)
-				trace("------------")
+//				trace(_str)
+//				trace(_s)
+//				trace("------------")
 				return _s;
 			}
 			
