@@ -41,6 +41,7 @@
 			import manager.LayerManager;
 			
 			import modules.cradiosity.CradiosityEvent;
+			import modules.expres.ExpChangeAllObjsNrmModel;
 			import modules.expres.ExpMapPicAndStart;
 			import modules.hierarchy.RenderModel;
 			import modules.hierarchy.h5.ExpAllSpaceLyfToH5;
@@ -163,6 +164,8 @@
 				}else if(type == 22){
 					ModuleEventManager.dispatchEvent(new MEvent_Material(MEvent_Material.MEVENT_MATERIAL_COMBINE_LIGHTMAP));
 				}else if(type == 23){
+					
+					ExpChangeAllObjsNrmModel.getInstance().changeObjsnrm()
 			
 				}else if(type == 2005){
 					TerrainSmoothModel.getInstance().smoothLightPic();

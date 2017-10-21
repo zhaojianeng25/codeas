@@ -107,6 +107,7 @@
     <classEntry path="modules.terrain.TerrainOutH5DataModel"/>
     <classEntry path="modules.terrain.TerrainSmoothModel"/>
     <classEntry path="modules.expres.ExpTo3dmaxByObjs"/>
+    <classEntry path="modules.expres.ExpChangeAllObjsNrmModel"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

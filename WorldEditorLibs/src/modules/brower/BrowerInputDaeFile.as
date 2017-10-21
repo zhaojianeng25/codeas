@@ -7,6 +7,8 @@ package modules.brower
 	import _Pan3D.load.LoadInfo;
 	import _Pan3D.load.LoadManager;
 	
+	import _me.Scene_data;
+	
 
 	public class BrowerInputDaeFile
 	{
@@ -46,6 +48,7 @@ package modules.brower
 			{
 				var _editPreUrl:String=_toUrl+"/"+_fileName+"_"+String(i)+".objs"
 				var obj:Object=$arr[i]
+				obj.version=Scene_data.version;
 				var fs:FileStream = new FileStream;
 				fs.open(new File(_editPreUrl),FileMode.WRITE);
 				fs.writeObject(obj);
