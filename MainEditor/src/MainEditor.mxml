@@ -73,6 +73,7 @@
 				var xDesc:XML = describeType(Material); 
 				
 				AppData.mainWindow = this;
+				
 			}
 			private function loadSVN():void
 			{

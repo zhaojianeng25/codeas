@@ -41,6 +41,7 @@ package common.msg.net
 			//connect();
 		}
 		
+		
 		public function hasConnect():Boolean{
 			return socket.connected;
 		}
@@ -142,7 +143,7 @@ package common.msg.net
 		 * @param byte
 		 * 
 		 */		
-		private function receiveMsg(msgNum:int,byte:ByteArray):void{
+		protected function receiveMsg(msgNum:int,byte:ByteArray):void{
 			if(msgNum == 1){
 				trace("读取渲染服务器数据");
 			}else if(msgNum == 3){

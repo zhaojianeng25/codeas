@@ -83,7 +83,9 @@ package proxy.top.render
 		public static function creatDisplay3DModel($prefab:PrefabStaticMesh,$id:uint,$bfun:Function=null):IModel
 		{
 			var $iModel:IModel = renderContext.creatDisplay3DModel($prefab,$bfun);
-			$iModel.uid="build"+String($id)
+			if($id>0){
+				$iModel.uid="build"+String($id)
+			}
 			return $iModel;
 		}
 		public static function creatDisplay3DModel3D($model3DStaticMesh:Model3DStaticMesh,$bfun:Function=null):IModel
