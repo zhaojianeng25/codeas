@@ -135,6 +135,8 @@ package _Pan3D.skill
 		
 		public var isblood:Boolean = false;
 		
+		public var isSound:Boolean = false;
+		
 		public function SkillTimeLine()
 		{
 			super();
@@ -153,6 +155,7 @@ package _Pan3D.skill
 			getKeyTarget();
 			//getShock();
 			getBlood();
+			getSound();
 			frame = _time/Scene_data.frameTime;
 			
 			for(var i:int;i<trajectoryList.length;i++){
@@ -179,6 +182,15 @@ package _Pan3D.skill
 					//弹出掉血
 					this.bloodFun(this._voInfo.bloodVo.pos);
 					isblood = true;
+				}
+			}
+		}
+		
+		public function getSound():void{
+			if(!isSound && this._voInfo.soundVo){
+				if(_time >= this._voInfo.soundVo.time){
+					this._voInfo.soundVo.play();
+					isSound = true;
 				}
 			}
 		}
@@ -226,6 +238,7 @@ package _Pan3D.skill
 			//_hasConfig = false;
 			//resetCache();
 			isblood = false;
+			isSound = false;
 			isDeath = false;
 		}
 		

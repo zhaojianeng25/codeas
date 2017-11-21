@@ -31,6 +31,8 @@ package _Pan3D.skill.vo
 		
 		public var bloodVo:BloodVo;
 		
+		public var soundVo:SoundVo;
+		
 		public function SkillTimeLineVo()
 		{
 		}
@@ -97,6 +99,13 @@ package _Pan3D.skill.vo
 				this.bloodVo.setData(obj.blood);
 			}else{
 				this.bloodVo = null;
+			}
+			
+			if(obj.sound){
+				this.soundVo = new SoundVo();
+				this.soundVo.setData(obj.sound);
+			}else{
+				this.soundVo = null;
 			}
 			
 		}

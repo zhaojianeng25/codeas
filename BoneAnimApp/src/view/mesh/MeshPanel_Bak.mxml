@@ -88,9 +88,9 @@
 			info.boneNum = boneNum;
 			info.data = meshData;
 			if(boneNum > 54){
-				Alert.show("对应骨骼数：" + boneNum + "  超过27个 非标准mesh");
+				Alert.show("对应骨骼数：" + boneNum + "  超过54个 非标准mesh");
 				//boneNumTxt.htmlText = "<font color='#ff0000'>对应骨骼数：" + boneNum + "  超过27个 非标准mesh</font>";
-				return;
+				//return;
 			}
 			dataAry.addItem(info);
 			AppDataBone.role.addMeshLocal(info.fileName,meshData);

@@ -55,7 +55,7 @@ package common.utils.ui.file
 		public static function getFileNodeNextId($arr:ArrayCollection):uint
 		{
 			var $item:Vector.<FileNode>=getListAllFileNode($arr)
-			var $maxId:int=-1
+			var $maxId:int=1
 			for(var i:uint=0;i<$item.length;i++){
 				if($item[i].id>$maxId){
 					$maxId=$item[i].id

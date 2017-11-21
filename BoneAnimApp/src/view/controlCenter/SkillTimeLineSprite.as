@@ -17,6 +17,7 @@ package view.controlCenter
 	import view.action.ActionPanel;
 	import view.effectSkill.BloodPanel;
 	import view.effectSkill.EffectSkillPanel;
+	import view.effectSkill.SoundPanel;
 	import view.shock.ShockPanle;
 	import view.trajectory.TrajectoryPanel;
 	
@@ -123,9 +124,9 @@ package view.controlCenter
 		protected function onRightClick(event:MouseEvent):void
 		{
 			if(this._bloodSp){
-				this._bloodMenu.label = "移除掉血";
+				this._bloodMenu.label = "移除音效";
 			}else{
-				this._bloodMenu.label = "添加掉血";
+				this._bloodMenu.label = "添加音效";
 			}
 			_targetX = this.mouseX;
 			if(event.target is SkillBgSprite){
@@ -189,13 +190,13 @@ package view.controlCenter
 			_removeParticle = new NativeMenuItem("删除粒子");
 			_removeParticle.addEventListener(Event.SELECT,onRemoveParticle);
 			
-			_shockMenu = new NativeMenuItem("震屏选项");
+			_shockMenu = new NativeMenuItem("震屏");
 			_shockMenu.addEventListener(Event.SELECT,onShock);
 			
-			_bloodMenu = new NativeMenuItem("添加掉血");
+			_bloodMenu = new NativeMenuItem("添加音效");
 			_bloodMenu.addEventListener(Event.SELECT,onBlood);
 			
-			_menuFile.items = [_addKey,_delKeyFrame,line,_addParticle,_addEffect,_editParticle,_removeParticle,_shockMenu,_bloodMenu];
+			_menuFile.items = [_addKey,_delKeyFrame,line,_addParticle,_addEffect,_editParticle,_removeParticle,_bloodMenu];
 			
 		}
 		
@@ -225,15 +226,16 @@ package view.controlCenter
 			}else{
 				this.bloodData = new Object;
 				this.bloodData.time = int(_targetX/8);
-				this.bloodData.pos = new Vector3D();
+				//this.bloodData.pos = new Vector3D();
 			}
-			
-			
+
 		}
+		
 		
 		protected function onBloodClick(event:MouseEvent):void
 		{
-			BloodPanel.getInstance().showPanel(this.bloodData);
+			//BloodPanel.getInstance().showPanel(this.bloodData);
+			SoundPanel.getInstance().showPanel(this.bloodData);
 		}
 		
 		/**
@@ -606,7 +608,7 @@ package view.controlCenter
 			obj.shock = shockData;
 			if(this.bloodData){
 				this.bloodData.time = int(this._bloodSp.x/8);
-				obj.blood = this.bloodData;
+				obj.sound = this.bloodData;
 			}
 			return obj;
 		}
@@ -638,7 +640,9 @@ package view.controlCenter
 				//_bloodSp.x = obj.blood * 8;
 				//_bloodSp.addEventListener(MouseEvent.CLICK,onBloodClick);
 			}
-			
+			if(obj.sound){
+				this.initBloodSp(obj.sound);
+			}
 			converConfig(obj.config.ary);
 			
 			configSkillData = obj.config;

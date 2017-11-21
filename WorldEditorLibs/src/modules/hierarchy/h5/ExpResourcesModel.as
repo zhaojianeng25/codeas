@@ -255,7 +255,10 @@ package modules.hierarchy.h5
 			var intNum:int;
 			fs.writeInt(arr.length)
 			for( var i:Number=0;i<arr.length;i++){
-				intNum=int(arr[i]*256)-rgb128;
+				intNum=Math.floor(arr[i]*256)-rgb128;
+				if(arr[i]==1){//特殊在H5那边无法读
+					intNum=intNum-1;
+				}
 				fs.writeByte(intNum);
 			}
 		}
@@ -322,6 +325,10 @@ package modules.hierarchy.h5
 		public  function writeFile($obj:Object, $url:String,$hasNormal:Boolean=true,$hasPbr:Boolean=true,$hasDirectLight:Boolean=false):void
 		{
 		
+			$hasNormal=true;
+			$hasPbr=true
+			$hasDirectLight=false;
+			
 			
 			var $num:Number;
 			var $bigNum:Number

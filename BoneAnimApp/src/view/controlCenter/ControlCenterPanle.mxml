@@ -812,9 +812,9 @@
 			function returnFun():void{
 			
 				//saveSkill(file,str)
-				saveByteSkill(file,str,$skillByte)
-				
-				MakeResFileList.getInstance().saveFileListToH5($rootFile,"skill",file.name.replace("."+file.extension,""));
+				saveByteSkill(file,str,$skillByte,resultDic);
+
+				//MakeResFileList.getInstance().saveFileListToH5($rootFile,"skill",file.name.replace("."+file.extension,""));
 				
 	
 
@@ -832,6 +832,12 @@
 				$skillByte.writeFloat($type);
 				if($kobj.blood){
 					$skillByte.writeInt($kobj.blood);
+				}else{
+					$skillByte.writeInt(0);
+				}
+				if($kobj.sound){
+					$skillByte.writeInt($kobj.sound.time);
+					$skillByte.writeUTF($kobj.sound.name);
 				}else{
 					$skillByte.writeInt(0);
 				}
@@ -947,7 +953,7 @@
 			}
 		
 		}
-		private function saveByteSkill(file:File,str:String,$skillByte:ByteArray):void
+		private function saveByteSkill(file:File,str:String,$skillByte:ByteArray,resultDic:Object):void
 		{
 			
 			var newUrl:String = file.parent.url + "/skill/" + file.name.replace(".txt","_byte.txt");
@@ -959,7 +965,14 @@
 			this.writeData(fs,file,str,$skillByte,true)
 			fs.close();
 			
-			
+			for(var key:String in resultDic){
+				var obj:Object = resultDic[key];
+				if(obj.sound){
+					var newSoundFile:File = new File(file.parent.url + "/skill/sound/" + obj.sound.name);
+					var srcSoundFile:File = new File(Scene_data.fileRoot + obj.sound.url);
+					srcSoundFile.copyTo(newSoundFile,true);
+				}
+			}
 			/*
 			var $baseFileUrl:String= file.parent.url + "/skill/" + file.name.replace(".txt","_base_byte.txt");
 			MakeResFileList.getInstance().pushUrl($baseFileUrl)
@@ -1062,6 +1075,12 @@
 			
 			if(keyObj.blood){
 				resultObj.blood = int(keyObj.blood.time * Scene_data.frameTime);
+			}
+			if(keyObj.sound){
+				resultObj.sound = keyObj.sound;
+				var soundUrl:String = resultObj.sound.url;
+				var soundAry:Array = soundUrl.split("/");
+				resultObj.sound.name = soundAry[soundAry.length-1];
 			}
 			
 			return resultObj;

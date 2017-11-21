@@ -319,6 +319,11 @@ package modules.brower.fileWin
 		[Embed(source="assets/icon/Camera.png")]
 		private static var Camera:Class;
 		
+		[Embed(source="assets/icon/iconlock.png")]
+		private static var iconlock:Class;
+		
+		
+		
 		[Embed(source="assets/Materialcompiler.png")]
 		private static var Materialcompiler:Class;
 		[Embed(source="assets/Materialsave.png")]
@@ -748,6 +753,12 @@ package modules.brower.fileWin
 				case "hideIcon20":
 				{
 					return hideIcon20;
+					
+					break;
+				}
+				case "iconlock":
+				{
+					return iconlock;
 					
 					break;
 				}

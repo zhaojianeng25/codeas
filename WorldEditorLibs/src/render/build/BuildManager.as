@@ -63,6 +63,7 @@ package render.build
 			$imode.x=Scene_data.focus3D.x
 			$imode.y=Scene_data.focus3D.y
 			$imode.z=Scene_data.focus3D.z
+			$imode.uid="build"+$id;
 			
 			var $hierarchyFileNode:HierarchyFileNode=new HierarchyFileNode;	
 			$hierarchyFileNode.id=$id

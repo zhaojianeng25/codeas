@@ -47,6 +47,8 @@ package _Pan3D.display3D.analysis {
 
 		public function addAnim(ini:String):void {
 			
+			ini=ini.replace("origin","Bip001234") //特殊转换
+			
 			_dir = new Dictionary();
 			allFrames = new Array();
 			framesok = false;

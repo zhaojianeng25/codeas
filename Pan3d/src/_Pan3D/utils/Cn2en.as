@@ -54,7 +54,7 @@ package _Pan3D.utils
 				return "";
 			}
 		}
-		private static var  spcDic:Object = {弩:"nu",骷:"ku",髅:"lou",魈:"xiao",婵:"chan",梵:"fan"};
+		private static var  spcDic:Object = {弩:"nu",骷:"ku",髅:"lou",魈:"xiao",婵:"chan",梵:"fan",卦:"gua"};
 		public static function getSpec(str:String):String{
 			return spcDic[str];
 		}

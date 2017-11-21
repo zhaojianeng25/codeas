@@ -110,6 +110,7 @@ package view.ridepos
 		
 		private function addMaterial($mt:MaterialTree,info:Object):void{
 			info.data.material = $mt;
+			MeshData(info.data).setParamData(info.materialInfoArr);
 			_ride.addMeshData(info.fileName,info.data);
 		}
 		
