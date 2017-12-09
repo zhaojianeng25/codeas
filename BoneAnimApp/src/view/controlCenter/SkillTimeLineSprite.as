@@ -15,10 +15,9 @@ package view.controlCenter
 	import utils.ai.AIManager;
 	
 	import view.action.ActionPanel;
-	import view.effectSkill.BloodPanel;
 	import view.effectSkill.EffectSkillPanel;
+	import view.effectSkill.ShockPanle;
 	import view.effectSkill.SoundPanel;
-	import view.shock.ShockPanle;
 	import view.trajectory.TrajectoryPanel;
 	
 	/**
@@ -38,6 +37,7 @@ package view.controlCenter
 		private var _action:SkillBgSprite;
 		
 		private var _shockSp:ShockSprite; 
+		private var _shockSpAry:Vector.<ShockSprite>;
 		
 		private var _bloodSp:BloodSprite;
 		
@@ -101,6 +101,7 @@ package view.controlCenter
 		
 		public var shockData:Object;
 		
+		
 		public var bloodData:Object;
 		
 		public function SkillTimeLineSprite()
@@ -114,6 +115,7 @@ package view.controlCenter
 			_keyListPanle = new KeyListPanle;
 			
 			keyFrameNewAry = new Vector.<SkillKeyFrameNewSprite>;
+			_shockSpAry = new Vector.<ShockSprite>;
 			
 		}
 		/**
@@ -128,6 +130,8 @@ package view.controlCenter
 			}else{
 				this._bloodMenu.label = "添加音效";
 			}
+			
+			
 			_targetX = this.mouseX;
 			if(event.target is SkillBgSprite){
 				_addKey.enabled = false;
@@ -145,6 +149,15 @@ package view.controlCenter
 				_delKeyFrame.enabled = false;
 				_removeParticle.enabled = _editParticle.enabled = false;
 			}
+			
+			if(event.target is ShockSprite){
+				this._shockMenu.label = "移除震屏";
+				this._shockMenu.data = event.target;
+			}else{
+				this._shockMenu.label = "添加震屏";
+				this._shockMenu.data = null;
+			}
+			
 			_menuFile.display(stage,stage.mouseX,stage.mouseY);
 		}
 		
@@ -190,14 +203,58 @@ package view.controlCenter
 			_removeParticle = new NativeMenuItem("删除粒子");
 			_removeParticle.addEventListener(Event.SELECT,onRemoveParticle);
 			
-			_shockMenu = new NativeMenuItem("震屏");
-			_shockMenu.addEventListener(Event.SELECT,onShock);
+			_shockMenu = new NativeMenuItem("添加震屏");
+			_shockMenu.addEventListener(Event.SELECT,onAddSkock);
 			
 			_bloodMenu = new NativeMenuItem("添加音效");
 			_bloodMenu.addEventListener(Event.SELECT,onBlood);
 			
-			_menuFile.items = [_addKey,_delKeyFrame,line,_addParticle,_addEffect,_editParticle,_removeParticle,_bloodMenu];
+			_menuFile.items = [_addKey,_delKeyFrame,line,_addParticle,_addEffect,_editParticle,_removeParticle,_bloodMenu,_shockMenu];
 			
+		}
+		
+		
+		private function onAddSkock(evt:Event):void{
+//			if(!_shockSp){
+//				this.initSkockSp();
+//			}else{
+//				this.removeChild(_shockSp);
+//				this._shockSp = null;
+//				this.shockData = null;
+//			}
+			var _delSp:ShockSprite = this._shockMenu.data as ShockSprite;
+			if(_delSp){
+				var idx:int = _shockSpAry.indexOf(_delSp);
+				_shockSpAry.splice(idx,1);
+				this.removeChild(_delSp);
+			}else{
+				this.initSkockSp();	
+			}
+			
+		}
+		
+		private function initSkockSp($data:Object=null):void{
+			var _shockSp:ShockSprite = new ShockSprite;
+			this.addChild(_shockSp);
+			_shockSp.x = _targetX;
+			
+			_shockSp.addEventListener(MouseEvent.CLICK,onShockClick);
+			
+			if($data){
+				//this.shockData = $data;
+				_shockSp.data = $data;
+				_shockSp.x = $data.time * 8;
+			}else{
+				var obj:Object = new Object;
+				obj.time = int(_targetX/8);
+				_shockSp.data = obj;
+			}
+			this._shockSpAry.push(_shockSp);
+		}
+		
+		protected function onShockClick(event:MouseEvent):void
+		{
+			ShockPanle.getInstance().showPanel(event.target.data);
 		}
 		
 		protected function onBlood(event:Event):void{
@@ -466,41 +523,7 @@ package view.controlCenter
 			onAddKey(obj);
 		}
 		
-		/**
-		 * 震屏 
-		 * @param event
-		 * 
-		 */		
-		protected function onShock(event:Event):void
-		{
-			//ActionSelPanle.getInstance().show(ControlCenterPanle.getInstance().parent,onAddKey);
-			ShockPanle.getInstance().show(ControlCenterPanle.getInstance().parent,onAddSkock);
-		}
 		
-		private function onAddSkock(obj:Object):void{
-			if(!_shockSp){
-				_shockSp = new ShockSprite;
-			}
-			if(obj.isuse){
-				if(!_shockSp.parent){
-					this.addChildAt(_shockSp,0);
-				}
-			}else{
-				if(_shockSp.parent){
-					_shockSp.parent.removeChild(_shockSp);
-				}
-			}
-			
-			_shockSp.draw(obj.time);
-			
-			_shockSp.x = obj.beginTime * 480 / 1000;
-			
-			if(obj.isuse){
-				shockData = obj;
-			}else{
-				shockData = null;
-			}
-		}
 		/**
 		 * 添加关键动作 
 		 * @param obj
@@ -605,11 +628,23 @@ package view.controlCenter
 			}
 			obj.infoAry = infoAry;
 			obj.config = configSkillData;
-			obj.shock = shockData;
+//			if(this.shockData){
+//				this.shockData.time = int(this._shockSp.x/8);
+//				obj.shock = shockData;
+//			}
+			if(this._shockSpAry.length){
+				var shockList:Array = new Array;
+				for(i=0;i<_shockSpAry.length;i++){
+					shockList.push(_shockSpAry[i].data);
+				}
+				obj.shock = shockList;
+			}
+			
 			if(this.bloodData){
 				this.bloodData.time = int(this._bloodSp.x/8);
 				obj.sound = this.bloodData;
 			}
+			
 			return obj;
 		}
 		/**
@@ -647,8 +682,10 @@ package view.controlCenter
 			
 			configSkillData = obj.config;
 			
-			if(obj.shock){
-				onAddSkock(obj.shock);
+			if(obj.shock){				
+				for(i=0;i<obj.shock.length;i++){
+					this.initSkockSp(obj.shock[i]);
+				}
 			}
 			
 		}

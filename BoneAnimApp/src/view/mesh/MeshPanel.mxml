@@ -7,6 +7,8 @@
 	</fx:Declarations>
 <fx:Script>
 	<![CDATA[
+		import com.maclema.mysql.Field;
+		
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		import mx.controls.treeClasses.TreeItemRenderer;
@@ -131,7 +133,26 @@
 			info.check = 1;
 			Object(currentItem.listData).item.children.addItem(info)
 			AppDataBone.role.addMeshLocal(info.fileName,meshData);
+			
+			this.addBaseMaterial(meshData)
 		}
+		private function addBaseMaterial(meshData:MeshData):void
+		{
+		     var $metUrl:String="content/MaterialInstance/%e5%9c%ba%e6%99%af%e8%a7%92%e8%89%b2/RoleStandard.material"
+			var $file:File=new File(Scene_data.fileRoot+$metUrl) 
+			
+			if($file.exists){
+				//$metUrl=decodeURI($metUrl)
+				info.textureUrl = $metUrl;
+//				info.item.texturePath = $file.nativePath;
+//				info.item.textureName = $file.name;
+				
+				MaterialManager.getInstance().getMaterial(Scene_data.fileRoot + $metUrl,addMaterial,{data:meshData,materialInfoArr:new Array},true,Md5MatrialShader.MD5_MATRIAL_SHADER,Md5MatrialShader);
+			}else{
+				trace("默认mesh材质文件没找到",$metUrl)
+			}
+		}
+		
 		
 //		private function delMesh():void{
 //			var obj:Object = list.selectedItem;
@@ -328,6 +349,9 @@
 		
 		private function addMaterial($mt:MaterialTree,info:Object):void{
 			info.data.material = $mt;
+			if(!info.materialInfoArr){
+				info.materialInfoArr=new Array
+			}
 			var ary:Array = info.materialInfoArr
 			for(var i:int = ary.length-1;i>=0;i--){
 				if(!$mt.hasDynamicParam(ary[i].name)){

@@ -28,6 +28,7 @@ package modules.materials.view
 		private var _noLight:Boolean; 
 		private var _fogMode:int;
 		private var _scaleLightMap:Boolean;
+		private var _hdr:Boolean;
 		public function ResultNodeUI()
 		{
 			super();
@@ -84,6 +85,7 @@ package modules.materials.view
 			obj.fogMode = fogMode;
 			obj.scaleLightMap = scaleLightMap;
 			obj.writeZbuffer = writeZbuffer;
+			obj.hdr = hdr;
 			return obj;
 		}
 		
@@ -99,6 +101,7 @@ package modules.materials.view
 			this._noLight = obj.noLight;
 			this._fogMode = obj.fogMode;
 			this._scaleLightMap = obj.scaleLightMap;
+			this.hdr = obj.hdr;
 			if(obj.hasOwnProperty("writeZbuffer")){
 				this._writeZbuffer = obj.writeZbuffer;
 			}
@@ -119,6 +122,7 @@ package modules.materials.view
 			NodeTreeOP(nodeTree).fogMode = _fogMode;
 			NodeTreeOP(nodeTree).scaleLightMap = _scaleLightMap;
 			NodeTreeOP(nodeTree).writeZbuffer = _writeZbuffer;
+			NodeTreeOP(nodeTree).hdr = _hdr;
 		}
 
 		public function get blenderMode():int
@@ -240,6 +244,17 @@ package modules.materials.view
 		{
 			_scaleLightMap = value;
 			NodeTreeOP(nodeTree).scaleLightMap = value;
+		}
+		
+		public function get hdr():Boolean
+		{
+			return _hdr;
+		}
+		
+		public function set hdr(value:Boolean):void
+		{
+			_hdr = value;
+			NodeTreeOP(nodeTree).hdr = value;
 		}
 
 		

@@ -32,6 +32,7 @@ package materials
 		public var fogMode:int;
 		public var useKill:Boolean;
 		public var hasAlpha:Boolean;
+		public var hdr:Boolean;
 		public var materialBaseData:MaterialBaseData;
 		public var fcNum:int;
 		public var fcIDAry:Array = new Array;//[]
@@ -181,6 +182,7 @@ package materials
 			resultObj.useKill = useKill;
 			resultObj.fcNum = fcNum;
 			resultObj.fcIDAry = fcIDAry;
+			resultObj.hdr = hdr;
 			if(this.materialBaseData){
 				resultObj.materialBaseData = this.materialBaseData.getData();
 			}
@@ -218,6 +220,7 @@ package materials
 			fcNum = _compileData.fcNum;
 			fcIDAry = _compileData.fcIDAry;
 			hasAlpha = _compileData.hasAlpha;
+			hdr = _compileData.hdr;
 			this.materialBaseData = new MaterialBaseData;
 			this.materialBaseData.setData(_compileData.materialBaseData);
 			

@@ -736,6 +736,10 @@ package _Pan3D.display3D {
 				var bindPosMa:Matrix3D = bindPosAry[i];
 				//		
 				
+				if(!bindPosMa){
+					bindPosMa=new Matrix3D
+				}
+				
 				
 				
 				baseMa = baseMa.clone();

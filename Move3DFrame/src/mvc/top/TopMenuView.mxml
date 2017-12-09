@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Menu xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.zcp.frame.event.ModuleEventManager;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexNativeMenuEvent;
+			
+			import _me.Scene_data;
+			
+			import common.AppData;
+			import common.GameUIInstance;
+			import common.msg.event.projectSave.MEvent_ProjectData;
+			
+			import exph5.ChangObjsNrmModel;
+			import exph5.ExpFrame3DH5Model;
+			import exph5.ExpVideoMp4;
+			import exph5.OjbsExpOnlyUsePicModel;
+			
+			import modules.scene.sceneSave.FilePathManager;
+			
+			import mvc.centen.DisCentenEvent;
+			import mvc.project.ProjectEvent;
+			import mvc.rendercook.CookAllFrameModel;
+			import mvc.rendercook.RayTraceModel;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		
+			public function showMenu():void{
+				//GameUIInstance.application.addElement(this);
+				GameUIInstance.application.menu = fnm;
+				//GameUIInstance.stage.addEventListener(KeyboardEvent.KEY_DOWN,onKey);
+				
+				Scene_data.stage.addEventListener(KeyboardEvent.KEY_DOWN,onStageKeyDown)	;
+			}
+			
+			protected function itemClickHandler(event:FlexNativeMenuEvent):void
+			{
+				var type:int = event.item.@id;
+				
+
+				switch(type)
+				{
+					case 10:
+					{
+						openUiFile()
+						break;
+					}
+					case 11:
+					{
+						ModuleEventManager.dispatchEvent( new TopEvent(TopEvent.SAVE_FILE));
+						break;
+					}
+					case 12:
+					{
+						saveAsFile()
+						break;
+					}
+						
+			
+					case 14:
+					{
+						this.selectWorkSpaceUrl()
+						break;
+					}
+					case 20:
+					{
+
+						break;
+					}
+					case 21:
+					{
+	
+						ExpVideoMp4.getInstance().expMp4()
+						break;
+					}
+					case 22:
+					{
+						
+						CookAllFrameModel.getInstance().start()
+						break;
+					}
+					case 23:
+					{
+						AppDataFrame.frameNum=Math.floor(AppDataFrame.frameNum)
+						CookAllFrameModel.getInstance().cookSampleFrame(AppDataFrame.frameNum)
+						break;
+					}
+					case 30:
+					{
+						
+						OjbsExpOnlyUsePicModel.getInstance().expObjs()
+						
+						break;
+					}
+					case 31:
+					{
+						ChangObjsNrmModel.getInstance().changeByUrl(1)
+						break;
+					}
+					case 32:
+					{
+						ChangObjsNrmModel.getInstance().changeByUrl(2)
+						break;
+					}
+					case 33:
+					{
+						ChangObjsNrmModel.getInstance().changeByUrl(3)
+						break;
+					}
+					case 40:
+					{
+						ExpFrame3DH5Model.getInstance().exp()
+						break;
+						
+					}
+					case 41:
+					{
+						InputSceneMap.getInstance().inputFile()
+						break;
+						
+					}
+					case 42:
+					{
+						InputSceneMap.getInstance().inputLightVo()
+						break;
+					}
+					case 50:
+					{
+						ModuleEventManager.dispatchEvent( new ProjectEvent(ProjectEvent.SHOW_PROJECT_AMBIENT));
+						break;
+						
+					}
+					
+					default:
+					{
+						break;
+					}
+				}
+				
+			}
+			private function expRoleBfun($url:String):void
+			{
+			
+				Alert.show($url)
+			
+			}
+			private function openUiFile():void
+			{
+				
+				var $file:File=new File(FilePathManager.getInstance().getPathByUid("Move3DFrame"))
+				var txtFilter:FileFilter = new FileFilter("Text", ".3dmove;*.3dmove;");
+				
+				
+				$file.browseForOpen("打开工程文件 ",[txtFilter]);
+				$file.addEventListener(Event.SELECT,onSelect);
+				function onSelect(e:Event):void
+				{
+					
+					var $CentenEvent:ProjectEvent=new ProjectEvent(ProjectEvent.OPEN_PROJECT_FILE)
+					$CentenEvent.url=$file.url.replace(AppData.workSpaceUrl,"")
+			
+					AppDataFrame.fileUrl=decodeURI($CentenEvent.url);
+					ModuleEventManager.dispatchEvent( $CentenEvent);
+					
+					FilePathManager.getInstance().setPathByUid("Move3DFrame",$file.url)
+					
+				} 
+				
+			}
+			protected function selectWorkSpaceUrl():void
+			{
+				var file:File = new File;
+				file.addEventListener(Event.SELECT,onFileWorkChg);
+				file.browseForDirectory("选择文件夹");
+				function onFileWorkChg(event:Event):void
+				{
+					var $file:File = event.target as File;
+					AppData.workSpaceUrl=$file.url+"/"
+					ModuleEventManager.dispatchEvent(new MEvent_ProjectData(MEvent_ProjectData.PROJECT_SAVE_CONFIG));
+				}
+				
+			}
+		
+
+		
+			private  function writeToXml($file:File,str:String):void
+			{
+				
+			
+				var fs:FileStream = new FileStream();
+				fs.open($file, FileMode.WRITE);
+				
+				for(var i:int = 0; i < str.length; i++)
+				{
+					fs.writeMultiByte(str.substr(i,1),"utf-8");
+				}
+				
+				fs.close();
+				
+			}
+			protected function onKey(event:KeyboardEvent = null):void
+			{
+			
+				
+			}
+			
+
+			
+			private function saveUiFile():void
+			{
+				
+				
+				var $CentenEvent:DisCentenEvent=new DisCentenEvent(DisCentenEvent.SAVE_H5UI_PROJECT_FILE)
+				$CentenEvent.saveH5UIchangeFile=false
+				ModuleEventManager.dispatchEvent( $CentenEvent);
+				
+			}
+			
+			private function saveAsUiFile():void
+			{
+				
+				var $CentenEvent:DisCentenEvent=new DisCentenEvent(DisCentenEvent.SAVE_H5UI_PROJECT_FILE)
+				$CentenEvent.saveH5UIchangeFile=true
+				ModuleEventManager.dispatchEvent( $CentenEvent);
+				
+			}
+			
+	
+			
+		
+		
+
+	
+			
+			protected function onStageKeyDown(event:KeyboardEvent):void
+			{
+				if(event.ctrlKey){
+					if(event.keyCode==Keyboard.S){
+						saveUiFile()
+					}
+					if(event.keyCode==Keyboard.G){
+	
+					}
+				}
+				
+			}
+			
+
+			
+			
+	
+			
+			private function saveAsFile():void
+			{
+				var $file:File=new File(FilePathManager.getInstance().getPathByUid("Move3DFrame"))
+				$file.browseForSave("保存文件");
+				$file.addEventListener(Event.SELECT,onSelect);
+				function onSelect(e:Event):void
+				{
+					
+					var saveFiled:File = e.target as File;
+					var $url:String=	saveFiled.url.replace(AppData.workSpaceUrl,"")
+					AppDataFrame.fileUrl=$url.replace("."+saveFiled.extension,"")
+					AppDataFrame.fileUrl+=".3dmove"
+					ModuleEventManager.dispatchEvent( new TopEvent(TopEvent.SAVE_FILE));
+
+				}
+				
+			}
+			
+			
+			
+	
+			
+			
+			
+		]]>
+	</fx:Script>
+	<mx:FlexNativeMenu id="fnm" dataProvider="{TopMenuData.menuXml}" itemClick="itemClickHandler(event)"
+					   labelField="@label" showRoot="false"/>
+</mx:Menu>

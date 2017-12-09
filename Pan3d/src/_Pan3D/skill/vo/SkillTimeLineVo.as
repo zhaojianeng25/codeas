@@ -27,7 +27,7 @@ package _Pan3D.skill.vo
 		
 		public var urlList:Vector.<String>;
 		
-		public var shockVo:ShockVo;
+		public var shockVec:Vector.<ShockVo>;
 		
 		public var bloodVo:BloodVo;
 		
@@ -45,11 +45,6 @@ package _Pan3D.skill.vo
 		public function setInfo(obj:Object):void{
 			action = obj.action;
 			
-			if(obj.shock){
-				shockVo = new ShockVo(obj.shock);
-			}else{
-				shockVo = null;
-			}
 			
 			var ary:Array = obj.infoAry;
 			
@@ -107,6 +102,17 @@ package _Pan3D.skill.vo
 			}else{
 				this.soundVo = null;
 			}
+			
+			if(obj.shock){
+				this.shockVec = new Vector.<ShockVo>;
+				for(i=0;i<obj.shock.length;i++){
+					var shv:ShockVo = new ShockVo(obj.shock[i]);
+					this.shockVec.push(shv);
+				}
+			}else{
+				this.shockVec = null;
+			}
+			
 			
 		}
 		

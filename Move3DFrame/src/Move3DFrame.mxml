@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="1400" height="760" addedToStage="creationCompleteHandler(event)"
+					   backgroundAlpha="0" backgroundColor="#404040" frameRate="60"
+					   showStatusBar="false" title="{AppData.appTitle}">
+		<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		mx|VScrollBar{
+			chromeColor: #2d2d2d;
+		}
+		mx|HScrollBar{
+			chromeColor: #2d2d2d;
+		}
+		mx|ToolTip{
+			font-family:            verdana;
+			font-size:              12px;
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.zcp.frame.event.ModuleEventManager;
+			
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			
+			import PanV2.ConfigV2;
+			
+			import _Pan3D.light.LightVo;
+			import _Pan3D.role.MeshDataManager;
+			import _Pan3D.scene.postprocess.PostProcessManager;
+			import _Pan3D.texture.TextureManager;
+			
+			import _me.Scene_data;
+			
+			import common.AppData;
+			import common.GameUIInstance;
+			
+			import manager.LayerManager;
+			import manager.MouseManager;
+			
+			import modules.brower.BrowerPanel;
+			
+			import mvc.UiModuleList;
+			import mvc.centen.DisCentenEvent;
+			import mvc.frame.FrameEvent;
+			import mvc.libray.LibraryEvent;
+			import mvc.project.ProjectEvent;
+			import mvc.scene.UiSceneEvent;
+			import mvc.top.TopEvent;
+			
+			import proxy.top.render.Render;
+			
+			import scenelevel.SceneLevel;
+			
+			import xyz.MoveScaleRotationLevel;
+
+			private var _browerView:BrowerPanel;
+			
+
+			
+			protected function creationCompleteHandler(event:Event):void
+			{
+
+				this.stage.align=StageAlign.TOP_LEFT
+				this.stage.scaleMode=StageScaleMode.NO_SCALE
+					
+				this.readFileConfig()
+			
+
+			}
+			public function readFileConfig():void{
+				var file:File = new File(File.documentsDirectory.url + "/move3dframe.config");
+				if(file.exists){
+					readProjectConfig();
+					this.initConfig();
+				}else{
+					if(!AppData.workSpaceUrl){
+						Alert.show("工作空间未配置！是否立即配置？","警告",Alert.YES | Alert.NO,null,onClose);
+					}
+				}
+			}
+			private function onClose(evt:CloseEvent):void
+			{
+				
+				var file:File = new File;
+				file.browseForDirectory("选择工作空间");
+				file.addEventListener(Event.SELECT,onRootSel);
+				
+			}	
+			protected function onRootSel(event:Event):void
+			{
+				var file:File = event.target as File;
+				AppData.workSpaceUrl = file.url + "/";
+				AppDataFrame.saveConfigProject()
+	
+			}
+			public function readProjectConfig():void{
+				var file:File = new File(File.documentsDirectory.url + "/move3dframe.config");
+				var fs:FileStream = new FileStream;
+				fs.open(file,FileMode.READ);
+				var obj:Object = fs.readObject();
+				fs.close();
+				AppData.workSpaceUrl = obj.workSpaceUrl;
+				
+			//"file:///E:/art/project/";
+				AppData.workSpaceUrl= obj.workSpaceUrl;
+				Scene_data.fileRoot=AppData.workSpaceUrl;
+				Render.lightUvRoot="file:///E:/art/project/content/";
+
+			}
+			private var _sceneLevel:SceneLevel;
+
+
+			
+			private function initView():void
+			{
+				ModuleEventManager.dispatchEvent( new TopEvent(TopEvent.SHOW_TOP));
+				ModuleEventManager.dispatchEvent( new DisCentenEvent(DisCentenEvent.SHOW_CENTEN));
+				ModuleEventManager.dispatchEvent( new UiSceneEvent(UiSceneEvent.SHOW_UI_SCENE));
+				ModuleEventManager.dispatchEvent( new LibraryEvent(LibraryEvent.SHOW_RIGHT));
+				ModuleEventManager.dispatchEvent( new FrameEvent(FrameEvent.SHOW_FRAME_UI));
+
+				openFristFile();
+				
+				
+			}
+			private function openFristFile():void
+			{
+				//var baseURL:String="file:///C:/Users/liuxingsheng/Desktop/stuff/webgl/WebGLEngine/assets/ui/data.h5ui"
+				var _so:SharedObject =AppDataFrame.getSharedObject()
+				if(_so.data.url){
+					var $CentenEvent:ProjectEvent=new ProjectEvent(ProjectEvent.OPEN_PROJECT_FILE)
+					$CentenEvent.url=_so.data.url;
+					ModuleEventManager.dispatchEvent( $CentenEvent);
+				}
+				this.stage.addChild(ShowMc.getInstance());
+				
+			}
+			private function initConfig():void{
+				AppData.type=1
+				if(!Scene_data.light){
+					Scene_data.light=new LightVo;
+				}
+				GameUIInstance.stage = this.stage;
+				Scene_data.stage=this.stage
+				GameUIInstance.application = this;
+				GameUIInstance.uiContainer = rootUI;
+				GameUIInstance.layoutBottom = layoutBottom;
+				GameUIInstance.layoutTop = layoutTop;
+
+		
+				LayerManager.getInstance().testNodeTree();
+				stage.addEventListener(Event.RESIZE,resizeHandler);
+				
+				MouseManager.initMouse();
+				UiModuleList.startup();
+				ConfigV2.getInstance().init(stage,config_end);
+	
+				
+			}
+			private function config_end():void
+			{
+			
+				Scene_data.isDevelop = true;
+				//Scene_data.showLightmap=false
+				
+				//默认写的环境参数
+				Scene_data.fogAttenuation=0
+				Scene_data.fogDistance=20000
+				Scene_data.light.AmbientLight.color=new Vector3D(255,255,255)
+				Scene_data.light.AmbientLight.intensity=0.5
+				Scene_data.light.SunLigth.color=new Vector3D(255,255,255)
+				Scene_data.light.SunLigth.intensity=0.5
+				Scene_data.light.SunLigth.dircet=new Vector3D(1,1,1)
+					
+
+				
+				MoveScaleRotationLevel.getInstance().initContext3D(Scene_data.context3D,Scene_data.stage,1);
+					
+					
+				TextureManager.getInstance().init(Scene_data.context3D);
+				MeshDataManager.getInstance().init(Scene_data.context3D);
+				PostProcessManager.getInstance().init(Scene_data.context3D);
+				PostProcessManager.getInstance().resize(Scene_data.stageWidth,Scene_data.stageHeight);
+				
+				Render.init();
+				_sceneLevel=new SceneLevel;
+				_sceneLevel.initData();
+				this.startRender();
+				this.initView();
+				
+				
+
+			}
+			/*
+			private function readMapByFile():void
+			{
+				//file:///C:/Users/pan/Desktop/art/content/finalscens/mapscene/1003/1003.lmap
+				
+				var file:File=new File(AppData.workSpaceUrl+"content/finalscens/mapscene/1003/1003.lmap");
+				var fs:FileStream = new FileStream;
+				fs.open(file,FileMode.READ);
+				var obj:Object = fs.readObject();
+				fs.close();
+				AppData.writeObject(obj);
+				Scene_data.light = new LightVo();
+				Scene_data.light.writeObject(AppData.light);
+				EnvironmentVo.getInstance().objToEnvironment(AppData.environment)
+				
+			}
+			*/
+			private function startRender():void{
+				this.addEventListener(Event.ENTER_FRAME,renderScene);
+			}
+			/** 主渲染 */
+			private function renderScene(event:Event=null):void{
+				_sceneLevel.upData();
+			}
+			protected function resizeHandler(event:Event):void
+			{ 
+				LayerManager.getInstance().changeSize();
+			}
+			
+			
+	
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Canvas id="rootUI" width="100%" height="100%" horizontalScrollPolicy="off"
+			   verticalScrollPolicy="off"/>
+	
+	<!--<mx:Canvas id="rootUI"/>-->
+	<!--<color:ColorPickers x="200" y="200" label="环境色"/>-->
+	<mx:Canvas width="100%" height="100%">
+		<mx:UIComponent id="layoutBottom" visible="false"/>
+		<mx:UIComponent id="layoutTop"/>
+	</mx:Canvas>
+	<!--<s:TextInput id="fouseTxt"/>-->
+</s:WindowedApplication>

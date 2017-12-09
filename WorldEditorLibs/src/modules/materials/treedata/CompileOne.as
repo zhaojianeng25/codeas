@@ -139,6 +139,7 @@ package modules.materials.treedata
 		private var fogMode:int;
 		private var scaleLightMap:Boolean;
 		private var hasAlpha:Boolean;
+		private var hdr:Boolean;
 		
 		public var materialBaseData:MaterialBaseData;
 		public function CompileOne()
@@ -224,6 +225,7 @@ package modules.materials.treedata
 			fogMode = 0;
 			scaleLightMap = false;
 			hasAlpha = false;
+			hdr = false;
 			this.materialBaseData = new MaterialBaseData;
 			
 			//processDefaultFc();
@@ -265,6 +267,7 @@ package modules.materials.treedata
 			$materialTree.hasAlpha = hasAlpha;
 			$materialTree.scaleLightMap = scaleLightMap;
 			$materialTree.materialBaseData = this.materialBaseData;
+			$materialTree.hdr = this.hdr;
 			
 			$materialTree.dispatchEvent(new Event(Event.CHANGE));
 			trace("all Shader");
@@ -719,6 +722,8 @@ package modules.materials.treedata
 			this.fogMode = NodeTreeOP($node).fogMode;
 			this.scaleLightMap = NodeTreeOP($node).scaleLightMap;
 			
+			this.hdr = NodeTreeOP($node).hdr;
+			
 			var str:String = new String;
 			var inputDiffuse:NodeTreeInputItem = $node.inputVec[0];
 			var inputEmissive:NodeTreeInputItem = $node.inputVec[9];
@@ -828,13 +833,44 @@ package modules.materials.treedata
 					
 				}else{
 					var regtexLightMap:RegisterItem = getFragmentTex();
-					str = TEX + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultLightUvReg.id + COMMA + FS + regtexLightMap.id + SPACE + texType + LN;
-					str += MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA + FC + THREE + X;
+					if(hdr){
+//						vec3 outc = vec3(1.0,1.0,1.0);
+//						float e = src.w * 255.0 - 128.0;
+//						e = pow(2.0,e);
+//						outc.x = src.x * e;
+//						outc.y = src.y * e;
+//						outc.z = src.z * e;
+//						return outc;
+						str = TEX + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultLightUvReg.id + COMMA + FS + regtexLightMap.id + SPACE + texType + LN;
+						
+						// mul ft0.w,ft0.w,fc4.x
+						// sub ft0.w,ft0.w,fc4.y
+						// pow ft0.w,fc4.z,ft0.w
+						// mul ft0.xyz,ft0.xyz,ft0.w
+						str += MUL + SPACE + FT + regtempLightMap.id + W + COMMA + FT + regtempLightMap.id + W + COMMA + FC + FOUR + X + LN;
+						
+						str += SUB + SPACE + FT + regtempLightMap.id + W + COMMA + FT + regtempLightMap.id + W + COMMA + FC + FOUR + Y + LN;
+						
+						str += POW + SPACE + FT + regtempLightMap.id + W + COMMA + FC + FOUR + Z + COMMA + FT + regtempLightMap.id + W + LN;
+						
+						str += MUL + SPACE + FT + regtempLightMap.id + W + COMMA + FT + regtempLightMap.id + W + COMMA + FC + FOUR + X + LN;
+						str += MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + W;
+						
+//						str += MOV + SPACE + FT +regtempLightMap.id + X + COMMA + FT + regtempLightMap.id + W + LN;
+//						str += MOV + SPACE + FT +regtempLightMap.id + Y + COMMA + FT + regtempLightMap.id + W + LN;
+//						str += MOV + SPACE + FT +regtempLightMap.id + Z + COMMA + FT + regtempLightMap.id + W;
+					}else{
+						str = TEX + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultLightUvReg.id + COMMA + FS + regtexLightMap.id + SPACE + texType + LN;
+						str += MUL + SPACE + FT + regtempLightMap.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ + COMMA + FC + THREE + X;
+						
+					}
+					
 					strVec.push(str);
 					texItem = new TexItem;
 					texItem.id = regtexLightMap.id;
 					texItem.type = TexItem.LIGHTMAP;
 					texVec.push(texItem);
+					
 				}
 				if(this.noLight){
 					//str = MOV + SPACE + FT + regtempLightMap.id + COMMA + VI + defaultUvReg.id + LN;
@@ -1091,12 +1127,25 @@ package modules.materials.treedata
 					//str =  MUL + SPACE + FT + regOp.id + XYZ + COMMA + pNodeDiffuse.getComponentID(inputDiffuse.parentNodeItem.id) + COMMA + FT + regtempLightMap.id + XYZ;
 					str =  MOV + SPACE + FT + regOp.id + XYZ + COMMA + FT + regtempLightMap.id + XYZ;
 				}
+				strVec.push(str);
+				
+				if(hdr){
+					//vec3 color = src / (1.0 + src);
+					//color = pow(color,vec3(1.0/2.2,1.0/2.2,1.0/2.2));
+
+					var toneMap:RegisterItem = getFragmentTemp();
+					//add ft1.xyz,ft0.xyz,fc0.x
+					str = ADD + SPACE + FT + toneMap.id + XYZ + COMMA + FT + regOp.id + XYZ + COMMA + FC + ZERO + X + LN;
+					//div ft1.xyz,ft0.xyz,ft1.xyz
+					str += DIV + SPACE + FT + toneMap.id + XYZ + COMMA + FT + regOp.id + XYZ + COMMA + FT + toneMap.id + XYZ + LN;
+					//pow ft0.xyz,ft1.xyz,fc4.w
+					str += POW + SPACE + FT + regOp.id + XYZ + COMMA + FT + toneMap.id + XYZ + COMMA + FC + FOUR + W;
+					strVec.push(str);
+				}
 				
 				inputDiffuse.hasCompiled = true;
 				pNodeDiffuse.releaseUse();
-				
-				strVec.push(str);
-				
+
 				regtempLightMap.inUse = false;
 				if(regtempPbr){
 					regtempPbr.inUse = false;

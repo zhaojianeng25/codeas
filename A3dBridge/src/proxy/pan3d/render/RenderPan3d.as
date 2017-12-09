@@ -401,7 +401,7 @@ package proxy.pan3d.render
 				if(_iModeItem[i] as ProxyPan3dModel||_iModeItem[i] as ProxyPan3dWater){
 					var $objData:ObjData=ProxyPan3dModel(_iModeItem[i]).sprite.objData;
 					var $posMatrix:Matrix3D=ProxyPan3dModel(_iModeItem[i]).sprite.posMatrix
-					for(var j:Number=0;j<$objData.vertices.length/3;j++){
+					for(var j:Number=0;$objData&&j<$objData.vertices.length/3;j++){
 						var $verPos:Vector3D=new Vector3D($objData.vertices[j*3+0],$objData.vertices[j*3+1],$objData.vertices[j*3+2]);
 						if(inRect($posMatrix.transformVector($verPos))){
 							$arr.push(_iModeItem[i])

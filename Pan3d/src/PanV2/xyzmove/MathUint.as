@@ -68,8 +68,9 @@ package PanV2.xyzmove
 
 			_Cam.camera3dMatrix.prependRotation(_Cam.rotationX, Vector3D.X_AXIS);
 			_Cam.camera3dMatrix.prependRotation(_Cam.rotationY, Vector3D.Y_AXIS);
-			_Cam.camera3dMatrix.prependTranslation(-_Cam.x, -_Cam.y,-_Cam.z);
+			_Cam.camera3dMatrix.prependTranslation(-_Cam.x + _Cam.offset.x, -_Cam.y + _Cam.offset.y,-_Cam.z + _Cam.offset.z);
 			
+		
 			
 			var fovw:Number=Scene_data.stage3DVO.width
 			var fovh:Number=Scene_data.stage3DVO.height

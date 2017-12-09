@@ -12,6 +12,7 @@
       <libraryPathEntry kind="3" linkType="1" path="/UtilsLib/bin/UtilsLib.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="/Terrain/bin/Terrain.swc" useDefaultLinkType="false"/>
       <libraryPathEntry kind="3" linkType="1" path="/ZLib/bin/ZLib.swc" useDefaultLinkType="false"/>
+      <libraryPathEntry kind="3" linkType="1" path="/ZTool/bin/ZTool.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>

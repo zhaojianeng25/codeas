@@ -153,6 +153,7 @@ package _Pan3D.display3D.analysis {
 			var arr:Array;
 			
 			str=str.replace("origin","Bip001234") //特殊转换
+			str=str.replace("Root","Bip002234") //特殊转换
 			if (str.indexOf("mesh") != -1) {
 				//存入没一个元件MESH;
 				var meshData:MeshData = new MeshData();

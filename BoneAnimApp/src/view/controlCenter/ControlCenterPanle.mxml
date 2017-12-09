@@ -45,6 +45,7 @@
 		
 		import renderLevel.Display3DMovieLocal;
 		
+		import utils.ShockUtils;
 		import utils.ai.AIManager;
 		
 		import view.aiRole.AiRolePanel;
@@ -672,6 +673,8 @@
 			AppDataBone.role.play(skillTimeLine.actionName,1);
 			
 			this.addEventListener(Event.ENTER_FRAME,onPlay);
+			
+			ShockUtils.stop();
 		}
 		/**
 		 * 上一帧
@@ -838,6 +841,17 @@
 				if($kobj.sound){
 					$skillByte.writeInt($kobj.sound.time);
 					$skillByte.writeUTF($kobj.sound.name);
+				}else{
+					$skillByte.writeInt(0);
+				}
+				
+				if($kobj.shock){
+					$skillByte.writeInt($kobj.shock.length);
+					for(var j:int = 0;j<$kobj.shock.length;j++){
+						$skillByte.writeInt($kobj.shock[j].time);
+						$skillByte.writeInt($kobj.shock[j].lasttime);
+						$skillByte.writeFloat($kobj.shock[j].amp);
+					}
 				}else{
 					$skillByte.writeInt(0);
 				}
@@ -1081,6 +1095,9 @@
 				var soundUrl:String = resultObj.sound.url;
 				var soundAry:Array = soundUrl.split("/");
 				resultObj.sound.name = soundAry[soundAry.length-1];
+			}
+			if(keyObj.shock && keyObj.shock.length){
+				resultObj.shock = keyObj.shock;
 			}
 			
 			return resultObj;

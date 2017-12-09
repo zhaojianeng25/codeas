@@ -211,6 +211,47 @@ package common.msg.net
 					
 					break;
 				}
+				case 54:{
+					uid = $data.readUTF();
+					wh = $data.readInt();
+					mscale = $data.readFloat();
+					lenght = wh*wh;
+					cbmp = new BitmapData(wh,wh);
+					for(i = 0 ;i < lenght;i++){
+						xi = i%wh;
+						yi = i/wh; 
+//						var tr:Number = $data.readFloat();
+//						var tg:Number = $data.readFloat();
+//						var tb:Number = $data.readFloat();
+//						
+//						cbmp.setPixel32(yi,xi,MathCore.vecToHex(new Vector3D(tr,tg,tb,1.0)));
+						
+						r = $data.readUnsignedByte(); 
+						g = $data.readUnsignedByte();
+						b = $data.readUnsignedByte();
+						a = $data.readUnsignedByte();
+						
+						cbmp.setPixel32(yi,xi,MathCore.argbToHex(a,r,g,b));
+						
+//						var e:Number = a - 128;
+//						e = Math.pow(2,e);
+//						var tr:Number = r * e;
+//						var tg:Number = g * e;
+//						var tb:Number = b * e;
+//						cbmp.setPixel32(yi,xi,MathCore.vecToHex(new Vector3D(tr,tg,tb,1.0)));	
+					}
+					
+					newBmp = new BitmapData(wh/mscale,wh/mscale,true);
+					ma = new Matrix();
+					ma.scale(1.0/mscale,1.0/mscale);
+					newBmp.draw(cbmp,ma,null,null,null,true);
+					
+					$url=Render.lightUvRoot+uid+".jpg";
+					FileSaveModel.getInstance().useWorkerSaveBmp(cbmp.clone(),$url,"png");
+					
+					RadiosityModel.getInstance().resetTexture(uid,cbmp);
+					break;
+				}
 				default:
 				{
 					break;

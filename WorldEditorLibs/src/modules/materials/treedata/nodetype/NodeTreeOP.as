@@ -16,6 +16,7 @@ package modules.materials.treedata.nodetype
 		public var noLight:Boolean;
 		public var fogMode:int;
 		public var scaleLightMap:Boolean;
+		public var hdr:Boolean;
 		public function NodeTreeOP()
 		{
 			super();

@@ -47,7 +47,10 @@ package _Pan3D.display3D.analysis {
 
 		public function addAnim(ini:String):void {
 			
+
+				
 			ini=ini.replace("origin","Bip001234") //特殊转换
+			ini=ini.replace("Root","Bip002234") //特殊转换
 			
 			_dir = new Dictionary();
 			allFrames = new Array();
@@ -231,7 +234,9 @@ package _Pan3D.display3D.analysis {
 
 			var i:Number=0;
 			for( i=0;i<_frame.length;i++){
-				allFrames.push(_getsamplefamer(_frame[i]));
+				if(_frame[i]){
+					allFrames.push(_getsamplefamer(_frame[i]));
+				}
 				//trace(_allframes)
 			}
 			framesok=true;
@@ -437,7 +442,10 @@ package _Pan3D.display3D.analysis {
 						if (String(arr[w]).indexOf("{") == -1 && String(arr[w]).indexOf("}") == -1 && arr[w] != "") {
 							tempArray.push(arr[w]);
 						}
-						_frame[arrsign] = tempArray;
+						
+						_frame[arrsign] = tempArray;  
+			
+		
 				}
 			}
 		}

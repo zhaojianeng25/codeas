@@ -1,5 +1,6 @@
 ﻿package _Pan3D.base{
 	import flash.geom.Matrix3D;
+	import flash.geom.Vector3D;
 	
 	// --------------MSN:lation_pan@live.cn  QQ: 3423526------------- //
 	//镜头对象
@@ -8,7 +9,7 @@
 		public var br:Number=1.8304877;
 		public var fovw:Number=1024;
 		public var fovh:Number =600;
-		public var distance:Number = 0;
+		private var _distance:Number = 0;
 		public var outofsight:Number = 1000;
 		public var move:Boolean = true;
 		public var sin_x:Number = 0;
@@ -19,6 +20,7 @@
 		public var cameraMatrix:Matrix3D=new Matrix3D();
 		public var camera2dMatrix:Matrix3D=new Matrix3D();
 		public var camera3dMatrix:Matrix3D=new Matrix3D();
+		public var offset:Vector3D = new Vector3D();
 
 		
 	
@@ -28,6 +30,17 @@
 			
 			
 		}
+
+		public function get distance():Number
+		{
+			return _distance;
+		}
+
+		public function set distance(value:Number):void
+		{
+			_distance = value;
+		}
+
 		public function cloneCamera() : Camera3D {
 			var camera3D:Camera3D=new Camera3D({});
 			camera3D.distance=distance;

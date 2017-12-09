@@ -371,6 +371,8 @@ package _Pan3D.display3D
 				_context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 4, Vector.<Number>([1,-1,2,-2]));
 			}else if($material.fogMode != 0){
 				_context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 4, Vector.<Number>([Scene_data.fogColor.x/255,Scene_data.fogColor.y/255,Scene_data.fogColor.z/255,1]));
+			}else if($material.hdr){
+				_context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT, 4, Vector.<Number>([255.0,128.0,2.0,1.0/2.2]));
 			}
 		}
 		

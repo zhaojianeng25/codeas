@@ -415,7 +415,7 @@
 		
 			if(ExpResModel.expArpg&&true){
 				ExpResPanel.initExpPanel(selectBackFun,["tb_creature_template","tb_item_template","tb_mount_base","tb_gameobject_template",
-					"tb_mount_illusion","tb_char_info#weapon,name","tb_char_info#avatar,name","tb_wings_base","tb_talisman_base","tb_appearance_info#avatar,name,username"]);
+					"tb_mount_illusion","tb_char_info#weapon,name","tb_char_info#avatar,name","tb_wings_base","tb_talisman_base","tb_appearance_info#avatar,name,username","tb_wow_template#id,name,id"]);
 			}else{
 				var file:File =new File(FilePathManager.getInstance().getPathByUid("expToH5"));
 				file.browseForSave("保存文件");

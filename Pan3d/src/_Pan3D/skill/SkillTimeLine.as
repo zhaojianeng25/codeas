@@ -72,6 +72,8 @@ package _Pan3D.skill
 		
 		public var targetFlag:int;
 		
+		public var targetShockFlag:int;
+		
 		public var particleContainer:Display3DContainer;
 		
 		/**
@@ -153,7 +155,7 @@ package _Pan3D.skill
 		public function update(t:Number):void{
 			_time += t;
 			getKeyTarget();
-			//getShock();
+			getShock();
 			getBlood();
 			getSound();
 			frame = _time/Scene_data.frameTime;
@@ -168,10 +170,16 @@ package _Pan3D.skill
 		}
 		
 		public function getShock():void{
-			if(!isShock && _voInfo && _voInfo.shockVo && Boolean(Scene_data.shockFun)){
-				if(_time >= _voInfo.shockVo.beginTime){
-					Scene_data.shockFun(_voInfo.shockVo.time,_voInfo.shockVo.amplitude);
-					isShock = true;
+			if(!Boolean(Scene_data.shockFun) || !_voInfo.shockVec){
+				return;
+			}
+			for(var i:int = targetShockFlag;i<_voInfo.shockVec.length;){
+				if(_voInfo.shockVec[i].time < _time){
+					Scene_data.shockFun(_voInfo.shockVec[i].lasttime,_voInfo.shockVec[i].amp);
+					i++;
+					targetShockFlag = i;
+				}else{
+					break;
 				}
 			}
 		}
@@ -233,6 +241,7 @@ package _Pan3D.skill
 			trajectoryList.length = 0;
 			frame = 0;
 			targetFlag = 0;
+			targetShockFlag = 0;
 			_completeNum = 0;
 			isShock = false;
 			//_hasConfig = false;
@@ -250,6 +259,7 @@ package _Pan3D.skill
 			trajectoryList.length = 0;
 			frame = 0;
 			targetFlag = 0;
+			targetShockFlag = 0;
 			_completeNum = 0;
 			//_hasConfig = false;
 			//resetCache();

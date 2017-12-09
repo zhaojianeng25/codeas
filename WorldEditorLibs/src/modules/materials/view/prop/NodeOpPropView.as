@@ -35,7 +35,7 @@ package modules.materials.view.prop
 					{Type:ReflectionData.CheckBox,Label:"无光照:",GetFun:getNoLight,SetFun:setNoLight,Category:"属性"},
 					{Type:ReflectionData.CheckBox,Label:"光照缩放:",GetFun:getScaleLightMap,SetFun:setScaleLightMap,Category:"属性"},
 					{Type:ReflectionData.ComboBox,Label:"雾模式:",GetFun:getFogValue,SetFun:setFogValue,Category:"属性",Data:[{name:"无",type:0},{name:"镜头距离",type:1},{name:"y模式",type:2}]},
-
+					{Type:ReflectionData.CheckBox,Label:"HDR:",GetFun:getHdr,SetFun:setHdr,Category:"属性"},
 				]
 			
 			return ary;
@@ -191,6 +191,20 @@ package modules.materials.view.prop
 		public function setScaleLightMap(value:Boolean):void{
 			if(_ui){
 				_ui.scaleLightMap = value;
+			}
+		}
+		
+		public function getHdr():Boolean{
+			if(_ui){
+				return _ui.hdr;
+			}else{
+				return true;
+			}
+		}
+		
+		public function setHdr(value:Boolean):void{
+			if(_ui){
+				_ui.hdr = value;
 			}
 		}
 		
