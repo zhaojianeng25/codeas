@@ -197,6 +197,7 @@ package utils
 		public function setAllScale(value:Number = 1):void{
 			for(var i:int;i<_timeLineAry.length;i++){
 				_timeLineAry[i].particleItem.display3D.overAllScale = value;
+				_timeLineAry[i].particleItem.display3D.updateAnimMatix()
 			}
 		}
 		public function removeTimeLine(timeline:TimeLineSprite):void{

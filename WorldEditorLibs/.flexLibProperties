@@ -108,6 +108,8 @@
     <classEntry path="modules.terrain.TerrainSmoothModel"/>
     <classEntry path="modules.expres.ExpTo3dmaxByObjs"/>
     <classEntry path="modules.expres.ExpChangeAllObjsNrmModel"/>
+    <classEntry path="modules.expres.ExpMapPicInfoWindow"/>
+    <classEntry path="modules.expres.ExpMapPicInfoPanel"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

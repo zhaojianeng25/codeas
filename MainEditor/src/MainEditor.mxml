@@ -29,6 +29,7 @@
 			import _Pan3D.scene.postprocess.PostProcessManager;
 			import _Pan3D.texture.TextureManager;
 			
+			import _me.KeyControl;
 			import _me.Scene_data;
 			
 			import air.update.ApplicationUpdaterUI;
@@ -58,6 +59,7 @@
 			}   
 			private function onUpdate(event:UpdateEvent):void {   
 				appUpdater.checkNow();
+				
 			}
 			
 			

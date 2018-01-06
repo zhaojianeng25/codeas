@@ -43,6 +43,7 @@
 			import modules.cradiosity.CradiosityEvent;
 			import modules.expres.ExpChangeAllObjsNrmModel;
 			import modules.expres.ExpMapPicAndStart;
+			import modules.expres.ExpMapPicInfoWindow;
 			import modules.hierarchy.RenderModel;
 			import modules.hierarchy.h5.ExpAllSpaceLyfToH5;
 			import modules.hierarchy.h5.ExpResourcesModel;
@@ -110,7 +111,8 @@
 				}else if(type == 11){
 		
 					
-					ExpMapPicAndStart.getInstance().scanPic()
+				
+					ExpMapPicInfoWindow.getInstance().inputFilePanle()
 				}else if(type == 12){
 					scanFileIcon()
 				}else if(type == 13){

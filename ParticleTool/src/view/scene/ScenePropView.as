@@ -4,7 +4,7 @@ package view.scene
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	
-	import _Pan3D.lineTri.LineTriGrildLevel;
+	import _Pan3D.particle.Display3DParticle;
 	import _Pan3D.scene.postprocess.PostProcessManager;
 	import _Pan3D.texture.TextureCubeMapVo;
 	import _Pan3D.texture.TextureManager;
@@ -20,6 +20,8 @@ package view.scene
 	
 	import modules.materials.CubeMapManager;
 	import modules.scene.sceneSave.FilePathManager;
+	
+	import utils.ParticleManagerTool;
 	
 	public class ScenePropView extends BaseReflectionView
 	{
@@ -85,6 +87,8 @@ package view.scene
 					{Type:ReflectionData.PreFabImg,Label:"环境cubemap:",key:"skyUrl",extensinonStr:"cube",closeBut:1,donotDubleClik:0,target:this,Category:"环境"},
 					
 					{Type:ReflectionData.Number,Label:"环境反射系数:",GetFun:getEnvscale,SetFun:SetEnvscale,Category:"环境",MaxNum:10,MinNum:1,Step:0.01},
+					{Type:ReflectionData.Number,Label:"特效比例:",GetFun:getAllScale,SetFun:setAllScale,Category:"环境",MaxNum:10,MinNum:0.1,Step:0.01},
+				//	<mx:TextInput id="scaleTxt" x="17" y="109" width="98" text="1" change="scaleTxt_changeHandler(event)"/>
 					
 					{Type:ReflectionData.ComboBox,Label:"开启后期:",GetFun:getOpenLater,SetFun:setOpenLater,Category:"后期",Data:[{name:"false"},{name:"true"}],SelectIndex:0},
 					{Type:ReflectionData.Gap,Category:"后期"},
@@ -115,6 +119,15 @@ package view.scene
 				]
 			
 			return ary;
+		}
+		public function  getAllScale():Number
+		{
+			return 1
+		}
+		
+		public function  setAllScale(value:Number):void
+		{
+			ParticleManagerTool.getInstance().setAllScale(value);
 		}
 		public function  getEfLevel():int
 		{

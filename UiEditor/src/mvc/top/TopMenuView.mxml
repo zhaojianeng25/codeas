@@ -29,9 +29,42 @@
 			import mvc.project.ProjectEvent;
 			import mvc.scene.UiSceneEvent;
 			
+			import out.OutShderByTxt;
+			
 			import vo.FileInfoType;
 			import vo.H5UIFileNode;
 			import vo.HistoryModel;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			
 			
@@ -211,6 +244,15 @@
 						
 						break;
 					}
+					case 55:
+					{
+						
+						OutShderByTxt.getInstance().run()
+						
+						
+						break;
+					}
+						
 						
 					default:
 					{

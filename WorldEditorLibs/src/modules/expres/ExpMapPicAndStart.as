@@ -1,5 +1,7 @@
 package modules.expres
 {
+	import com.zcp.frame.event.ModuleEventManager;
+	
 	import flash.display.BitmapData;
 	import flash.display3D.Context3D;
 	import flash.display3D.Context3DBlendFactor;
@@ -15,6 +17,7 @@ package modules.expres
 	import flash.geom.Vector3D;
 	
 	import mx.controls.Alert;
+	import mx.events.CloseEvent;
 	
 	import PanV2.TextureCreate;
 	
@@ -25,6 +28,7 @@ package modules.expres
 	
 	import _me.Scene_data;
 	
+	import common.msg.event.projectSave.MEvent_ProjectData;
 	import common.utils.ui.file.FileNode;
 	import common.utils.ui.file.FileNodeManage;
 	
@@ -86,23 +90,28 @@ package modules.expres
 				$infoRect.width=bsew*2;
 				$infoRect.height=bsew*2;
 				
+	
+			
 				this.scanGroundHigth($infoRect);
 			}else{
 				Alert.show("没有A星数据")
 			}
 		}
-		private var saveFileUrl:String
+	
+		
+
 		public function  scanPic():void
 		{
-			this.saveFileUrl=File.desktopDirectory.url+"/min.jpg"
+	
 		    this.saveToFile()
 		}
 		private var _infoRect:Rectangle;
 		private var _hightRectInfo:Rectangle;
 
 		private var scanHeightNum:Number=800
-		private function scanGroundHigth($infoRect:Rectangle):void
+		public function scanGroundHigth($infoRect:Rectangle,$rotation:Number=0):void
 		{
+		
 			_hightRectInfo=$infoRect.clone()
 			_hightRectInfo.x-=1;
 			_hightRectInfo.y-=1;
@@ -114,7 +123,7 @@ package modules.expres
 			var $w:uint=1024;
 			var $pos:Vector3D=new Vector3D(_hightRectInfo.x+_hightRectInfo.width/2,scanHeightNum/2,_hightRectInfo.y+_hightRectInfo.height/2,scanHeightNum);
 			var $rect:Rectangle=new Rectangle(0,0,_hightRectInfo.width/2,_hightRectInfo.height/2);
-			var _dephtBmp:BitmapData=this.scanGroundAndBuildHightMap($pos,$rect,Math.max($w,64));
+			var _dephtBmp:BitmapData=this.scanGroundAndBuildHightMap($pos,$rect,Math.max($w,64),$rotation);
 			//ShowMc.getInstance().setBitMapData(_dephtBmp)
 				
 				
@@ -125,25 +134,36 @@ package modules.expres
 			
 			$outBmp.draw(_dephtBmp,$m);
 
-			FileSaveModel.getInstance().saveBitmapdataToJpg($outBmp,this.saveFileUrl);
+			var saveFileUrl:String=File.desktopDirectory.url+"/min.jpg"
+			FileSaveModel.getInstance().saveBitmapdataToJpg($outBmp,saveFileUrl);
 
-			Alert.show(decodeURI(this.saveFileUrl),"导出成功");
+			//Alert.show(decodeURI(saveFileUrl),"导出成功");
+		
+			Alert.show("生存小图完成， 注意是否要将配置数据也存到场景中，方便下次使用","提示!",3,null,enterFun)
+			function enterFun(event:CloseEvent):void
+			{
+				if(event.detail==Alert.YES)
+				{
+					ModuleEventManager.dispatchEvent(new MEvent_ProjectData(MEvent_ProjectData.PROJECT_SAVE));
+				}
+			}
+
 		
 		}
-		private  function scanGroundAndBuildHightMap($pos:Vector3D,$rect:Rectangle,$textureSize:Number):BitmapData
+		private  function scanGroundAndBuildHightMap($pos:Vector3D,$rect:Rectangle,$textureSize:Number,$rotation:Number=0):BitmapData
 		{
 			var $arr:Vector.<Display3DSprite>;
 			
 			$arr=getScanModelItem();
 
 			
-			return this.scanHightBitmap($pos,$rect,$textureSize,$arr)
+			return this.scanHightBitmap($pos,$rect,$textureSize,$arr,$rotation)
 			
 			
 		}
 		private var _colorTexture:RectangleTexture
 		private var _dephTexture:RectangleTexture
-		public  function scanHightBitmap($pos:Vector3D,$rect:Rectangle,$textureSize:Number,$arr:Vector.<Display3DSprite>):BitmapData
+		private  function scanHightBitmap($pos:Vector3D,$rect:Rectangle,$textureSize:Number,$arr:Vector.<Display3DSprite>,$rotation:Number=0):BitmapData
 		{
 			var $context3D:Context3D=Scene_data.context3D
 			
@@ -181,14 +201,22 @@ package modules.expres
 			cameraMatrix.prependTranslation(-$pos.x, -($pos.y),-$pos.z);
 			cameraMatrix.appendRotation(-90, Vector3D.X_AXIS);
 			
+			var rotationM:Matrix3D=new Matrix3D
+			rotationM.appendRotation($rotation, Vector3D.Z_AXIS);
+			
+			cameraMatrix.append(rotationM)
+			
 			
 			$context3D.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 4, cameraMatrix, true);
 			$context3D.setDepthTest(true,Context3DCompareMode.LESS);
 			$context3D.setBlendFactors(Context3DBlendFactor.ONE,Context3DBlendFactor.ZERO);
 			$context3D.setCulling(Context3DTriangleFace.NONE);
 			
+
+			SceneContext.sceneRender.groundlevel.updata();
 			
-			SceneContext.sceneRender.modelLevel.updata()
+			SceneContext.sceneRender.modelLevel.updata();
+
 	
 			
 			$context3D.drawToBitmapData(bmp)

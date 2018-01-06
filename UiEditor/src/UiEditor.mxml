@@ -73,7 +73,7 @@
 				this.initConfig();
 				this.initView()
 
-				this.outTabel();
+				//this.outTabel();
 
 				//OldObjsToNewObjs.getInstance().outAll();
 			

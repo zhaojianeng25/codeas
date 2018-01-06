@@ -154,6 +154,7 @@
 			obj.normal=new Vector3D();
 			
 			targetDisplay3d.display3D.setBeginInfo(obj);
+			targetDisplay3d.display3D.scale_x+=0.1
 			
 			//targetDisplay3d.timeline.setLastTime(int(lifeTxt.text));
 			

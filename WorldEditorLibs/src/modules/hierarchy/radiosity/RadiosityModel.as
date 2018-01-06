@@ -705,7 +705,7 @@ package modules.hierarchy.radiosity
 				var $url:String=TerrainEditorData.fileRoot+i+".jpg";
 				$url=(decodeURI($url));
 				$url=$url.replace(AppData.workSpaceUrl,"");
-				
+				$url=(encodeURI($url));
 				if(false){
 					$byte.writeInt(HierarchyNodeType.Prefab)
 					$byte.writeInt(i)    //id
@@ -733,6 +733,7 @@ package modules.hierarchy.radiosity
 					$byte.writeInt(GroundData.lightBlur)
 					$byte.writeUTF("ground"+i)  //模型地址
 					$byte.writeUTF($url)
+					trace($url)
 					$byte.writeUTF("ground")   //写入材质地址
 					$byte.writeFloat(0)  //killnum
 					$byte.writeBoolean(true)//正反面
@@ -825,7 +826,7 @@ package modules.hierarchy.radiosity
 				$url=(decodeURI($url))
 				FileSaveModel.getInstance().saveBitmapdataToJpg($bmp,$url)
 				$url=$url.replace(AppData.workSpaceUrl,"")
-				_groundMateriaUrlArr.push($url)
+				_groundMateriaUrlArr.push(encodeURI($url))
 				idNum++;
 				
 			}

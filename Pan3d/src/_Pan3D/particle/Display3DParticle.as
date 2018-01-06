@@ -125,7 +125,7 @@ package _Pan3D.particle
 		 */		
 		protected var _gpuTime:int;
 		
-		public var overAllScale:Number = 1;
+		private var _overAllScale:Number = 1;
 		private var _outScale:Number = 1;
 		public var layer:uint=0;
 		
@@ -160,6 +160,18 @@ package _Pan3D.particle
 			//animAry = new Vector.<BaseAnim>(null,_selfRotaion,_axisRotaion,_centrifugal,_axisMove,_colorChange,null,_scaleChange,_scaleAnim,_scaleNosie);
 		}
 		
+		public function get overAllScale():Number
+		{
+			return _overAllScale;
+		}
+
+
+		public function set overAllScale(value:Number):void
+		{
+			_overAllScale = value;
+
+		}
+
 		public function get delayedTime():Number
 		{
 			return _delayedTime;
@@ -774,9 +786,6 @@ package _Pan3D.particle
 		public function updateAnimMatix():void{
 			
 			posMatrix.identity();
-			
-			
-			
 			
 			//0.1是用来统一粒子和模型的比例
 			posMatrix.prependScale(overAllScale*_scaleX*0.1,overAllScale*_scaleY*0.1,overAllScale*_scaleZ*0.1);

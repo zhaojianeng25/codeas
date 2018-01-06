@@ -49,6 +49,7 @@ package  mvc.top
 	<menuitem label="合并系列动画" id="51"/> 
 <menuitem label="打包项目" id="53"/> 
 <menuitem label="zipFile" id="54"/> 
+<menuitem label="存为我们的OBJS" id="55"/> 
 
 		
 				</menuitem>

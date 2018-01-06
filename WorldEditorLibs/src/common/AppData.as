@@ -20,6 +20,7 @@ package common
 		public static var hierarchyList:Object;
 		public static var fog:Object;
 		public static var rayTraceVo:Object
+		public static var minmappicInfo:Object
 
 		
 		private static var _workSpaceUrl:String;
@@ -87,8 +88,9 @@ package common
 			obj.environment = environment;
 			obj.fog=fog;
 			obj.rayTraceVo=rayTraceVo;
+			obj.minmappicInfo=minmappicInfo;
 			
-			
+		
 			obj.Ambient_light_intensity=Ambient_light_intensity
 			obj.Ambient_light_Size=Ambient_light_Size
 			obj.Shadow_precision=Shadow_precision
@@ -107,6 +109,7 @@ package common
 			terrain = obj.terrain;
 			hierarchyList = obj.hierarchyList;
 			environment = obj.environment;
+			minmappicInfo=obj.minmappicInfo;
 			fog = obj.fog;
 			readFog(fog)
 		
