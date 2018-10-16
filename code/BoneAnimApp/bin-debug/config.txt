@@ -1,0 +1,1 @@
+{"tburl":"http://192.168.1.2/work/panjiazhi.xml","type":"panjiazhi" ,"model":["modeltabel#model,name,id"],"skill":["skilltabel#skill,name,id"],"role":["roletabel#avatar,id,name"],"map":["tb_map#id,name,id","tb_map#id,id,id"]}

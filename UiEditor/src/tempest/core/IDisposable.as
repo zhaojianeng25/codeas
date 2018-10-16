@@ -1,1 +1,0 @@
-package tempest.core{	/**	 * 资源释放接口	 */	public interface IDisposable	{		function dispose():void;//		function get isDisposed():Boolean;	}}

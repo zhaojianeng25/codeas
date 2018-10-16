@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<frame:BasePanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="310" height="572" creationComplete="onCreat()" xmlns:frame="common.utils.frame.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.events.ListEvent;
+		
+		import renderLevel.Display3DMovieLocal;
+		
+		import utils.FileConfigUtils;
+		
+		import view.ride.RidePanel;
+		
+		private var isFirst:Boolean = true;
+		[Bindable]
+		private var roleAry:ArrayCollection = new ArrayCollection;
+		[Bindable]
+		public var posAry:ArrayCollection = new ArrayCollection;
+		[Bindable]
+		public var posAryCbData:ArrayCollection = new ArrayCollection;
+		
+		private var selectPos:Object = new Object;
+		
+		private static var instance:RidePosPanel;
+		public static function getInstance():RidePosPanel{
+			if(!instance){
+				instance = new RidePosPanel;
+			}
+			return instance;
+		}
+		
+		public function showUI(container:DisplayObjectContainer):void{
+			if(isFirst){
+				var str:String = FileConfigUtils.readConfig().ridePanlePos;
+				if(!str){
+					this.x = 1000;
+					this.y = 50;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+		}
+		
+		private function onCreat():void{
+			selectPos.bindIndex = 0;
+			var obj:Object = new Object;
+			obj.index = -1;
+			posAryCbData.addItem(obj);
+		}
+		
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("ridePanlePos",this.x + "|" + this.y);
+		}
+		
+		protected function tree_rightClickHandler(event:MouseEvent):void
+		{
+			//currentItem = (DisplayObject(event.target).parent) as ItemRenderer
+			var _menuFile:NativeMenu = new NativeMenu();  
+			var addItem:NativeMenuItem = new NativeMenuItem("添加角色");  
+			addItem.addEventListener(Event.SELECT,onMenuAddItem);
+			
+			var delItem:NativeMenuItem = new NativeMenuItem("删除");  
+ 			delItem.addEventListener(Event.SELECT,onMenuDelItem);
+			
+			_menuFile.items = [addItem,delItem];  
+			_menuFile.display(stage,stage.mouseX,stage.mouseY);
+		}
+		
+		protected function onMenuDelItem(event:Event):void{
+			var obj:Object = rolelist.selectedItem;
+			var role:Display3DMovieLocal = obj.role;
+			if(role)
+				role.removeRender();
+			var index:int = roleAry.getItemIndex(obj);
+			if(index != -1){
+				roleAry.removeItemAt(index);
+			}
+			
+		}
+		
+		protected function onMenuAddItem(event:Event):void
+		{
+			var file:File = new File;
+			file.addEventListener(Event.SELECT,onSelRole);
+			file.browseForOpen("选择zzw文件");
+		}
+		
+		
+		protected function onSelRole(event:Event):void
+		{
+			var file:File = event.target as File;
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.READ);
+			var roleData:Object = fs.readObject();
+			fs.close();
+			
+			trace(roleData);
+			
+			var meshAry:Array = new Array;
+			
+			for(var i:int;i<roleData.mesh.length;i++){
+				var children:ArrayCollection = roleData.mesh[i].children;
+				for(var j:int=0;j<children.length;j++){
+					meshAry.push(children[j]);
+				}
+			}
+			
+			var obj:Object = new Object;
+			obj.bone = roleData.bone;
+			obj.mesh = meshAry;
+			
+			var role:Display3DMovieLocal = new RidePosUtils(obj).getRide();
+			role.addToRender(AppDataBone.roleContanier);
+			role.name = file.name;
+			role.bindTarget = AppDataBone.role;
+			
+			if(roleData.hasOwnProperty("scale")){
+				role.fileScale = roleData.scale;
+			}
+			
+//			role.bindIndex = 2;
+//			role.bindOffset = new Vector3D(12,-20,0)
+//			role.bindRatation = new Vector3D(0,0,0)
+			obj.role = role;
+			
+			
+			roleAry.addItem(obj);
+		}
+		
+		protected function posList_rightClickHandler(event:MouseEvent):void
+		{
+			var _menuFile:NativeMenu = new NativeMenu();  
+			var addItem:NativeMenuItem = new NativeMenuItem("添加骑乘位");  
+			addItem.addEventListener(Event.SELECT,addPos);
+			
+			var delItem:NativeMenuItem = new NativeMenuItem("删除");  
+			delItem.addEventListener(Event.SELECT,removePos);
+			
+			_menuFile.items = [addItem,delItem];  
+			_menuFile.display(stage,stage.mouseX,stage.mouseY);
+			
+			
+		}
+		
+		private function addPos(event:Event):void{
+			var obj:Object = new Object;
+			obj.index = posAry.length;
+			posAry.addItem(obj)
+			posAryCbData.addItem(obj);
+			trace("index" + obj.index)
+		}
+		private function removePos(event:Event):void{
+			//trace(event.target);
+			if(posList.selectedIndex != -1){
+				posAry.removeItemAt(posList.selectedIndex);
+			}
+		}
+		
+		protected function posList_changeHandler(event:ListEvent):void
+		{
+			selectPos = posList.selectedItem;
+			
+			bindIndexCb.selectedIndex = selectPos.bindIndex + 1;
+			
+			if(selectPos.bindOffset){
+				xpos.text = selectPos.bindOffset.x;
+				ypos.text = selectPos.bindOffset.y;
+				zpos.text = selectPos.bindOffset.z;
+			}else{
+				xpos.text = "";
+				ypos.text = "";
+				zpos.text = "";
+			}
+			
+			if(selectPos.bindRotation){
+				rxTxt.text = selectPos.bindRotation.x;
+				ryTxt.text = selectPos.bindRotation.y;
+				rzTxt.text = selectPos.bindRotation.z;
+			}else{
+				rxTxt.text = "";
+				ryTxt.text = "";
+				rzTxt.text = "";
+			}
+		}
+		
+		private function getBoneData(ary:ArrayCollection):ArrayCollection{
+			var newAry:ArrayCollection = new ArrayCollection;
+			newAry.addItem(-1)
+			for(var i:int;i<ary.length;i++){
+				newAry.addItem(ary[i].name)
+			}
+			return newAry;
+		}
+		
+		public function offset():void{
+			if(selectPos){
+				selectPos.bindOffset = new Vector3D(Number(xpos.text),Number(ypos.text),Number(zpos.text));
+			}
+			bindChg();
+		}
+		
+		public function rotationXY():void{
+			if(selectPos){
+				if(rxTxt.text == "" && ryTxt.text == "" && rzTxt.text == ""){
+					delete selectPos.bindRotation;
+				}else{
+					selectPos.bindRotation = new Vector3D(Number(rxTxt.text),Number(ryTxt.text),Number(rzTxt.text));
+				}
+			}
+			bindChg();
+		}
+		
+		
+		protected function bindIndexCb_changeHandler(event:ListEvent):void
+		{
+			if(selectPos){
+				selectPos.bindIndex = bindIndexCb.selectedIndex-1;
+			}
+			bindChg();
+		}
+		
+		private function bindChg():void{
+			trace("bindchg");
+//			if(selectRole){
+//				selectRole.bindIndex = selectPos.bindIndex;
+//				if(selectPos.bindRatation){
+//					selectRole.bindRatation = selectPos.bindRatation
+//				}else{
+//					selectRole.bindRatation = null;
+//				}
+//				selectRole.bindOffset = selectPos.bindOffset;
+//			}
+			refreshBind();
+		}
+		
+		public function refreshBind():void{
+			for(var i:int;i<roleAry.length;i++){
+				var role:Display3DMovieLocal = roleAry[i].role;
+				var pos:Object = roleAry[i].bindPos;
+				if(pos){
+					role.bindOffset = objToV3d(pos.bindOffset);
+					role.bindIndex = pos.bindIndex;
+					if(pos.bindRotation){
+						role.bindRatation = objToV3d(pos.bindRotation);
+					}else{
+						role.bindRatation = null;
+					}
+				}else{
+					
+				}
+			}
+		}
+		
+		private function objToV3d(obj:Object):Vector3D{
+			if(obj){
+				return new Vector3D(obj.x,obj.y,obj.z);
+			}else{
+				return null;
+			}
+			
+		}
+		
+		private var selectRole:Display3DMovieLocal;
+		protected function rolelist_clickHandler(event:MouseEvent):void
+		{
+			if(rolelist.selectedItem)
+				selectRole = rolelist.selectedItem.role;
+		}
+		
+		public function getAllInfo():Object{
+			return posAry;
+		}
+		
+		public function setAllInfo(obj:Object):void{
+			posAry = obj as ArrayCollection;
+			for(var i:int;i<posAry.length;i++){
+				posAryCbData.addItem(posAry[i]);
+			}
+		}
+		
+		public function getAllDataInfo():Array{
+			var ary:Array = new Array;
+			for(var i:int;i<posAry.length;i++){
+				ary.push(posAry[i]);
+			}
+			return ary;
+		}
+		
+		public function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		public function clear():void{
+			posAry = new ArrayCollection;
+			
+			for(var i:int;i<roleAry.length;i++){
+				var role:Display3DMovieLocal = roleAry[i].role;
+				if(role)
+					role.removeRender();
+			}
+			
+			roleAry = new ArrayCollection;
+			
+			posAryCbData = new ArrayCollection;
+		}
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%">
+	</mx:Panel>
+	<mx:Label x="10" y="34" width="290" fontWeight="bold" text="角色列表"/>
+	<mx:List id="rolelist" x="10" y="58" width="290" height="134"  rightClick="tree_rightClickHandler(event)" dataProvider="{roleAry}" click="rolelist_clickHandler(event)">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas horizontalScrollPolicy="off">
+					<fx:Script>
+						<![CDATA[
+							import mx.collections.ArrayCollection;
+							import mx.events.ListEvent;
+							
+							protected function combobox1_changeHandler(event:ListEvent):void
+							{
+								data.role.play(cb.selectedLabel);
+							}
+							
+							protected function poscb_changeHandler(event:ListEvent):void
+							{
+								data.bindPos = poscb.selectedItem;
+								outerDocument.refreshBind();
+							}
+							
+							override public function set data(value:Object):void{
+								super.data = value;
+								if(value){
+									value.role.play(data.bone[0].fileName);
+									trace(data.bone[0].fileName)
+								}
+							}
+							
+						]]>
+					</fx:Script>
+					<mx:Label text="{data.role.name}"/>
+					<mx:ComboBox id="cb" dataProvider="{data.bone}" labelField="fileName" x="160" change="combobox1_changeHandler(event)"/>
+					<mx:ComboBox id="poscb" dataProvider="{outerDocument.posAryCbData}" labelField="index" x="100" width="50" change="poscb_changeHandler(event)" />
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Label x="10" y="210" width="290" fontWeight="bold" text="骑乘位列表"/>
+	<mx:List id="posList" x="10" y="234" width="290" height="134" rightClick="posList_rightClickHandler(event)" dataProvider="{posAry}" itemClick="posList_changeHandler(event)" change="posList_changeHandler(event)">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas>
+					<mx:Label text="{data.index}"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Canvas id="posEditCav" y="380" width="310" height="145" enabled="{posList.selectedItem}">
+		<mx:ComboBox id="bindIndexCb" x="13" y="8" width="278" rowCount="15" dataProvider="{getBoneData(AppDataBone.boneList)}" change="bindIndexCb_changeHandler(event)"/>
+		<mx:Label x="14" y="34" fontWeight="bold" text="绑定点偏移"/>
+		<mx:Label x="21" y="57" text="x:"/>
+		<mx:Label x="98" y="57" text="y:"/>
+		<mx:Label x="178" y="57" text="z:"/>
+		<mx:TextInput id="xpos" x="34" y="57" width="53" change="offset()"/>
+		<mx:TextInput id="ypos" x="111" y="57" width="53" change="offset()"/>
+		<mx:TextInput id="zpos" x="191" y="57" width="53" change="offset()"/>
+		<mx:Label x="14" y="88" fontWeight="bold" text="绑定点旋转"/>
+		<mx:Label x="21" y="111" text="x:"/>
+		<mx:Label x="98" y="111" text="y:"/>
+		<mx:Label x="178" y="111" text="z:"/>
+		<mx:TextInput id="rxTxt" x="34" y="111" width="53" change="rotationXY()"/>
+		<mx:TextInput id="ryTxt" x="111" y="111" width="53" change="rotationXY()"/>
+		<mx:TextInput id="rzTxt" x="191" y="111" width="53" change="rotationXY()"/>
+	</mx:Canvas>
+	<mx:Label x="6" y="4" width="253" height="26" fontWeight="bold" mouseDown="startDrag()" click="this.parent.setChildIndex(this,this.parent.numChildren-1)"
+			  mouseUp="mouseUpDrag()" text="坐骑管理"/>
+	<mx:Button x="258" y="6" width="28" label="X" click="close()"/>
+</frame:BasePanel>

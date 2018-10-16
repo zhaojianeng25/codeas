@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="960" height="540" addedToStage="creationCompleteHandler(event)"
+					   >
+	<fx:Script>
+		<![CDATA[
+			import _Pan3D.load.LoadInfo;
+			import _Pan3D.load.LoadManager;
+			
+			import _me.Scene_data;
+			
+			import common.AppData;
+			import common.GameUIInstance;
+			
+			import manager.LayerManager;
+			import manager.MouseManager;
+			
+			
+			
+			protected function creationCompleteHandler(event:Event):void
+			{
+				
+
+				this.stage.align=StageAlign.TOP_LEFT
+				this.stage.scaleMode=StageScaleMode.NO_SCALE
+			    this.initConfig()
+	
+				var _menu:MarmoseMenuView = new MarmoseMenuView();
+				_menu.showMenu();
+				
+
+			}
+			private function initConfig():void{
+				GameUIInstance.stage = this.stage;
+				Scene_data.stage=this.stage
+				//GameUIInstance.application = this.parent as WindowedApplication;
+				GameUIInstance.application = this;
+				GameUIInstance.uiContainer = rootUI;
+				GameUIInstance.layoutBottom = layoutBottom;
+				GameUIInstance.layoutTop = layoutTop;
+				//GameUIInstance.txt = fouseTxt;
+				
+				
+				
+				LayerManager.getInstance().testNodeTree();
+				
+				
+				
+				stage.addEventListener(Event.RESIZE,resizeHandler);
+				MouseManager.initMouse();
+				
+				this.loadConfigXml()
+				
+			}
+			
+			private function loadConfigXml():void
+			{
+				var loaderinfo : LoadInfo = new LoadInfo("config.xml", LoadInfo.XML, onObjLoad,0);
+				LoadManager.getInstance().addSingleLoad(loaderinfo);
+				
+			}
+			protected function onObjLoad(str : String) : void {
+	
+				var $item:Object=JSON.parse(str);
+				trace($item)
+			}
+			
+			
+			protected function resizeHandler(event:Event):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		]]>
+
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Canvas id="rootUI" width="100%" height="100%" horizontalScrollPolicy="off"
+			   verticalScrollPolicy="off"/>
+	
+	<!--<mx:Canvas id="rootUI"/>-->
+	<!--<color:ColorPickers x="200" y="200" label="环境色"/>-->
+	<mx:Canvas width="100%" height="100%">
+		<mx:UIComponent id="layoutBottom" visible="false"/>
+		<mx:UIComponent id="layoutTop"/>
+	</mx:Canvas>
+	<!--<s:TextInput id="fouseTxt"/>-->
+</s:WindowedApplication>

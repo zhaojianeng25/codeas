@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="368" height="240">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.texture.TextureManager;
+		import _Pan3D.vo.texture.TextureVo;
+		
+		import flash.display3D.textures.Texture;
+		
+		
+		private var isFirst:Boolean = true;
+		/**
+		 * 显示
+		 * */
+		public function show(container:DisplayObjectContainer):void{
+			if(isFirst){
+				this.x = 480;
+				this.y = 40;
+			}
+			container.addChild(this);
+			isFirst = false;
+			
+		}
+		
+		private function outPath():void{
+			var file:File = new File;
+			file.addEventListener(Event.SELECT,onOutSel);
+			file.browseForOpen("打开");
+		}
+		
+		protected function onOutSel(event:Event):void
+		{
+			var file:File = event.target as File;
+			usertxt.text = file.url;
+			TextureManager.getInstance().addTexture(file.url,addTexture,null);
+		}
+		private var tempLightTexture:Texture;
+		protected function addTexture(textureVo : TextureVo, info : Object) : void {
+			//textureVo.useNum = 1;
+			tempLightTexture = AppDataBone.lightTexture;
+			AppDataBone.lightTexture = textureVo.texture;
+		}
+		
+		private function close():void{
+			AppDataBone.lightTexture = tempLightTexture;
+			this.parent.removeChild(this);
+		}
+		
+		private function txtChange():void{
+			AppDataBone.lightx = Number(xtxt.text);
+			AppDataBone.lighty = Number(ytxt.text);
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%" title="流光设置"  mouseDown="startDrag()" mouseUp="stopDrag()"/>
+	<mx:Label x="21" y="69" text="贴图："/>
+	<mx:Label x="21" y="103" text="速度："/>
+	<mx:TextInput id="usertxt" x="63" y="67" width="155"/>
+	<mx:TextInput id="xtxt" x="63" y="102" width="82" change="txtChange()" text="1"/>
+	<mx:TextInput id="ytxt" x="158" y="102" width="82" change="txtChange()" text="1"/>
+	<mx:Button x="222" y="68" label="选择文件" click="outPath()"/>
+	<mx:Button x="237" y="170" label="关闭" click="close()"/>
+</mx:Canvas>

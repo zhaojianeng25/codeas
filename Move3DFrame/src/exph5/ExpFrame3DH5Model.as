@@ -81,7 +81,7 @@ package exph5
 			$saveUrl=Cn2en.toPinyin(decodeURI($saveUrl))
 			
 			var $sceneFileByte:ByteArray=new ByteArray;
-			var $byte:ByteArray=new ByteArray;
+		
 			$sceneFileByte.writeInt(Scene_data.version);
 			$sceneFileByte.writeUTF(Cn2en.toPinyin(AppDataFrame.fileUrl))
 				
@@ -91,25 +91,48 @@ package exph5
 			
 			
 			this.writeSceneInfo($sceneFileByte);
-				
+			var $byte:ByteArray=new ByteArray;
 			ExpH5ByteModel.getInstance().WriteByte($byte,true,[1,3,4,6]);
 			$sceneFileByte.writeBytes($byte,0,$byte.length);	
 
 			var strObj:String=JSON.stringify(this.frame3dItem);
 			var $frameNodeByte:ByteArray=new ByteArray;
-			$frameNodeByte.writeMultiByte(strObj,"utf-8");
-			
+			$frameNodeByte.writeMultiByte(strObj,"utf-8")
 			$sceneFileByte.writeInt($frameNodeByte.length)
 			$sceneFileByte.writeBytes($frameNodeByte,0,$frameNodeByte.length);
-			
 			var fs:FileStream = new FileStream;
-			
-		
-			
-			fs.open(new File(_rootUrl+"pan/frame3dres/"+$saveUrl),FileMode.WRITE);
+			fs.open(new File(_rootUrl+""+$saveUrl),FileMode.WRITE);
 			fs.writeBytes($sceneFileByte,0,$sceneFileByte.length);		
 			fs.close();
+			
+			this.writeBasefile()
 
+		}
+		private function writeBasefile():void //和上面一样，只是改了是否写图片手参数
+		{
+			var $sceneFile:File=new File(AppData.workSpaceUrl+ AppDataFrame.fileUrl);
+			var $saveUrl:String=$sceneFile.name.replace(".3dmove","_frame_base.txt");
+			$saveUrl=Cn2en.toPinyin(decodeURI($saveUrl))
+			
+			var $sceneFileByte:ByteArray=new ByteArray;
+			$sceneFileByte.writeInt(Scene_data.version);
+			$sceneFileByte.writeUTF(Cn2en.toPinyin(AppDataFrame.fileUrl))
+			$sceneFileByte.writeInt(AppDataFrame.frameSpeed);
+			
+			this.writeSceneInfo($sceneFileByte);
+			var $byte:ByteArray=new ByteArray;
+			ExpH5ByteModel.getInstance().WriteByte($byte,false,[1,3,4,6]);
+			$sceneFileByte.writeBytes($byte,0,$byte.length);	
+			
+			var strObj:String=JSON.stringify(this.frame3dItem);
+			var $frameNodeByte:ByteArray=new ByteArray;
+			$frameNodeByte.writeMultiByte(strObj,"utf-8")
+			$sceneFileByte.writeInt($frameNodeByte.length)
+			$sceneFileByte.writeBytes($frameNodeByte,0,$frameNodeByte.length);
+			var fs:FileStream = new FileStream;
+			fs.open(new File(_rootUrl+""+$saveUrl),FileMode.WRITE);
+			fs.writeBytes($sceneFileByte,0,$sceneFileByte.length);		
+			fs.close();
 		}
 		
 		private function writeSceneInfo($byte:ByteArray):void
@@ -152,9 +175,10 @@ package exph5
 		}
 		
 		//private var _rootUrl:String="file:///G:/frame3d/"
-		private var _rootUrl:String="file:///E:/codets/game/arpg/arpg/res/"
+		private var _rootUrl:String="file:///C:/wamp/www/work/cannondemo/cannondemo/res/frame3d/"
 		public function expBuild(_fileNodeItem:Vector.<FrameFileNode>):void
 		{
+			
 		
 			LightBmpModel.getInstance().makeLightBmpToResModel(_rootUrl)
 			this.frame3dItem=new Array

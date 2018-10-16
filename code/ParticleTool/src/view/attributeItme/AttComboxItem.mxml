@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" implements="view.IAnimItem" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" horizontalScrollPolicy="off"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="30">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		[Bindable]
+		public var setData:Object;
+		
+		public function getAry(str:String):Array{
+			var ary:Array = str.split("|");
+			if(ary.length == 2){
+				for(var i:int;i<ary.length;i++){
+					ary[i] = Boolean(int(ary[i]));
+				}
+			}
+			return ary;
+		}
+		
+		public function get itemData():Object{
+			var obj:Object = new Object;
+			obj.value = cb.selectedItem;
+			obj.type = setData.type;
+			obj.key = setData.key;
+			obj.name = setData.name;
+			return obj;
+		}
+		
+		public function setInfo(value:*):void{
+			var ary:ArrayCollection = cb.dataProvider as ArrayCollection;
+			for(var i:int;i<ary.length;i++){
+				if(ary[i] == value){
+					cb.selectedIndex = i;
+					break;
+				}
+			}
+		}
+		
+		public function setTip(str:String):void{
+			title.toolTip = str;
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Label id="title" x="10" y="0" text="{setData.name}" color="#9f9f9f" toolTip="{setData.tip}"/>
+	<mx:ComboBox id="cb" x="120" y="2" width="150" dataProvider="{getAry(setData.value)}"/>
+</mx:Canvas>

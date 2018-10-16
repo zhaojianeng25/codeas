@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><!-- test_update.xml -->
+<update
+ xmlns="http://ns.adobe.com/air/framework/update/description/1.0">
+ <versionNumber>4.1.1</versionNumber>
+ <url>http://www.h5key.com/airupdate/MainEditor/output/MainEditor.air</url>
+ <description>
+  <text xml:lang="en_US">导出支持小程序</text>
+  <text xml:lang="zh_CN">导出支持小程序</text>
+ </description>
+</update>

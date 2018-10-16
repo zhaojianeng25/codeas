@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark"  color="#404040" backgroundColor="#404040"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="240" height="580" xmlns:view="view.*">
+	<fx:Declarations>
+		<!-- @author liuyanfei QQ:421537900
+			 粒子添加类型，用于添加新的粒子
+		-->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.core.UIComponent;
+		import mx.events.AIREvent;
+		
+		import spark.components.Window;
+		
+		import _me.Scene_data;
+		private var _fun:Function;
+		
+		private var win:Window; 
+		
+		
+		private function onClick(type:int):void{
+			_fun(type);
+			win.close();
+			
+			var obj:Object;
+		}
+		public function show(container:UIComponent,xpos:int,ypos:int,fun:Function):void{
+			//container.addChild(this);
+			//this.x = xpos;
+			//this.y = ypos;
+			this._fun = fun;
+			
+			if(win && !win.closed){
+				return;
+			}
+			
+			win = new Window();
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.height=580;
+			win.width=240;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = false;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			
+			win.open(true);
+			
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom)
+		}
+		
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		
+	]]>
+</fx:Script>
+	
+	<mx:Button x="36" y="45" label="3D面片" click="onClick(1)"/>
+	<mx:Button x="36" y="75" label="轨迹" click="onClick(3)"/>
+	<mx:Button x="36" y="105" label="圆环" click="onClick(4)"/>
+	<mx:Button x="36" y="135" label="十字面片" click="onClick(7)"/>
+	<mx:Button x="36" y="165" label="模型粒子" click="onClick(9)"/>
+	<mx:Button x="36" y="195" label="骨骼粒子" click="onClick(13)"/>
+	<mx:Button x="36" y="225" label="曲线粒子" click="onClick(14)"/>
+	<mx:Button x="36" y="255" label="椭球粒子" click="onClick(18)"/>
+	<mx:Button x="36" y="285" label="跟随粒子" click="onClick(8)"/>
+	<mx:Button x="36" y="315" label="跟随轨迹" click="onClick(12)"/>
+	<mx:Button x="36" y="345" label="跟随多轨迹" click="onClick(22)"/>
+	
+	<!--<mx:Button x="36" y="75" label="椭球粒子" click="onClick(2)"/>-->
+	<!--<mx:Button x="36" y="165" label="多重粒子" click="onClick(5)"/>-->
+	<!--<mx:Button x="36" y="195" label="圆柱粒子" click="onClick(6)"/>-->
+	
+	<!--<mx:Button x="36" y="315" label="连接粒子" click="onClick(10)"/>-->
+	<!--<mx:Button x="36" y="345" label="遮罩粒子" click="onClick(11)"/>-->
+	
+	<!--<mx:Button x="36" y="467" label="高级跟随" click="onClick(15)"/>-->
+	<!--<mx:Button x="36" y="497" label="高级轨迹" click="onClick(16)"/>-->
+	<!--<mx:Button x="36" y="527" label="特殊轨迹" click="onClick(17)"/>-->
+	<!--<mx:Button x="126" y="75" label="新多重粒子" click="onClick(19)"/>-->
+	<!--<mx:Button x="126" y="104" label="新骨骼粒子" click="onClick(20)"/>-->
+	<!--<mx:Button x="126" y="135" label="遮罩模型" click="onClick(21)"/>-->
+</mx:Canvas>

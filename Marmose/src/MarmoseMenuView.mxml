@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Menu xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexNativeMenuEvent;
+			
+			import _me.Scene_data;
+			
+			import common.GameUIInstance;
+			
+			import exp.BinaryToJpg;
+			import exp.FileExpShader;
+			import exp.OutToOurObjsModel;
+			
+			
+			
+			
+			
+			
+
+		
+			public function showMenu():void{
+				GameUIInstance.application.menu = fnm;
+				Scene_data.stage.addEventListener(KeyboardEvent.KEY_DOWN,onStageKeyDown)	;
+			}
+			
+			protected function itemClickHandler(event:FlexNativeMenuEvent):void
+			{
+				var type:int = event.item.@id;
+
+				switch(type)
+				{
+					case 30:
+					{
+						BinaryToJpg.getInstance().toPaly(true);
+						break;
+					}
+					case 31:
+					{
+						BinaryToJpg.getInstance().toPaly(false);
+						break;
+					}
+					case 40:
+					{
+						OutToOurObjsModel.getInstance().run()
+						break;
+					}
+					case 33:
+					{
+						FileExpShader.getInstance().run()
+						break;
+					}
+					default:
+					{
+						break;
+					}
+				}
+		
+
+				
+			}
+			
+			
+			protected function onStageKeyDown(event:KeyboardEvent):void
+			{
+				// TODO Auto-generated method stub
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:FlexNativeMenu id="fnm" dataProvider="{MarmoseMenuData.menuXml}" itemClick="itemClickHandler(event)"
+					   labelField="@label" showRoot="false"/>
+</mx:Menu>

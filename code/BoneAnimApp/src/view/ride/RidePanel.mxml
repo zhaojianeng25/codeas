@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="310" height="572" creationComplete="init()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.display3D.Display3DBindMovie;
+		import _Pan3D.load.LoadInfo;
+		import _Pan3D.load.LoadManager;
+		
+		import _me.Scene_data;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.treeClasses.TreeItemRenderer;
+		import mx.events.ItemClickEvent;
+		import mx.events.ListEvent;
+		
+		import renderLevel.Display3DMovieLocal;
+		
+		import utils.FileConfigUtils;
+		
+		import view.component.RideTreeRender;
+		import view.controlCenter.NamePanel;
+		
+		private var isFirst:Boolean = true;
+		private static var _instance:RidePanel;
+		private var lastFileOpenUrl:String;
+		public static function getInstance():RidePanel{
+			if(!_instance){
+				_instance = new RidePanel;
+			}
+			return _instance;
+		}
+		[Bindable]
+		private var treeAry:ArrayCollection;
+		private function init():void{
+			treeAry = new ArrayCollection;
+			
+			var obj:Object = new Object;
+			obj.fileName = "默认";
+			obj.children = new ArrayCollection();
+			treeAry.addItem(obj);		
+		
+			
+		}
+		
+		public function show(container:DisplayObjectContainer):void{
+			if(isFirst){
+				var str:String = FileConfigUtils.readConfig().ridePanlePos;
+				if(!str){
+					this.x = 1000;
+					this.y = 50;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+		}
+		
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("ridePanlePos",this.x + "|" + this.y);
+		}
+		
+		private function onMenuAddItem(event:Event):void{
+			if(!lastFileOpenUrl){
+				lastFileOpenUrl = FileConfigUtils.readConfig().rideUrl;
+			}
+			var file:File = new File(lastFileOpenUrl);
+			file.addEventListener(Event.SELECT,onFileSel);
+			file.browseForOpen("打开坐骑文件",[new FileFilter("fly","*.fly")]);
+		}
+		protected function onFileSel(event:Event):void{
+			var file:File = event.target as File;
+			var info:Object = new Object;
+			info.nativePath = file.nativePath;
+			if(file.url.indexOf(Scene_data.md5Root) == -1){
+				Alert.show("非工作空间");
+				return;
+			}
+			info.url = file.url.substring(Scene_data.md5Root.length);
+			info.fileName = String(file.name);
+			
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.READ);
+			info.data = fs.readObject();
+			fs.close();
+			
+			Object(currentItem.listData).item.children.addItem(info);
+			//trace(currentItem)
+			addRoleByData(info);
+			lastFileOpenUrl = file.parent.url;
+			FileConfigUtils.writeConfig("rideUrl",lastFileOpenUrl);
+			
+		}
+		
+		private function addRoleByData(obj:Object):void{
+			//trace(obj)
+			obj.ride = new RideUtils(obj.data).getRide();
+		}
+		private var selectItemData:Object;
+		private function onTreeClick(event:ListEvent):void{
+			var obj:Object = tree.selectedItem;
+			if(!obj.children){
+				selectItemData = obj;
+			}else{
+				return;
+			}
+			
+			if(obj.data){
+				var ary:Array = obj.data.bone[0].data[0];
+				var newAry:ArrayCollection = new ArrayCollection;
+				
+				newAry.addItem({name:'-1'});
+				for(var i:int;i<ary.length;i++){
+					newAry.addItem(ary[i]);
+				}
+				
+				bindIndexCb.dataProvider = newAry;
+				
+			}
+			if(selectItemData.bindOffset){
+				xpos.text = selectItemData.bindOffset.x;
+				ypos.text = selectItemData.bindOffset.y;
+				zpos.text = selectItemData.bindOffset.z;
+			}else{
+				xpos.text = null;
+				ypos.text = null;
+				zpos.text = null;
+			}
+			
+			if(selectItemData.bindRatation){
+				rxTxt.text = selectItemData.bindRatation.x;
+				ryTxt.text = selectItemData.bindRatation.y;
+				rzTxt.text = selectItemData.bindRatation.z;
+			}else{
+				rxTxt.text = null;
+				ryTxt.text = null;
+				rzTxt.text = null;
+			}
+			if(selectItemData.upGround){
+				heightTxt.text = selectItemData.upGround;
+			}else{
+				heightTxt.text = '100';
+			}
+			if(selectItemData.hasOwnProperty("bindIndex")){
+				bindIndexCb.selectedIndex = selectItemData.bindIndex+1;
+			}
+			
+		}
+		
+		
+		
+		private var currentItem:TreeItemRenderer;
+		protected function tree_rightClickHandler(event:MouseEvent):void
+		{
+			currentItem = (DisplayObject(event.target).parent) as TreeItemRenderer
+			var _menuFile:NativeMenu = new NativeMenu();  
+			var addType:NativeMenuItem = new NativeMenuItem("创建分类");  
+			addType.addEventListener(Event.SELECT,onMenuAddTpye);
+			var addItem:NativeMenuItem = new NativeMenuItem("添加坐骑");  
+			addItem.addEventListener(Event.SELECT,onMenuAddItem);
+			var line:NativeMenuItem = new NativeMenuItem("line",true)
+			
+			var delItem:NativeMenuItem = new NativeMenuItem("删除");  
+			delItem.addEventListener(Event.SELECT,onMenuDelItem);
+			//del.addEventListener(Event.SELECT,onMenuDelKey);
+			var rename:NativeMenuItem = new NativeMenuItem("重命名");  
+			rename.addEventListener(Event.SELECT,onRenameKey);
+			
+			if(currentItem){
+				if(Object(currentItem.listData).hasChildren){
+					addItem.enabled = true;
+					rename.enabled = true;
+				}else{
+					addItem.enabled = false;
+					rename.enabled = false;
+				}
+			}else{
+				addItem.enabled = false;
+				delItem.enabled = false;
+			}
+			
+			_menuFile.items = [addType,line,addItem,rename,delItem];  
+			_menuFile.display(stage,stage.mouseX,stage.mouseY);
+		}
+		
+		private function onMenuAddTpye(event:Event):void{
+			NamePanel.getInstance().show(this.parent,addType,"添加新的分类");
+		}
+		private function onRenameKey(event:Event):void{
+			NamePanel.getInstance().show(this.parent,renameType,"重命名");
+		}
+		private function addType(str:String):void{
+			var obj:Object = new Object;
+			obj.fileName = str;
+			obj.check = -1;
+			obj.children = new ArrayCollection();
+			treeAry.addItemAt(obj,0);
+		}
+		private function renameType(str:String):void{
+			Object(currentItem.listData).item.fileName = str;
+			tree.dataProvider = tree.dataProvider;
+		}
+		private function onMenuDelItem(event:Event):void{
+			var target:Object = Object(currentItem.listData).item;
+			for(var i:int;i<treeAry.length;i++){
+				var rootObj:Object = treeAry[i];
+				if(rootObj == target){
+					treeAry.removeItemAt(i);
+					for(var h:int;h<rootObj.children.length;h++){
+						//AppData.role.removeMeshLocal(rootObj.children[h].fileName);
+						//removeParticle(rootObj.children[h].particleList);
+					}
+					return;
+				}
+				for(var j:int=0;j<rootObj.children.length;j++){
+						if(target == rootObj.children[j]){
+							//AppData.role.removeMeshLocal(target.fileName);
+							rootObj.children.removeItemAt(j);
+							//removeParticle(target.particleList);
+							return;
+						}
+				}
+			}
+		}
+		
+		private function getList(ary:ArrayCollection):ArrayCollection{
+			var newAry:ArrayCollection = new ArrayCollection;
+			
+			newAry.addItem({name:'-1'});
+			for(var i:int;i<ary.length;i++){
+				newAry.addItem(ary[i]);
+			}
+			
+			return newAry;
+		}
+		
+		public function offset():void{
+			if(selectItemData){
+				selectItemData.bindOffset = new Vector3D(Number(xpos.text),Number(ypos.text),Number(zpos.text));
+			}
+		}
+		
+		public function rotationXY():void{
+			if(selectItemData){
+				if(rxTxt.text == "" && ryTxt.text == "" && rzTxt.text == ""){
+					delete selectItemData.bindRatation;
+				}else{
+					selectItemData.bindRatation = new Vector3D(Number(rxTxt.text),Number(ryTxt.text),Number(rzTxt.text));
+					//info.particle.bindRatation = info.bindRatation;
+				}
+				
+			}
+		}
+		
+		public function heightChg():void{
+			if(selectItemData){
+				selectItemData.upGround = Number(heightTxt.text);
+			}
+		}
+		private var currentRide:Display3DBindMovie;
+		public function onSure():void{
+			if(selectItemData){
+				if(currentRide){
+					currentRide.removeRender();
+				}
+				var _ride:Display3DBindMovie = Display3DBindMovie(selectItemData.ride)
+				//_ride.removeRender();
+				_ride.addToRender(AppDataBone.roleContanier);
+				if(selectItemData.upGround){
+					_ride.y = selectItemData.upGround
+				}
+				AppDataBone.role.bindOffset = objToV3d(selectItemData.bindOffset);
+				AppDataBone.role.bindRatation = objToV3d(selectItemData.bindRatation);
+				AppDataBone.role.bindTarget = _ride;
+				AppDataBone.role.bindIndex = bindIndexCb.selectedIndex-1;
+				selectItemData.bindIndex = bindIndexCb.selectedIndex-1;
+				currentRide = _ride;
+			}
+		}
+		public function removeRide():void{
+			if(currentRide){
+				currentRide.removeRender();
+			}
+			AppDataBone.role.bindTarget = null;
+			AppDataBone.role.bindOffset = new Vector3D;
+			AppDataBone.role.bindRatation = new Vector3D;
+		}
+		public function objToV3d(obj:Object):Vector3D{
+			if(obj){
+				return new Vector3D(obj.x,obj.y,obj.z);
+			}else{
+				return null;
+			}
+		}
+		
+		public function getAllInfo():Object{
+			var ary:ArrayCollection = copyAry(treeAry);
+			
+			return ary;
+		}
+		public function setAllInfo(ary:ArrayCollection):void{
+			if(!ary){
+				return;
+			}
+			treeAry = ary;
+			for(var i:int;i<ary.length;i++){
+				var children:ArrayCollection = ary[i].children;
+				for(var j:int = 0;j<children.length;j++){
+					var loaderinfo:LoadInfo = new LoadInfo(Scene_data.md5Root + children[j].url,LoadInfo.BYTE,onbyteLoad,0,children[j]);
+					LoadManager.getInstance().addSingleLoad(loaderinfo);
+				}
+			}
+			
+		}
+		public function clear():void{
+			treeAry = new ArrayCollection;
+			currentRide = null;
+			selectItemData = null;
+		}
+		private function onbyteLoad(byte:ByteArray,info:Object):void{
+			var obj:Object = byte.readObject();
+			info.data = obj;
+			addRoleByData(info);
+		}
+		private function copyObj(source:Object):Object{
+			var obj:Object = new Object;
+			for(var key:String in source){
+				if(source[key] is ArrayCollection){
+					obj[key] = copyAry(source[key]);
+				}else if(!(key == 'data' || key == 'ride')){
+					obj[key] = source[key];
+				}
+			}
+			return obj;
+		}
+		private function copyAry(sourceAry:ArrayCollection):ArrayCollection{
+			var ary:ArrayCollection = new ArrayCollection;
+			for(var i:int;i<sourceAry.length;i++){
+				ary.addItem(copyObj(sourceAry[i]));
+			}
+			return ary;
+		}
+		
+		private function expList():void{
+			var file:File = new File;
+			file.browseForSave("导出列表");
+			file.addEventListener(Event.SELECT,onSel);
+		}
+		
+		private function onSel(event:Event):void{
+			var obj:Object = getAllInfo();
+			
+			var file:File = event.target as File;
+			if(!(file.extension == "flylist")){
+				file = new File(file.nativePath + ".flylist");
+			}
+			
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeObject(obj);
+			fs.close();
+			
+		}
+		
+		private function importList():void{
+			var file:File = new File;
+			file.browseForOpen("导入列表",[new FileFilter("flylist","*.flylist")]);
+			file.addEventListener(Event.SELECT,onImpSel);
+		}
+		
+		
+		
+		protected function onImpSel(event:Event):void{
+			//trace(123)
+			var file:File = event.target as File;
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.READ);
+			var obj:Object = fs.readObject();
+			fs.close();
+			var ary:ArrayCollection = obj as ArrayCollection
+			setAllInfo(ary);
+			
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:Tree id="tree" left="10" right="10" top="56" height="215" dataProvider="{treeAry}" dragEnabled="true" dropEnabled="true"
+			 defaultLeafIcon="{null}" itemRenderer="{new ClassFactory(RideTreeRender)}" rightClick="tree_rightClickHandler(event)" itemClick="onTreeClick(event)"
+			 labelField="fileName">
+	</mx:Tree>
+	<mx:Label x="4" y="34" width="93" text="坐骑列表"/>
+	<mx:Label x="6" y="4" width="253" height="26" fontWeight="bold" mouseDown="startDrag()" click="this.parent.setChildIndex(this,this.parent.numChildren-1)"
+			  mouseUp="mouseUpDrag()" text="坐骑管理"/>
+	<mx:Button x="13" y="532" label="骑乘" click="onSure()"/>
+	<mx:Button x="96" y="532" label="卸载" click="removeRide()"/>
+	<mx:TextInput id="heightTxt" x="13" y="318" change="heightChg()"/>
+	<mx:Label x="183" y="319" text="高度设定"/>
+	<mx:Button x="83" y="277" width="70" label="导出列表" click="expList()"/>
+	<mx:Button x="12" y="277" width="70" label="导入列表" click="importList()"/>
+	<mx:ComboBox id="bindIndexCb" x="13" y="360" width="278" labelField="name" rowCount="15"/>
+	
+	<mx:Label x="14" y="394" text="绑定点偏移"/>
+	<mx:Label x="21" y="417" text="x:"/>
+	<mx:Label x="98" y="417" text="y:"/>
+	<mx:Label x="178" y="417" text="z:"/>
+	<mx:TextInput id="xpos" x="34" y="417" width="53" change="offset()"/>
+	<mx:TextInput id="ypos" x="111" y="417" width="53" change="offset()"/>
+	<mx:TextInput id="zpos" x="191" y="417" width="53" change="offset()"/>
+	
+	<mx:Label x="14" y="448" text="绑定点旋转"/>
+	<mx:Label x="21" y="471" text="x:"/>
+	<mx:Label x="98" y="471" text="y:"/>
+	<mx:Label x="178" y="471" text="z:"/>
+	<mx:TextInput id="rxTxt" x="34" y="471" width="53" change="rotationXY()"/>
+	<mx:TextInput id="ryTxt" x="111" y="471" width="53" change="rotationXY()"/>
+	<mx:TextInput id="rzTxt" x="191" y="471" width="53" change="rotationXY()"/>
+	
+	<mx:Button x="273" y="6" width="28" label="X" click="close()"/>
+	
+</mx:Canvas>

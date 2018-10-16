@@ -233,6 +233,7 @@ package exph5
 
 
 			ExpResourcesModel.getInstance().run()
+				
 			function returnFun():void{
 				writeBindPos(byte,objData);
 				writeSocketList(byte,socketDic);

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" implements="view.IAnimItem" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" horizontalScrollPolicy="off" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="30">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		[Bindable]
+		public var setData:Object;
+		
+		public function get itemData():Object{
+			var obj:Object = new Object;
+			obj.value = new Vector3D(Number(xTxt.text),Number(yTxt.text),Number(zTxt.text));
+			obj.type = setData.type;
+			obj.key = setData.key;
+			obj.name = setData.name;
+			return obj;
+		}
+		public function getData(_data:Object,index:int):Number{
+			var ary:Array = String(_data.value).split("|");
+			return ary[index];
+		}
+		public function setInfo(value:*):void{
+			xTxt.text = value.x;
+			yTxt.text = value.y;
+			zTxt.text = value.z;
+			//wTxt.text = value.w;
+		}
+		public function setTip(str:String):void{
+			title.toolTip = str;
+		}
+	]]>
+</fx:Script>
+	<mx:Label id="title" x="10" y="0" text="{setData.name}" color="#9f9f9f" toolTip="{setData.tip}"/>
+		
+	<mx:Label x="122" y="4" height="20" text="x" color="#9f9f9f"/>
+	<s:TextInput id="xTxt" x="136" width="25" text="{getData(setData,0)}" y="5" textDecoration="underline" contentBackgroundColor="#505050" color="#9f9f9f" borderVisible="false" height="16" paddingTop="4"/>
+	<mx:Label x="161" y="4" height="20" text="y" color="#9f9f9f"/>
+	<s:TextInput id="yTxt" x="175" width="25" text="{getData(setData,1)}" y="5" textDecoration="underline" contentBackgroundColor="#505050" color="#9f9f9f" borderVisible="false" height="16" paddingTop="4"/>
+	<mx:Label x="199" y="4" height="20" text="z" color="#9f9f9f"/>
+	<s:TextInput id="zTxt" x="213" width="25" text="{getData(setData,2)}" y="5" textDecoration="underline" contentBackgroundColor="#505050" color="#9f9f9f" borderVisible="false" height="16" paddingTop="4"/>
+</mx:Canvas>

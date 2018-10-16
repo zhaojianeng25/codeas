@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark"  creationComplete="init()"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="350" height="400">
+	<fx:Declarations>
+		<!-- @author liuyanfei QQ:421537900
+			 动态运动编辑面板
+		-->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.containers.Panel;
+		import mx.core.UIComponent;
+		public var  targetContainer:UIComponent;
+		private var list:Panel = new Panel;
+		/**
+		 * 单例模式构造此面板
+		 * */
+		private static var instance:DynamicEditAttributePanle;
+		public static function getInstance():DynamicEditAttributePanle{
+			if(!instance){
+				instance = new DynamicEditAttributePanle;
+			}
+			return instance;
+		}
+		/**
+		 * 初始化列表图形
+		 * */
+		private function init():void{
+			list.width=350;
+			list.height=357;
+			this.addChildAt(list,0);
+			list.setStyle("verticalGap",0);
+			list.horizontalScrollPolicy = "off";
+			
+		}
+		private var _data:ArrayCollection;
+		private var _animTarget:AnimItem;
+		private var _itemAry:Vector.<IAnimItem>;
+		/**
+		 * 根据不同的数据生成不同的面板，并将数据刷入面板
+		 * */
+		public function setData(value:ArrayCollection,target:AnimItem,animData:Array=null):void{
+			this._data = value;
+			
+			if(animData){
+				var newAry:ArrayCollection = new ArrayCollection;
+				for(var i:int=0;i<_data.length;i++){
+					var obj:Object = new Object;
+					obj.text = _data[i].text;
+					obj.type = animData[i].type;
+					obj.value = animData[i].value;
+					newAry.addItem(obj);
+				}
+				_data = newAry;
+			}
+			list.removeAllChildren();
+			_itemAry = new Vector.<IAnimItem>;
+			for(i=0;i<_data.length;i++){
+				if(_data[i].type==1){
+					var textItme:TextItme = new TextItme;
+					textItme.setData = (_data[i]);
+					list.addChild(textItme);
+					_itemAry.push(textItme);
+				}else if(_data[i].type==2){
+					var posItem:PosItme = new PosItme;
+					posItem.setData = (_data[i]);
+					list.addChild(posItem);
+					_itemAry.push(posItem);
+				}else if(_data[i].type==3){
+					var colorItme:ColorItme = new ColorItme;
+					colorItme.setData = (_data[i]);
+					list.addChild(colorItme);
+					_itemAry.push(colorItme);
+				}else if(_data[i].type==4){
+					var tfItme:TFItme = new TFItme;
+					tfItme.setData = (_data[i]);
+					list.addChild(tfItme);
+					_itemAry.push(tfItme);
+				}
+			}
+	
+			this._animTarget = target;
+			target.selected = true;
+		}
+		/**
+		 * 显示到舞台
+		 * */
+		public function show():void{
+			targetContainer.addChild(this);
+			this.x = (targetContainer.width-this.width)/2;
+			this.y = (targetContainer.height-this.height)/2;
+		}
+		/**
+		 * 从舞台移除
+		 * */
+		public function close():void{
+			if(this.parent)
+				this.parent.removeChild(this);
+		}
+		
+		/**
+		 * 将数据写入面板
+		 * */
+		public function writeData():void{
+			var ary:Array = new Array;
+			for(var i:int;i<_itemAry.length;i++){
+				ary.push(_itemAry[i].itemData);
+			}
+			_animTarget.resultData = ary;
+			close();
+		}
+		
+	]]>
+</fx:Script>	
+	<!--<mx:Panel width="350" height="357"  verticalGap="1">
+	</mx:Panel>-->
+	<mx:Button x="0" y="356" width="350" height="44" label="确定" click="writeData()"/>
+	<mx:HBox width="350" height="30" backgroundColor="#ffffff" backgroundAlpha="0" mouseDown="startDrag()" mouseUp="stopDrag()"/>
+</mx:Canvas>

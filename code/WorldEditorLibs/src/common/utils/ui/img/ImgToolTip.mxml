@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark"  implements="mx.core.IToolTip" backgroundColor="#eeeeee"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="10" height="10" xmlns:img="common.utils.ui.img.*">
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.load.LoadInfo;
+		import _Pan3D.load.LoadManager;
+		[Bindable]
+		private var _url:String;
+		
+		public function get url():String
+		{
+			return _url;
+		}
+
+		public function set url(value:String):void
+		{
+			_url = value;
+			
+			//img.fileUrl = _url;
+			
+			var loaderinfo : LoadInfo = new LoadInfo(value, LoadInfo.BITMAP, onImgsLoad, 0);
+			LoadManager.getInstance().addSingleLoad(loaderinfo);
+		}
+		
+		public function get text():String {
+			return _url;
+		}
+		public function set text(value:String):void {
+			
+		}
+		public function onImgsLoad(bitmap:Bitmap):void{
+			// TODO Auto Generated method stub
+			ui.addChild(bitmap);
+			this.width = bitmap.width + 10;
+			this.height = bitmap.height + 40;
+			txt.text = "宽高：" +  bitmap.width + " X" + bitmap.height
+		}
+		
+	]]>
+</fx:Script>
+	<mx:UIComponent id="ui" y="30" x="5" />
+	<s:Label id="txt" x="5" y="5"/>
+</mx:Canvas>

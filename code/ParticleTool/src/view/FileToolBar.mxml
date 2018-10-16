@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#303030"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="996" height="20" creationComplete="init()" addedToStage="addtoStageHandler(event)" xmlns:components="components.*" xmlns:component="view.component.*">
+	<fx:Declarations>
+		<!-- @author liuyanfei QQ:421537900
+			 文件菜单控制面板
+		-->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.controls.Alert;
+		import mx.events.CloseEvent;
+		
+		import _me.Scene_data;
+		
+		import common.AppData;
+		import common.GameUIInstance;
+		
+		import modules.scene.sceneSave.FilePathManager;
+		
+		import view.converBitmap.ConverBitmapPanel;
+		import view.exp.ExpPanle;
+		import view.menu.RootSelPanle;
+		import view.roleView.RolePanle;
+		
+		public static function getInstance():FileToolBar{
+			return new FileToolBar;
+		}
+		
+		public function init():void{
+			var file:File = new File(File.documentsDirectory.url + "/particleConfig_news.cfg");
+			if(file.exists){
+				var fs:FileStream = new FileStream;
+				fs.open(file,FileMode.READ);
+				var str:String = fs.readObject();
+				if(fs.bytesAvailable){
+					var str2:String = fs.readObject();
+				}
+				if(fs.bytesAvailable){
+					var str3:String = fs.readObject();
+				}
+				fs.close();
+				AppParticleData.particleNativeRoot = str3;
+				Scene_data.particleRoot = str2
+				Scene_data.md5Root = str;
+				Scene_data.fileRoot = str;
+				AppData.workSpaceUrl = str;
+				
+				AppParticleData.sceneLevel.drawLevel.setBackUrl(AppData.workSpaceUrl+FilePathManager.getInstance().getPathByUid("sceneBackBaseUrl"))
+				
+				
+			}else{
+				Alert.show("工作空间未配置","提示",1,null,closeHandler);
+			}
+			
+		}
+		private  var rootSelPanle:RootSelPanle = new RootSelPanle;
+		public function closeHandler(event:CloseEvent=null):void{
+			GameUIInstance.uiContainer.addChild(rootSelPanle);
+		}
+		
+		protected function onSel(event:Event):void{
+			var str:String = event.target.url;
+			var endCode:String = str.charAt(str.length-1);
+			if(endCode != "/"){
+				str += "/";
+			}
+			var nativePath:String = event.target.nativePath;
+			var file:File = new File(File.documentsDirectory.url + "/particleConfig_news.cfg");
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeObject(str);
+			fs.writeObject(nativePath);
+			fs.close();
+			Scene_data.particleRoot = str;
+			AppParticleData.particleNativeRoot = nativePath;
+			
+			var picFile:File = new File(File.applicationDirectory.url + "assets/blank.jpg");
+			var newLocal:File = new File(str + "assets/blank.jpg");
+			picFile.copyTo(newLocal,true);
+		}
+		
+		/**
+		 * 保存
+		 * */
+		private function save():void{
+			this.dispatchEvent(new Event("save"));
+		}
+		/**
+		 * 另存为
+		 * */
+		private function saveAsNewFile():void{
+			this.dispatchEvent(new Event("saveAsNewFile"));
+		}
+		/**
+		 * 打开
+		 * */
+		private function open():void{
+			this.dispatchEvent(new Event("open"));
+		}
+		/**
+		 * 新工程
+		 * */
+		private function newProject():void{
+			this.dispatchEvent(new Event("new"));
+		}
+		/**
+		 * 开启/关闭 扭曲
+		 * */
+		private function distortion():void{
+			//AppData.distortion = distortionBtn.selected;
+		}
+		private var expPanle:ExpPanle = new ExpPanle;
+		private function exp():void{
+			expPanle.show(this.parent);
+			//this.dispatchEvent(new Event("exp"));
+		}
+		
+		public var converBitmapPanel:ConverBitmapPanel = new ConverBitmapPanel;
+		public function configBitmap():void{
+			converBitmapPanel.show(this.parent);
+		}
+		
+		private function showRole():void{
+			RolePanle.getInstance().show();
+//			var log:LogPanel = new LogPanel;
+//			log.x = 1100;
+//			log.y = 342;
+//			this.parent.addChild(log);
+		}
+		
+		
+		protected function addtoStageHandler(event:Event):void
+		{
+			this.stage.addEventListener(KeyboardEvent.KEY_DOWN,onKeyDownHandler);
+		}
+		private function onKeyDownHandler(e:KeyboardEvent):void
+		{
+			if(e.ctrlKey&&e.keyCode==83)
+			{
+				save();
+			}
+		}
+		
+	]]>
+</fx:Script>
+	<component:ImageButton x="5"   	source="assets/buttonIcon/new.png" click="newProject()" toolTip="新建"/>
+	<component:ImageButton x="35"  	source="assets/buttonIcon/open.png" click="open()" toolTip="打开"/>
+	<component:ImageButton x="65"  	source="assets/buttonIcon/save.png" click="save()" toolTip="保存"/>
+	<component:ImageButton x="95"  	source="assets/buttonIcon/saveAsNewFile.png" click="saveAsNewFile()" toolTip="另保存"/>
+	<component:ImageButton x="125"  source="assets/buttonIcon/exp.png" click="exp()" toolTip="导出"/>
+	<component:ImageButton x="155"  source="assets/buttonIcon/config.png" click="closeHandler()" toolTip="配置"/>
+	<component:ImageButton x="185"  source="assets/buttonIcon/bitmapConfig.png" click="configBitmap()" toolTip="序列图设置"/>
+	<component:ImageButton x="215"  source="assets/buttonIcon/expRole.png" click="showRole()" toolTip="角色"/>
+	<mx:Label id="pjName" right="0" color="#FF0000" fontWeight="bold" text="{AppParticleData.projectName}"/>
+</mx:Canvas>

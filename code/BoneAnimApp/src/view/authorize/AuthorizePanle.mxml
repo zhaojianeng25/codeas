@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="368" height="240">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import db.DBManager;
+		
+		import user.UserConfig;
+		private function add():void{
+			setAuthorize();
+		}
+		
+		private function setAuthorize():void{
+			
+			DBManager.getInstance().disConnect();//断开数据库连接
+			
+			new UserConfig(usertxt.text,psdtxt.text);
+			
+			var file:File = new File(File.documentsDirectory.url + "/BoneAuthorize.txt");
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.WRITE);
+			fs.writeUTFBytes(usertxt.text + "\n" + psdtxt.text);
+			fs.close();
+			
+			close();
+		}
+		
+		private function close():void{
+			this.parent.removeChild(this);
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%" title="授权"/>
+	<mx:Label x="67" y="69" text="用户名："/>
+	<mx:TextInput id="usertxt" x="128" y="67" width="155"/>
+	<mx:Label x="67" y="102" text="密码："/>
+	<mx:TextInput id="psdtxt" x="128" y="100" width="155" displayAsPassword="true"/>
+	<mx:Button x="67" y="170" label="授权" click="add()"/>
+	<mx:Button x="237" y="170" label="关闭" click="close()"/>
+</mx:Canvas>

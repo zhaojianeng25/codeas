@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   width="236" height="450" backgroundColor="#FFFFFF" creationComplete="init()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import com.maclema.mysql.ResultSet;
+		
+		import db.DBManager;
+		
+		import mx.collections.ArrayCollection;
+		private function init():void{
+			DBManager.getInstance().executeQuery("select * from t_map",result,error);
+		}
+		
+		private function result(rs:ResultSet):void{
+			// TODO Auto Generated method stub
+			//trace(value);
+			var arr:ArrayCollection = new ArrayCollection;
+			while(rs.next()){
+				var obj:Object = new Object;
+				obj.id = rs.getInt("f_map_id");
+				obj.name = rs.getString("f_map_name");
+				obj.url = rs.getString("f_file_name");
+				arr.addItem(obj);
+			}
+			list.dataProvider = arr;
+		}
+		
+		private function error(value:*):void{
+			// TODO Auto Generated method stub
+			
+		}
+		
+		private function loadBigImg():void{
+			var data:Object = list.selectedItem;
+			AppParticleData.mapdata = data;
+			var loader:Loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,onLoadCom);
+			loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,onProgress);
+//			if(AppData.projectType == 1){
+//				loader.load(new URLRequest("http://188.188.1.158:8080/aj2/resRoot/Map/bigMap/" + data.url + "_.jpg"));
+//			}else if(AppData.projectType == 2){
+//				loader.load(new URLRequest("http://188.188.0.109:8080/aj2/resRoot/Map/bigMap/" + data.url + "_.jpg"));
+//			}
+			var url:String = AppParticleData.mapUrl + data.url + "_.jpg";
+			
+			var extend:String;
+			if(String(data.url).indexOf("Png") != -1){
+				extend = "_.png";
+			}else{
+				extend = "_.jpg";
+			}
+			
+			loader.load(new URLRequest(AppParticleData.mapUrl + data.url + extend));
+			
+		}
+		
+		protected function onLoadCom(event:Event):void{
+			var bitmap:Bitmap = event.target.content;
+			//ui.addChild(bitmap);
+			var bitmapdata:BitmapData = bitmap.bitmapData;
+			
+			var baseWh:int = 1024;
+			var wNum:int = Math.ceil(bitmapdata.width/baseWh);
+			var hNum:int = Math.ceil(bitmapdata.height/baseWh);
+			
+			var ary:Array = new Array;
+			var point:Point = new Point;
+			var rec:Rectangle = new Rectangle(0,0,1024,1024);
+			for(var i:int;i<wNum;i++){
+				var ary2:Array = new Array;
+				ary.push(ary2);
+				for(var j:int=0;j<hNum;j++){
+					var newbitmapdata:BitmapData = new BitmapData(baseWh,baseWh,true,0);
+					rec.x = i*baseWh;
+					rec.y = j*baseWh;
+					newbitmapdata.copyPixels(bitmapdata,rec,point);
+					ary2.push(newbitmapdata);
+				}
+			}
+			
+			//trace(ary);
+			
+			AppParticleData.backLevel.addMap(ary);
+			close();
+		}
+		
+		protected function onProgress(event:ProgressEvent):void
+		{
+			progressTxt.text = "地图读取:" + int(event.bytesLoaded/event.bytesTotal*100) + "%";
+		}
+		
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		
+		private function loadLocalMap():void{
+			var file:File = new File;
+			file.addEventListener(Event.SELECT,onLocalSel);
+			file.browseForOpen("选择本地图片");
+		}
+		
+		protected function onLocalSel(event:Event):void
+		{
+			var file:File = event.target as File;
+			
+			var loader:Loader = new Loader();
+			loader.contentLoaderInfo.addEventListener(Event.COMPLETE,onLoadCom);
+			loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,onProgress);
+			loader.load(new URLRequest(file.url));
+			
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%" title="地图列表"/>
+	<mx:List id="list" x="11" y="46" width="213" height="295">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas horizontalScrollPolicy="off">
+					<mx:Label text="{data.id}" width="100"/>
+					<mx:Label text="{data.name}" width="100" x="100"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	<mx:Button x="23" y="376" label="读取" click="loadBigImg()"/>
+	<mx:Button x="140" y="377" label="关闭" click="close()"/>
+	<mx:Button x="23" y="414" width="95" label="本地读取地图" click="loadLocalMap()"/>
+	<mx:UIComponent id="ui"/>
+	<mx:Label id="progressTxt" x="23" y="349" width="187" color="#FD0101"/>
+</mx:Canvas>

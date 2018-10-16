@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Menu xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexNativeMenuEvent;
+			
+			import common.GameUIInstance;
+			
+			import view.menu.ToolBar;
+			
+			
+			
+			
+			
+
+			
+			
+		
+			public function showMenu():void{
+				//GameUIInstance.application.addElement(this);
+				GameUIInstance.application.menu = fnm;
+				//GameUIInstance.stage.addEventListener(KeyboardEvent.KEY_DOWN,onKey);
+				
+				
+			}
+			
+			public static var toolbar:ToolBar
+			protected function itemClickHandler(event:FlexNativeMenuEvent):void
+			{
+				var type:int = event.item.@id;
+				
+
+				toolbar.SelectId(type)
+			
+				
+				
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<mx:FlexNativeMenu id="fnm" dataProvider="{TopMenulist.menuXml}" itemClick="itemClickHandler(event)"
+					   labelField="@label" showRoot="false"/>
+</mx:Menu>

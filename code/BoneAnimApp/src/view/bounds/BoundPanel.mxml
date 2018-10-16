@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:bounds="view.bounds.*"
+		   width="300" height="200" creationComplete="onCreatCom()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.base.ObjectBone;
+		import _Pan3D.base.ObjectBound;
+		import _Pan3D.core.MathCore;
+		import _Pan3D.core.MathHitModel;
+		
+		import _me.Scene_data;
+		import _me.xyzPos.XyzPosData;
+		import _me.xyzPos.XyzPosLevel;
+		import _me.xyzPos.XyzPosMoveType;
+		
+		import com.zcp._special.codemix.CodeMixer;
+		
+		import utils.FileConfigUtils;
+		import utils.TestBoundClass;
+		private var isFirst:Boolean = true;
+		private var pointV3d:Vector.<Vector3D> = new Vector.<Vector3D>;
+		/**
+		 * 骨骼信息
+		 * */
+		[Bindable]
+		private var _info:Object;
+		/**
+		 * 选中测试工具对象
+		 * */
+		private var testBound:TestBoundClass = new TestBoundClass;
+		/**
+		 * 角色的旋转
+		 * */
+		private var _roleRotation:Number = 0;
+		
+		[Embed(source="style/mousecourse.png")]
+		private var mouseCls:Class;
+		
+		private static var instance:BoundPanel;
+		
+		/**
+		 * 是否有包围盒信息
+		 * */
+		private var _hasData:Boolean;
+		
+		public static function getInstance():BoundPanel{
+			if(!instance){
+				instance = new BoundPanel;
+			}
+			return instance;
+		}
+		
+		public function show(container:DisplayObjectContainer,info:Object):void{
+			if(isFirst){
+				var str:String = FileConfigUtils.readConfig().boundsPanlePos;
+				if(!str){
+					this.x = 1000;
+					this.y = 50;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+			_info = info;
+			
+			initInfo();
+			
+			stage.addEventListener(MouseEvent.CLICK,onMouseClick);
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			AppDataBone.role.addEventListener(Event.CHANGE,onRotationChg);
+			
+		}
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("boundsPanlePos",this.x + "|" + this.y);
+		}
+		private function onCreatCom():void{
+			setCourse();
+			initshape();
+	
+		}
+
+		/**
+		 * 关闭面板
+		 * */
+		public function close():void{
+			if(this.parent){
+				stage.removeEventListener(MouseEvent.CLICK,onMouseClick);
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+				AppDataBone.role.removeEventListener(Event.CHANGE,onRotationChg);
+				this.parent.removeChild(this);
+				AppDataBone.boundsLevel.clear();
+				
+				var xyzPos:XyzPosData = new XyzPosData;
+				xyzPos.x = xyzPos.y = xyzPos.z =  -100000;
+
+				//XyzPosLevel.Instance().xyzPosData=xyzPos
+			}
+		}
+		/**
+		 * 初始化数据
+		 * */
+		private function initInfo():void{
+			if(_info.bound){
+				if(_info.bound is Vector.<Object>){
+					pointV3d = objToV3dAry(_info.bound);
+					_info.bound = pointV3d;
+				}else{
+					pointV3d = _info.bound;
+				}
+				AppDataBone.boundsLevel.refreshDataByAry(getRotationPoint());
+				_hasData = true;
+			}else{
+//				pointV3d = new Vector.<Vector3D>;
+				_hasData = false;
+				AppDataBone.boundsLevel.clear();
+			}
+		}
+		/**
+		 * Object to Vector3D
+		 * */ 
+		private function objToV3dAry(ary:Vector.<Object>):Vector.<Vector3D>{
+			var resultAry:Vector.<Vector3D> = new Vector.<Vector3D>;
+			for(var i:int;i<ary.length;i++){
+				resultAry.push(new Vector3D(ary[i].x,ary[i].y,ary[i].z))
+			}
+			return resultAry;
+		}
+		/**
+		 * 添加8个默认的点作为默认盒子
+		 * */
+		private function initData():void{
+			pointV3d = new Vector.<Vector3D>;
+			var min:Vector3D = new Vector3D(-30,0,-30);
+			var max:Vector3D = new Vector3D(30,130,30);
+			
+			var b1:Vector3D = new Vector3D(min.x,min.y,min.z);
+			var b2:Vector3D = new Vector3D(max.x,min.y,min.z);
+			var b3:Vector3D = new Vector3D(max.x,max.y,min.z);
+			var b4:Vector3D = new Vector3D(min.x,max.y,min.z);
+			
+			var a1:Vector3D = new Vector3D(min.x,min.y,max.z);
+			var a2:Vector3D = new Vector3D(max.x,min.y,max.z);
+			var a3:Vector3D = new Vector3D(max.x,max.y,max.z);
+			var a4:Vector3D = new Vector3D(min.x,max.y,max.z);
+			
+			pointV3d.push(b1,b2,b3,b4,a1,a2,a3,a4);
+		}
+		/**
+		 * 添加盒子
+		 * */ 
+		private function addBounds():void{
+			initData();
+			_hasData = true;
+			_info.bound = pointV3d;
+			AppDataBone.boundsLevel.refreshDataByAry(getRotationPoint());
+		}
+		
+		/**
+		 * 被选中点的index序号
+		 * */
+		private var selectIndex:int;
+		private var _choosePointItem:Array
+		public function showPos(index:int,isAdd:Boolean):void{
+			selectIndex = index;
+//			var xyzPos:XyzPosData = new XyzPosData;
+//			xyzPos.x = pointV3d[index].x;
+//			xyzPos.y = pointV3d[index].y;
+//			xyzPos.z = pointV3d[index].z;
+//			xyzPos.fun = chagePos;
+//			XyzPosLevel.Instance().xyzPosData = xyzPos;
+			var tempxyzPosData:XyzPosData=new XyzPosData();
+			tempxyzPosData.x=pointV3d[index].x
+			tempxyzPosData.y=pointV3d[index].y
+			tempxyzPosData.z=pointV3d[index].z
+			tempxyzPosData.angle_x=0
+			tempxyzPosData.angle_y=0
+			tempxyzPosData.angle_z=0
+			tempxyzPosData.id=index; 
+			if(!isAdd||!_choosePointItem)  //如果是按了SHIFT键将视为多个点移动
+			{
+				_choosePointItem=new Array
+			}	
+			var canAdd:Boolean=true;
+			for(var j:int=0;j<_choosePointItem.length;j++)
+			{
+				var temp:XyzPosData=XyzPosData(_choosePointItem[j])
+				if(temp.id==tempxyzPosData.id)
+				{//有了就不要添加
+					canAdd=false;
+				}
+			}
+			if(canAdd)
+			{
+				_choosePointItem.push(tempxyzPosData);
+			}
+			var toXyzPoseData:XyzPosData=new XyzPosData;
+			toXyzPoseData.type=XyzPosMoveType.GUIJI_POINT_ITEM
+			toXyzPoseData.pointItem=_choosePointItem;
+			toXyzPoseData.fun=moveXypPosFun
+			XyzPosLevel.Instance().movePos=true;
+			//XyzPosLevel.Instance().xyzPosData=toXyzPoseData
+
+		}
+		/**
+		 * 关键点的位置改变回调函数
+		 * */
+		protected function moveXypPosFun(xyzPosData:XyzPosData):void
+		{
+			if(xyzPosData&&xyzPosData.pointItem){
+				for(  var i:int=0;i<xyzPosData.pointItem.length;i++)
+				{
+					var ccav:XyzPosData=XyzPosData(xyzPosData.pointItem[i])
+					pointV3d[ccav.id].x=ccav.x
+					pointV3d[ccav.id].y=ccav.y
+					pointV3d[ccav.id].z=ccav.z
+				}
+				AppDataBone.boundsLevel.refreshDataByAry(getRotationPoint());
+			}
+		}
+	
+
+
+		/**
+		 * 对盒子进行旋转处理
+		 * */
+		private function getRotationPoint():Vector.<Vector3D>{
+			var v3dAry:Vector.<Vector3D> = new Vector.<Vector3D>;
+			var ma:Matrix3D = new Matrix3D;
+			ma.appendRotation(_roleRotation,Vector3D.Y_AXIS);
+			for(var i:int;i<pointV3d.length;i++){
+				v3dAry.push(ma.transformVector(pointV3d[i]));
+			}
+			return v3dAry;
+		}
+		/**
+		 * 角色旋转时 刷新线的数据
+		 * */
+		private function onRotationChg(event:Event):void{
+			_roleRotation = AppDataBone.role.rotationY;
+			if(_hasData)
+				AppDataBone.boundsLevel.refreshDataByAry(getRotationPoint());
+		}
+		/**
+		 * 鼠标点击的时候确定 是否选中包围盒的顶点
+		 * */
+		protected function onMouseClick(event:MouseEvent):void
+		{
+			if(!_hasData){
+				return;
+			}
+			for(var i:int;i<pointV3d.length;i++){
+				var hitit:Boolean=MathHitModel.mathHit3DPoint(pointV3d[i],10);
+				if(hitit){
+					
+					showPos(i,event.shiftKey);
+					break;
+				}
+			}
+			
+		}
+		/**
+		 * 鼠标移动且在2d模式下 测试鼠标
+		 * */
+		protected function onMouseMove(event:MouseEvent):void
+		{
+			if(AppDataBone.is3d || !_hasData){
+				return;
+			}
+			testBound.refreshCam();
+			var tf:Boolean = testBound.test3DPoint(pointV3d,_roleRotation,new Vector3D,new Point(stage.mouseX,stage.mouseY));
+			if(tf){
+				Mouse.cursor = "onSel";
+			}else{
+				Mouse.cursor = MouseCursor.ARROW;
+			}
+//			var posAry:Vector.<Point> = testBound.get3DTo2DPoint(pointV3d,_roleRotation,new Vector3D);
+//			for(var i:int;i<shapeAry.length;i++){
+//				shapeAry[i].x = posAry[i].x;
+//				shapeAry[i].y = posAry[i].y;
+//			}
+		}
+		
+		private var shapeAry:Array = new Array;
+		private function initshape():void{
+			for(var i:int;i<8;i++){
+				var shape:Shape = new Shape;
+				shape.graphics.beginFill(0xff0000);
+				shape.graphics.drawCircle(0,0,2);
+				shape.graphics.endFill();
+				//stage.addChild(shape);
+				shapeAry.push(shape);
+			}
+		}
+		/**
+		 * 设置鼠标样式
+		 * */
+		private function setCourse():void{
+			var dataAry:Vector.<BitmapData> = new Vector.<BitmapData>;
+			dataAry.push(Bitmap(new mouseCls()).bitmapData)
+			var mouseCursorData:MouseCursorData = new MouseCursorData();
+			mouseCursorData.data = dataAry;
+			Mouse.registerCursor("onSel",mouseCursorData);
+		}
+		private var copyBound:Vector.<Vector3D>;
+		private function copyBounds():void{
+			copyBound = copyData(pointV3d);
+		}
+		private function pasteBounds():void{
+			_hasData = true;
+			pointV3d = copyData(copyBound);
+			_info.bound = pointV3d;
+			AppDataBone.boundsLevel.refreshDataByAry(getRotationPoint());
+		}
+		
+		private function copySystemBounds():void{
+			System.setClipboard(v3dToString());
+		}
+		
+		private function pasteSystemBounds():void{
+			_hasData = true;
+			pointV3d = strToV3d(copyTxt.text);
+			_info.bound = pointV3d;
+			AppDataBone.boundsLevel.refreshDataByAry(getRotationPoint());
+		}
+		
+		public function copyData(ary:Vector.<Vector3D>):Vector.<Vector3D>{
+			var newCopy:Vector.<Vector3D> = new Vector.<Vector3D>;
+			for(var i:int;i<ary.length;i++){
+				newCopy.push(ary[i].clone());
+			}
+			return newCopy;
+		}
+		
+		private function v3dToString():String{
+			var str:String = new String;
+			for(var i:int;i<pointV3d.length;i++){
+				str += pointV3d[i].x + "," + pointV3d[i].y + "," + pointV3d[i].z + ","
+			}
+			return str;
+		}
+		
+		private function strToV3d(str:String):Vector.<Vector3D>{
+			var newCopy:Vector.<Vector3D> = new Vector.<Vector3D>;
+			var ary:Array = str.split(",");
+			for(var i:int;i<8;i++){
+				newCopy.push(new Vector3D(ary[3*i],ary[3*i+1],ary[3*i+2]))
+			}
+			return newCopy;
+		}
+		
+		private function clearTxt():void{
+			copyTxt.text = "";
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:Label x="6" y="5" width="253" height="26" fontWeight="bold" mouseDown="startDrag()"
+			  mouseUp="mouseUpDrag()" text="包围盒编辑"/>
+	
+	<mx:Button id="addBtn" x="15" y="100" label="添加包围盒" click="addBounds()" mouseFocusEnabled="false" visible="{!_info.bound}"/>
+	<mx:Button id="copyBtn" x="100" y="100" label="复制包围盒" click="copyBounds()"/>
+	<mx:Button id="copyBtn0" x="181" y="100" label="粘贴包围盒" click="pasteBounds()"/>
+	<mx:Button id="copyBtn1" x="100" y="124" label="跨域复制" click="copySystemBounds()"/>
+	<mx:Button id="copyBtn2" x="181" y="124" label="跨域粘贴" click="pasteSystemBounds()"/>
+	<mx:Label x="12" y="34" text="正在编辑 &lt;stand&gt;"/>
+	<mx:Button x="258" y="6" width="28" label="X" click="close()"/>
+	<mx:TextInput id="copyTxt" x="100" y="153" width="171" click="clearTxt()"/>
+	
+</mx:Canvas>

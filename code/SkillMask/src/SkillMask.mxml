@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" width="1400" height="760" backgroundAlpha="0" frameRate="60" backgroundColor="#404040"
+					   xmlns:s="library://ns.adobe.com/flex/spark" addedToStage="creationCompleteHandler(event)" showStatusBar="false"  title="{AppData.appTitle}"
+					   xmlns:mx="library://ns.adobe.com/flex/mx">
+		<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		mx|VScrollBar{
+			chromeColor: #2d2d2d;
+		}
+		mx|HScrollBar{
+			chromeColor: #2d2d2d;
+		}
+		mx|ToolTip{
+			font-family:            verdana;
+			font-size:              12px;
+		}
+	</fx:Style>
+	<fx:Script>
+		<![CDATA[
+			import com.zcp.frame.event.ModuleEventManager;
+			
+			import _me.Scene_data;
+			
+			import common.AppData;
+			import common.GameUIInstance;
+			
+			import manager.LayerManager;
+			import manager.MouseManager;
+			
+			import modules.brower.BrowerPanel;
+			
+			import mvc.UiModuleList;
+			import mvc.centen.discenten.DisCentenEvent;
+			import mvc.left.disleft.DisLeftEvent;
+			import mvc.left.panelleft.PanelLeftEvent;
+			import mvc.project.ProjectEvent;
+			import mvc.scene.UiSceneEvent;
+			import mvc.top.TopEvent;
+			
+			
+			
+			private var _browerView:BrowerPanel;
+			
+			
+			
+			protected function creationCompleteHandler(event:Event):void
+			{
+				
+				
+				this.stage.align=StageAlign.TOP_LEFT
+				this.stage.scaleMode=StageScaleMode.NO_SCALE
+				
+				
+				this.initConfig();
+				this.initView()
+				
+				
+			}
+		
+
+			private function initView():void
+			{
+				
+				ModuleEventManager.dispatchEvent( new DisCentenEvent(DisCentenEvent.SHOW_CENTEN));
+				ModuleEventManager.dispatchEvent( new UiSceneEvent(UiSceneEvent.SHOW_UI_SCENE));
+				ModuleEventManager.dispatchEvent( new DisLeftEvent(DisLeftEvent.SHOW_RIGHT));
+				ModuleEventManager.dispatchEvent( new PanelLeftEvent(PanelLeftEvent.SHOW_LEFT));
+				ModuleEventManager.dispatchEvent( new TopEvent(TopEvent.SHOW_TOP));
+				
+				
+				openFristFile()
+				
+				
+			}
+			private function openFristFile():void
+			{
+				//var baseURL:String="file:///C:/Users/liuxingsheng/Desktop/stuff/webgl/WebGLEngine/assets/ui/data.h5ui"
+				var _so:SharedObject =UiData.getSharedObject()
+				if(_so.data.url&&new File(_so.data.url).exists){
+					var $CentenEvent:ProjectEvent=new ProjectEvent(ProjectEvent.OPEN_PROJECT_FILE)
+					$CentenEvent.url=_so.data.url
+					ModuleEventManager.dispatchEvent( $CentenEvent);
+				}else{
+					UiData.makeNewUiFile();
+				}
+				
+				this.stage.addChild(ShowMc.getInstance())
+				
+			}
+			private function initConfig():void{
+				GameUIInstance.stage = this.stage;
+				Scene_data.stage=this.stage
+				//GameUIInstance.application = this.parent as WindowedApplication;
+				GameUIInstance.application = this;
+				GameUIInstance.uiContainer = rootUI;
+				GameUIInstance.layoutBottom = layoutBottom;
+				GameUIInstance.layoutTop = layoutTop;
+				//GameUIInstance.txt = fouseTxt;
+				
+				
+				
+				LayerManager.getInstance().testNodeTree();
+				
+				
+				
+				stage.addEventListener(Event.RESIZE,resizeHandler);
+				MouseManager.initMouse();
+				
+				UiModuleList.startup()
+				
+			}
+			protected function resizeHandler(event:Event):void
+			{ 
+				
+				LayerManager.getInstance().changeSize();
+				
+				//ModuleEventManager.dispatchEvent( new MEventStageResize(MEventStageResize.MEVENT_STAGE_RESIZE));
+			}
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<mx:Canvas width="100%" height="100%" id="rootUI" horizontalScrollPolicy="off" verticalScrollPolicy="off" />
+	
+	<!--<mx:Canvas id="rootUI"/>-->
+	<!--<color:ColorPickers x="200" y="200" label="环境色"/>-->
+	<mx:Canvas width="100%" height="100%">
+		<mx:UIComponent id="layoutBottom" visible="false"/>
+		<mx:UIComponent id="layoutTop"/>
+	</mx:Canvas>
+	<!--<s:TextInput id="fouseTxt"/>-->
+</s:WindowedApplication>

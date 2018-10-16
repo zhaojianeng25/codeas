@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx" backgroundColor="#404040" creationComplete="onCom()"
+		  width="266" height="140">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.events.AIREvent;
+		
+		import spark.components.Window;
+		
+		import _me.Scene_data;
+		private static var _instance:NamePanel;
+		public static function getInstance():NamePanel{
+			if(!_instance){
+				_instance = new NamePanel;
+			}
+			return _instance;
+		}
+		private var _fun:Function;
+
+		private var win:Window;
+		public function show(container:DisplayObjectContainer,fun:Function,label:String):void{
+			_fun = fun;
+			
+			
+			win = new Window();
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.width=266;
+			win.height=140;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = false;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom);
+			win.title = label;
+			win.open(true);
+			
+		}
+		
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		public function sure():void{
+			_fun(txt.text);
+			win.close();
+		}
+		public function onCom():void{
+			txt.setStyle("contentBackgroundColor",0x404040);
+			txt.setStyle("borderVisible",true);
+			txt.setStyle("color",0x9f9f9f);
+		}
+		
+
+	]]>
+</fx:Script>
+	<mx:Label x="28" y="38" text="名称"/>
+	<mx:TextInput id="txt" x="68" y="35"/>
+	<mx:Button x="100" y="90" label="确定" click="sure()"/>
+</mx:Canvas>

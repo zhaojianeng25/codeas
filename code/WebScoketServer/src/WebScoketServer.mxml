@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   creationComplete="onComplete(event)" addedToStage="init()"
+					   >
+	<fx:Script>
+		<![CDATA[
+			import com.adobe.crypto.SHA1;
+			
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			private var serverSocket:ServerSocket;
+			
+			private var clientSocket:Socket;
+			
+			private var clientInit:Boolean;
+			
+			//public var clientDict:Dictionary=new Dictionary();
+			
+			public static const WEB_SOCKET_MAGIC_STRING:String="258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+			
+			public static var tetMesg:TextField=new TextField;
+			private var ui:UIComponent=new UIComponent;
+			protected function onComplete(event:FlexEvent):void
+			{
+				
+			}
+			private function init():void{
+				this.stage.addChild(tetMesg)
+				tetMesg.width=500;
+				tetMesg.height=600;
+				tetMesg.text="link55555";
+				startPortListen();
+			}
+			private function startPortListen():void
+			{
+				serverSocket = new ServerSocket();
+				serverSocket.bind(8588,"192.168.88.16");
+				serverSocket.addEventListener(ServerSocketConnectEvent.CONNECT, onClientConnect);
+				serverSocket.listen();
+			}
+			
+			private function onClientConnect(evt:ServerSocketConnectEvent):void
+			{
+				tetMesg.text=tetMesg.text+"\nconnet one client"+String(Math.random());
+				//var $socket:Socket=evt.socket;
+				//ClientManager.getInstance().registerClient($socket)
+				//$socket.addEventListener(ProgressEvent.SOCKET_DATA, onClientSocketData);
+				this.clientSocket = evt.socket;
+				this.clientInit = false;
+				this.clientSocket.addEventListener(ProgressEvent.SOCKET_DATA, onClientSocketData);
+				this.clientSocket.addEventListener(Event.CLOSE,onClientClose);
+			}
+			private function onClientSocketData(evt:ProgressEvent):void
+			{
+//				var socket:Socket=evt.currentTarget as Socket;
+//				var clientEntry:ClientEntry = ClientManager.getInstance().getClientEntryBySocket(socket);
+//				var clientSocket:Socket = clientEntry.socket;
+				if (!this.clientInit){
+					doHandShakeInit();
+				}
+				else
+				{
+					readMessage();
+				}
+			}
+			//握手连接
+			private function doHandShakeInit():void
+			{
+				var socketBytes:ByteArray = new ByteArray();
+				clientSocket.readBytes(socketBytes,0,clientSocket.bytesAvailable);
+				var message:String = socketBytes.readUTFBytes(socketBytes.bytesAvailable);
+				
+				this.clientInit = true;
+				var i:uint = 0;
+				if(message.indexOf("GET ") == 0)
+				{
+					var messageLines:Array = message.split("\n");
+					var fields:Object = {};
+					var requestedURL:String = "";
+					for(i = 0; i < messageLines.length; i++)
+					{
+						var line:String = messageLines[i];
+						if(i == 0)
+						{
+							var getSplit:Array = line.split(" ");
+							if(getSplit.length > 1)
+							{
+								requestedURL = getSplit[1];
+							}
+						}
+						else
+						{
+							var index:int = line.indexOf(":");
+							if(index > -1)
+							{
+								var key:String = line.substr(0, index);
+								fields[key] = line.substr(index + 1).replace( /^([\s|\t|\n]+)?(.*)([\s|\t|\n]+)?$/gm, "$2" );
+							}
+						}
+					}
+					
+					if(fields["Sec-WebSocket-Key"] != null)
+					{
+						
+						var joinedKey:String=fields["Sec-WebSocket-Key"]+WEB_SOCKET_MAGIC_STRING;
+						
+						// 拼装字符串
+						var base64hash:String = SHA1.hashToBase64(joinedKey);
+						var response:String = "HTTP/1.1 101 Switching Protocols\r\n" +
+							"Upgrade: WebSocket\r\n" +
+							"Connection: Upgrade\r\n" +
+							"Sec-WebSocket-Accept: "+base64hash+"\r\n"+
+							"Sec-WebSocket-Origin: " + fields["Origin"] + "\r\n" +
+							"Sec-WebSocket-Location: ws://" + fields["Host"] + requestedURL + "\r\n" +
+							"\r\n";
+						var responseBytes:ByteArray = new ByteArray();
+						responseBytes.writeUTFBytes(response);
+						responseBytes.position = 0;
+						clientSocket.writeBytes(responseBytes);
+						clientSocket.flush();
+						socketBytes.clear();
+					}
+				}
+			}
+			
+			
+			// 读取消息
+			private function readMessage():void
+			{
+
+				var buffer:ByteArray = new ByteArray();
+				var outBuffer:ByteArray=new ByteArray();
+				var mask:ByteArray=new ByteArray();
+				
+				//读取标志位 
+				var typeByte:int=clientSocket.readByte();
+				
+				// 读取长度位
+				var byteTwo:int=clientSocket.readByte() & 127;
+
+				var sizeArray:ByteArray=new ByteArray();
+				
+				if(byteTwo==126)
+				{
+					//large frame size, 2 more frame size bytes
+					clientSocket.readBytes(sizeArray,0,2);
+				}else if(byteTwo==127)
+				{
+					//larger frame size (8 more frame size bytes)
+					clientSocket.readBytes(sizeArray,0,8);
+				}
+				//读取掩码
+				clientSocket.readBytes(mask,0,4);
+				
+				//Copy payload data into buffer
+				clientSocket.readBytes(buffer,0,clientSocket.bytesAvailable);
+				buffer.position=0;
+				var len:uint=buffer.bytesAvailable;
+				for(var j:uint=0;j<len;j++)
+				{
+					//unmask buffer data into output buffer
+					outBuffer.writeByte(applyMask(mask,buffer.readByte(),j));
+				}
+				
+				outBuffer.position=0;
+				if(outBuffer.length>3){
+					//ClientManager.getInstance().setData(clientSocket,getInfoObj(outBuffer))
+					this.readData(outBuffer);
+				}
+	
+		
+			}
+			
+			private function readData(byte:ByteArray):void{
+				var num:int = byte.readInt();
+				var tf:Boolean = byte.readBoolean();
+				var str:String = byte.readUTF();
+				this.sendData(num);
+			}
+			
+			private function sendData(num:int):void{
+				var byte:ByteArray = new ByteArray();
+				byte.writeInt(num);
+				for(var i:int=0;i<num;i++){
+					byte.writeInt(i);
+					byte.writeFloat(Math.random());
+					byte.writeUTF("第" + i + "个");
+				}
+				this.sendMessage(byte);
+			}
+			
+			private function sendMessage(rawData:ByteArray):void{
+				var indexStartRawData:uint;
+				var bytesFormatted:Array=[];
+				
+				
+				bytesFormatted[0] = -126;//标记类型
+				
+				if (rawData.length <= 125)
+				{
+					bytesFormatted[1] = rawData.length;
+				}else if(rawData.length >= 126 && rawData.length <= 65535){
+
+					bytesFormatted[1] = 126
+					bytesFormatted[2] = ( rawData.length >> 8 ) & 255
+					bytesFormatted[3] = ( rawData.length) & 255
+					
+					//indexStartRawData = 4
+				}else{
+					bytesFormatted[1] = 127
+					bytesFormatted[2] = ( rawData.length >> 56 ) & 255
+					bytesFormatted[3] = ( rawData.length >> 48 ) & 255
+					bytesFormatted[4] = ( rawData.length >> 40 ) & 255
+					bytesFormatted[5] = ( rawData.length >> 32 ) & 255
+					bytesFormatted[6] = ( rawData.length >> 24 ) & 255
+					bytesFormatted[7] = ( rawData.length >> 16 ) & 255
+					bytesFormatted[8] = ( rawData.length >>  8 ) & 255
+					bytesFormatted[9] = ( rawData.length       ) & 255
+					
+					//indexStartRawData = 10;
+				}
+				
+				// put raw data at the correct index
+				var dataOut:ByteArray=new ByteArray();
+				
+				for(var i:uint=0;i<bytesFormatted.length;i++)
+				{
+					dataOut.writeByte(bytesFormatted[i]);
+				}
+				
+				dataOut.writeBytes(rawData);
+				dataOut.position=0;
+				
+				this.clientSocket.writeBytes(dataOut);
+				this.clientSocket.flush();
+			}
+			
+			private function getInfoObj($byte:ByteArray):Object
+			{
+	
+				var obj:Object=new Object
+				obj.type=$byte.readInt()
+				switch(obj.type)
+				{
+					case 1:
+					{
+						obj.name=$byte.readUTF()
+						break;
+					}
+					case 2:
+					{
+						obj.info=$byte.readUTF()
+						break;
+					}
+						
+					default:
+					{
+						break;
+					}
+				}
+
+				return obj
+			}
+			private function applyMask(mask:ByteArray,byte:int,index:uint):int
+			{
+				mask.position=index % 4;
+				var maskByte:int=mask.readByte();
+				
+				return byte ^ maskByte;
+			}
+			
+		
+			
+			protected function onClientClose(event:Event):void
+			{
+				tetMesg.text += "\n connet close";
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+</s:WindowedApplication>

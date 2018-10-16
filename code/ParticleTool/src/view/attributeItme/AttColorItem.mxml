@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" implements="view.IAnimItem" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" horizontalScrollPolicy="off" creationComplete="init()"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="30">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import components.ColorChooser;
+		
+		import mx.controls.sliderClasses.SliderThumb;
+		import mx.events.SliderEvent;
+		[Bindable]
+		public var setData:Object;
+		
+		private var _currentTargetIndex:int=0;
+		private var _colorAry:Array = [0xffffff,0xffffff];
+		private var _alphaAry:Array = [1,1];
+		
+		private function init():void{
+			hs.thumbCount = 2;
+			//hs.values = [0,0.5];
+			//_colorAry = [0,0];
+			initColorView();
+			drawColor();
+		}
+		
+		public function get itemData():Object{
+			var obj:Object = new Object;
+			obj.value = getAllInfo();//Number(wTxt.text)*setData.scale;
+			obj.type = setData.type;
+			obj.key = setData.key;
+			obj.name = setData.name;
+			return obj;
+		}
+		public function add():void{
+			hs.thumbCount++;
+//			var ary:Array = hs.values;
+//			var endIndex:int = ary.length-1;
+//			if(ary[endIndex] == 1){
+//				ary[ary.length-1] = ary[ary.length-1] - 0.1;
+//			}
+//			ary.push(1);
+//			hs.values = ary;
+			refreshView();
+			_colorAry.push(0);
+			_alphaAry.push(1);
+			drawColor();
+		}
+		public function remove():void{
+			hs.thumbCount--;
+			var ary:Array = hs.values;
+			ary.splice(_currentTargetIndex,1);
+			//refreshView();
+			hs.values = ary;
+			_colorAry.splice(_currentTargetIndex,1);
+			_alphaAry.splice(_currentTargetIndex,1);
+			drawColor();
+		}
+		private function refreshView():void{
+			var ary:Array = new Array;
+			var addNum:Number = 1/hs.thumbCount;
+			for(var i:int;i<hs.thumbCount;i++){
+				ary.push(addNum*i);
+			}
+			hs.values = ary;
+		}
+		
+		protected function hs_clickHandler(event:MouseEvent):void
+		{
+			var sl:SliderThumb = event.target as SliderThumb;
+			if(sl){
+				_currentTargetIndex = getIndex(sl);
+				newColorPick.value = _colorAry[_currentTargetIndex];
+				newColorPick.alphaValue = _alphaAry[_currentTargetIndex];
+			}
+		}
+		
+		private function getIndex(target:SliderThumb):int{
+			for(var i:int;i<hs.values.length;i++){
+				if(hs.getThumbAt(i) == target){
+					return i;
+				}
+			}
+			return -1;
+		}
+		
+		private function drawColor():void{
+			var fillType:String = GradientType.LINEAR;
+			var alphas:Array = getAryAlpha();// [1, 1];
+			var ratios:Array = getAryValue();
+			var matr:Matrix = new Matrix();
+			matr.createGradientBox(145, 20, 0, 0, 0);
+			var spreadMethod:String = SpreadMethod.PAD;
+			
+			ui.graphics.clear();
+			ui.graphics.beginGradientFill(fillType, _colorAry, _alphaAry, ratios, matr, spreadMethod);  
+			ui.graphics.drawRect(0,0,145,8);
+		}
+		
+		private var newColorPick:ColorChooser;
+		private function initColorView():void{
+			newColorPick = new ColorChooser(colorPanle,52);
+			newColorPick.usePopup = true;
+			newColorPick.addEventListener("color",chgColor);
+		}
+		private function chgColor(event:Event):void{
+			var expColor:uint =  newColorPick.value;
+			_colorAry[_currentTargetIndex] = expColor;
+			_alphaAry[_currentTargetIndex] = newColorPick.alphaValue;
+			drawColor();
+		}
+		private function getAryValue():Array{
+			var ary:Array = new Array;
+			for(var i:int;i<hs.values.length;i++){
+				ary.push(255*hs.values[i])
+			}
+			return ary;
+		}
+		private function getAryAlpha():Array{
+			var ary:Array = new Array;
+			for(var i:int;i<hs.values.length;i++){
+				ary.push(1)
+			}
+			return ary;
+		}
+		
+		protected function hs_changeHandler(event:SliderEvent):void
+		{
+			drawColor();
+		}
+		
+		private function getAllInfo():Object{
+			var obj:Object = new Object;
+			obj.pos = getAryValue();
+			obj.color = _colorAry;
+			obj.alpha = _alphaAry;//getAryAlpha();
+			return obj;
+		}
+		public function setInfo(value:*):void{
+			if(!value){
+				return;
+			}
+			_alphaAry = value.alpha;
+			_colorAry = value.color;
+			var ary:Array = new Array;
+			for(var i:int;i<value.pos.length;i++){
+				ary.push(value.pos[i]/255);
+			}
+			hs.thumbCount = ary.length;
+			hs.values = ary;
+			drawColor();
+		}
+		private function set setDefault(value:Object):void{
+			hs.thumbCount = 2;
+			hs.values = [0,0.5];
+			_colorAry = [0xffffff,0xffffff];
+			_alphaAry = [1,1];
+			drawColor();
+		}
+		
+		public function setTip(str:String):void{
+			title.toolTip = str;
+		}
+		
+	]]>
+</fx:Script>
+	<fx:Binding source="{setData}" destination="setDefault"/>
+	<mx:UIComponent id="colorPanle"/>
+	<mx:Label id="title" x="10" y="0" text="{setData.name}" color="#9f9f9f" toolTip="{setData.tip}"/>
+	<mx:HSlider id="hs" x="120" y="-6" width="150" maximum="1" minimum="0" values="[0,0.5]" click="hs_clickHandler(event)" change="hs_changeHandler(event)"/>
+	<mx:Button x="270" y="1" width="10" height="10" label="添加" click="add()"/>
+	<mx:Button x="270" y="13" width="10" height="10" label="删除" click="remove()"/>
+	<mx:UIComponent id="ui" x="120" y="17"/>
+</mx:Canvas>

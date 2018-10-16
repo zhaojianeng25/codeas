@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<frame:BasePanel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#404040" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="400" xmlns:cbox="common.utils.ui.cbox.*" xmlns:txt="common.utils.ui.txt.*" 
+		   xmlns:curves="common.utils.ui.curves.*" xmlns:frame="common.utils.frame.*" creationComplete="creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+		<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.txtSty{
+			contentBackgroundColor : #404040;
+			borderVisible:true;
+			color:#9f9f9f;
+		}
+	</fx:Style>
+<fx:Script>
+	<![CDATA[
+		import mx.events.FlexEvent;
+		
+		import _me.Scene_data;
+		
+		import manager.LayerManager;
+		
+//		private var xyzPosData:TooXyzMoveData; 
+		
+		private var bloodData:Object;
+		
+		public function showPanel($bloodData:Object):void{
+			
+			this.bloodData = $bloodData;
+			
+//			if(this.fixPos){
+//				this.fixPos.ve3Data = new Vector3D($bloodData.pos.x,$bloodData.pos.y,$bloodData.pos.z);
+//			}
+//			
+//			initXyzCtrl();
+			
+			if(txt){
+				txt.text =decodeURI(bloodData.url);
+			}
+
+			
+			LayerManager.getInstance().addPanel(this,true);
+
+			
+		}
+		private static var _instance:SoundPanel
+		public static function getInstance():SoundPanel{
+			if(!_instance){
+				_instance = new SoundPanel;
+				_instance.init(null,"属性",2);
+			}
+			return _instance;
+		}
+		
+//		private function initXyzCtrl():void{
+//			var temp:XyzPosData = new XyzPosData();
+//			temp.x = bloodData.pos.x;
+//			temp.y = bloodData.pos.y;
+//			temp.z = bloodData.pos.z;
+//			temp.angle_x=0;
+//			temp.angle_y=0;
+//			temp.angle_z=0;
+//			
+//			xyzPosData=new TooXyzMoveData;
+//			xyzPosData.dataItem=new Vector.<TooXyzPosData>;
+//			xyzPosData.modelItem=new Array;
+//			
+//			var tempxyzPosData:XyzPosData=temp;
+//			var k:TooXyzPosData=new TooXyzPosData;
+//			k.x=tempxyzPosData.x;
+//			k.y=tempxyzPosData.y;
+//			k.z=tempxyzPosData.z;
+//			k.scale_x=1;
+//			k.scale_y=1;
+//			k.scale_z=1;
+//			k.angle_x=tempxyzPosData.angle_x;
+//			k.angle_y=tempxyzPosData.angle_y;
+//			k.angle_z=tempxyzPosData.angle_z;
+//			xyzPosData.dataItem.push(k);
+//			xyzPosData.modelItem.push(tempxyzPosData);
+//			
+//			xyzPosData.fun=xyzBfun;
+//			xyzPosData.isCenten=true;
+//			MoveScaleRotationLevel.getInstance().xyzMoveData=xyzPosData;
+//		}
+		
+//		public function xyzBfun($XyzMoveData:xyz.draw.TooXyzMoveData):void{
+//			var tooXyzPosData:TooXyzPosData;
+//			tooXyzPosData=$XyzMoveData.dataItem[0];
+//			
+//			fixPos.ve3Data = new Vector3D(tooXyzPosData.x,tooXyzPosData.y,tooXyzPosData.z);
+//			
+//			bloodData.pos.x = fixPos.ve3Data.x;
+//			bloodData.pos.y = fixPos.ve3Data.y;
+//			bloodData.pos.z = fixPos.ve3Data.z;
+//		}
+//		protected function posMouseOverHandler(event:MouseEvent):void
+//		{
+//			MoveScaleRotationLevel.getInstance().xyzMoveData=xyzPosData;
+//		}
+		
+		protected function creationCompleteHandler(event:FlexEvent):void
+		{
+			//this.fixPos.ve3Data = new Vector3D(this.bloodData.pos.x,this.bloodData.pos.y,this.bloodData.pos.z);
+			if(bloodData){
+				txt.text =decodeURI(bloodData.url);
+			}
+		}
+		
+		private function showParticleFile():void{
+			
+			var file:File=new File
+			if(bloodData&&bloodData.url){
+				var lastFile:File=new File(Scene_data.fileRoot+bloodData.url);
+				if(lastFile.exists){
+					file=lastFile.parent
+				}
+			}
+			//var fileaa:File =new File(FilePathManager.getInstance().getPathByUid("expToH5"));
+			
+			var filefilter:FileFilter = new FileFilter("请选择","*.mp3");
+			file.browse([filefilter]);
+			file.addEventListener(Event.SELECT,onParticleSel);
+		}
+		private function onParticleSel(event:Event):void{
+			var file:File = event.target as File;
+			var url:String = file.url.replace(Scene_data.fileRoot,"");
+			
+
+			bloodData.url = url
+			txt.text =decodeURI(url);
+
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Button label="选择" x="45" paddingTop="-2" height="20" y="42" click="showParticleFile()"/>
+	<txt:TextLabelEnabel id="txt" x="25" y="20" height="20" width="400" label="音效路径："/>
+</frame:BasePanel>

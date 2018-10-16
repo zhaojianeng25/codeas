@@ -12,7 +12,7 @@ package  mvc.top
 				<menuitem label="文件">
 					<menuitem label="打开文件" id="10"/> 
 					<menuitem label="保存文件" id="11"/> 
-		<menuitem label="项目别存为" id="12"/> 
+		<menuitem label="项目另存为" id="12"/> 
 
 					<menuitem label="设置工作空间" id="14"/> 
 				</menuitem> 

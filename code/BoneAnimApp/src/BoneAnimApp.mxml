@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" frameRate="60" 
+						xmlns:s="library://ns.adobe.com/flex/spark" fontFamily="Microsoft Yahei" fontSize="11" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="init()" addedToStage="addedToStageHandler(event)"  title="{AppData.appTitle}"
+						showStatusBar="false" status="{AppDataBone.statusString}"
+						width="1600" height="800" backgroundAlpha="0" xmlns:view="view.*" xmlns:component="view.component.*" xmlns:menu="view.menu.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+		<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		mx|VScrollBar{
+			chromeColor: #2d2d2d;
+		}
+		mx|HScrollBar{
+			chromeColor: #2d2d2d;
+		}
+		mx|Button{
+			chromeColor: #2d2d2d;
+			color: #9f9f9f;
+			textRollOverColor:#9f9f9f;
+		}
+		mx|ComboBox{
+			chromeColor: #2d2d2d;
+			color:#9C9C9C;
+			alternatingItemColors:#ff0000;
+		}
+		mx|Label{
+			color:#9C9C9C;
+		}
+		mx|ToolTip{
+			font-family:            verdana;
+			font-size:              12px;
+		}
+			
+	</fx:Style>
+<fx:Script>
+	<![CDATA[
+		import flash.display3D.Context3D;
+		
+		import mx.controls.Alert;
+		import mx.events.FlexNativeMenuEvent;
+		import mx.formatters.DateFormatter;
+		
+		import PanV2.ConfigV2;
+		
+		import _Pan3D.light.LightVo;
+		import _Pan3D.lineTri.LineTri3DSprite;
+		import _Pan3D.load.LoadInfo;
+		import _Pan3D.load.LoadManager;
+		import _Pan3D.particle.ctrl.ParticleManager;
+		import _Pan3D.role.MeshDataManager;
+		import _Pan3D.scene.postprocess.PostProcessManager;
+		import _Pan3D.texture.TextureManager;
+		
+		import _me.Scene_data;
+		
+		import air.update.ApplicationUpdaterUI;
+		import air.update.events.UpdateEvent;
+		
+		import common.AppData;
+		import common.GameUIInstance;
+		
+		import manager.LayerManager;
+		import manager.MouseManager;
+		
+		import renderLevel.BoneKeyControl;
+		import renderLevel.SceneLevel;
+		
+		import user.UserConfig;
+		
+		import utils.ShockUtils;
+		
+		import view.action.ActionPanel;
+		import view.authorize.AuthorizePanle;
+		import view.bone.BonePanel;
+		import view.controlCenter.ControlCenterPanle;
+		import view.menu.ToolBar;
+		import view.mesh.MeshPanel;
+		import view.prop.ScenePropPanle;
+		import view.topmenu.TopMenuView;
+		
+		import xyz.MoveScaleRotationLevel;
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		private var context3D:Context3D;
+		private function init():void{
+			
+			 checkForUpdate();
+			 //this.loadSVN()
+	
+		
+			 Scene_data.isDevelop = true;
+			// multi();
+			 
+			
+			 Scene_data.shockFun = ShockUtils.screen_shake;
+			 
+		
+
+		 }
+		private function loadSVN():void
+		{
+			var loaderinfo : LoadInfo = new LoadInfo("http://192.168.88.5:8818/updateSVN", LoadInfo.XML, function onObjLoad($str : String):void  {
+				trace($str)
+			},0);
+			LoadManager.getInstance().addSingleLoad(loaderinfo);
+			
+			
+		}
+		/** 设置初始化模式 */
+		protected function addedToStageHandler(event:Event):void
+		{
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT; 
+			initScene();
+			Scene_data.isDevelop = true;
+			
+			Scene_data.effectsLev = 2;
+			
+			Scene_data.light=new LightVo;
+			Scene_data.light.Envscale = 1;
+			
+			initView();
+			
+		
+			addTopMenu()
+			//getDbInfo();
+		}
+		
+		/**
+		 * 获取数据库配置文件
+		 **/
+		private function getDbInfo():void{
+			var file:File = new File(File.documentsDirectory.url + "/BoneAuthorize.txt");
+			if(file.exists){
+				var fs:FileStream = new FileStream;
+				fs.open(file,FileMode.READ);
+				var str:String = fs.readUTFBytes(fs.bytesAvailable);
+				fs.close();
+				
+				var ary:Array = str.split("\n");
+				new UserConfig(ary[0],ary[1]);
+			}else{
+				new UserConfig("","");
+			}
+		}
+		
+		/** 初始化3d场景 */
+		private function initScene():void{
+			Scene_data.stage=this.stage;
+			Scene_data.fileRoot="assets/";
+			LineTri3DSprite.thickNessScale=5
+			//Config.init(stage, _config_end);
+			ConfigV2.getInstance().init(stage, _config_end);
+		}
+		private var _sceneView:SceneLevel;
+		/** 设置场景中各项模式 */
+		private function _config_end():void
+		{
+			this.context3D = Scene_data.context3D;
+			MeshDataManager.getInstance().init(this.context3D);
+			TextureManager.getInstance().init(this.context3D);
+			PostProcessManager.getInstance().init(this.context3D);
+			
+			_sceneView=new SceneLevel;
+			_sceneView.initData();
+			
+			startRender();
+			
+			onStageResize();
+			stage.addEventListener(Event.RESIZE,onStageResize);
+			
+			ParticleManager.getInstance().initParticle(_sceneView.particleLevel.particleContainer);	
+			
+			math2Ddata();
+			
+			BoneKeyControl.getInstance().init(this)
+			MoveScaleRotationLevel.getInstance().initContext3D(this.context3D,this.stage,1,true)
+		
+				
+			configPanle.readObj();
+	
+		}
+	
+		private function startRender():void{
+			this.addEventListener(Event.ENTER_FRAME,renderScene);
+		}
+		/** 主渲染 */
+		private function renderScene(event:Event=null):void{
+			_sceneView.upData();
+			//roll();
+		}
+		
+		/** 场景大小改变 场景视口改变 */
+		private function onStageResize(event:Event=null):void{
+			if(stage.stageWidth == 0 || stage.stageHeight == 0){
+				return;
+			}
+			Scene_data.stageWidth = stage.stageWidth;
+			Scene_data.stageHeight = stage.stageHeight;
+			
+			Scene_data.stage3DVO.width=Scene_data.stageWidth ;
+			Scene_data.stage3DVO.height=Scene_data.stageHeight ;
+			
+			Scene_data.cam3D.fovw=Scene_data.stageWidth;
+			Scene_data.cam3D.fovh=Scene_data.stageHeight;
+			
+			_sceneView.stageResize();
+			math2Ddata();
+			AppDataBone.role.updataPos();
+			
+			LayerManager.getInstance().changeSize();
+			
+			PostProcessManager.getInstance().resize(stage.stageWidth,stage.stageHeight);
+			
+			
+		
+		}
+		
+		public function math2Ddata():void
+		{
+			Scene_data.sw2D=1000*Scene_data.mainScale/Scene_data.stageWidth
+			Scene_data.tx2D=-Scene_data.stageWidth/Scene_data.mainScale;
+			Scene_data.sinAngle2D=Math.sin(Math.abs(Scene_data.focus3D.angle_x)*Math.PI/180);
+			Scene_data.ty2D=Scene_data.stageHeight/Scene_data.mainScale/Scene_data.sinAngle2D
+		}
+		
+		protected function itemClickHandler(event:FlexNativeMenuEvent):void
+		{
+			var actionId:int=int(event.item.@action);
+			switch(actionId){
+				case 3:
+					showAuthorize();
+					break;
+			}
+		}
+		
+		private function showAuthorize():void{
+			var authorizePanle:AuthorizePanle = new AuthorizePanle;
+			this.addChild(authorizePanle);
+			
+			authorizePanle.x = (this.width - authorizePanle.width)/2;
+			authorizePanle.y = (this.height - authorizePanle.height)/2;
+		}
+		
+		/** 检查程序版本更新 */
+		private var appUpdater:ApplicationUpdaterUI = new ApplicationUpdaterUI();
+		private function checkForUpdate():void {   
+			appUpdater.updateURL = "http://www.h5key.com/airupdate/BoneAnimApp/output/update.xml";   
+			appUpdater.isCheckForUpdateVisible = false;
+			appUpdater.addEventListener(UpdateEvent.INITIALIZED, onUpdate);  
+			appUpdater.addEventListener(ErrorEvent.ERROR, onError);  
+			appUpdater.initialize();
+		}     
+		private function onError(event:ErrorEvent):void {   
+			Alert.show(event.toString());   
+		}   
+		private function onUpdate(event:UpdateEvent):void {   
+			appUpdater.checkNow();
+		}
+		
+		private var oldid:String;
+		private var reg:RegExp = /<id>.*<\/id>/;
+
+		private var configPanle:ScenePropPanle;
+		private var _menu:TopMenuView;
+		
+		protected function multi():void
+		{
+			var df:DateFormatter = new DateFormatter();
+			df.formatString = "YYYYMMDDHHNNSS";
+			var time:String = df.format(new Date());
+			var newid:String = "<id>BoneAnimApp"+time+"</id>";
+			
+			var f:File =new File(File.applicationDirectory.resolvePath(
+				"META-INF/AIR/application.xml").nativePath);
+			if(!f.exists){
+				return;
+			}
+			var fs:FileStream = new FileStream();  
+			fs.open(f,FileMode.READ);      
+			var str:String = new String(fs.readUTFBytes(fs.bytesAvailable));
+			oldid = str.match(reg).toString();
+			str = str.replace(reg,newid);  
+			fs.open(f,FileMode.WRITE);
+			fs.writeUTFBytes(str); 
+			fs.close();
+			
+			if(oldid == "<id>BoneAnimApp</id>")
+			{
+				this.addEventListener(Event.CLOSE,returnId);
+			}
+		}
+		
+		protected function returnId(e:Event):void
+		{
+			var f:File =new File(File.applicationDirectory.resolvePath(
+				"META-INF/AIR/application.xml").nativePath);
+			var fs:FileStream = new FileStream();  
+			fs.open(f,FileMode.READ);      
+			var str:String = new String(fs.readUTFBytes(fs.bytesAvailable));
+			str = str.replace(reg,oldid);  
+			fs.open(f,FileMode.WRITE);
+			fs.writeUTFBytes(str);
+			fs.close();
+		}
+		
+		private function initView():void{
+			GameUIInstance.stage = this.stage;
+			GameUIInstance.uiContainer = rootUI;
+			GameUIInstance.layoutBottom = layoutBottom;
+			GameUIInstance.layoutTop = layoutTop;
+			GameUIInstance.application = this;
+			
+			LayerManager.getInstance().testNodeTree();
+			
+			MouseManager.initMouse();
+			
+			var toolBar:ToolBar = new ToolBar();
+			toolBar.init(null,"角色",1);
+			LayerManager.getInstance().addPanel(toolBar);
+			
+			TopMenuView.toolbar=toolBar
+			
+			
+//			var configPanle:ConfigPanle = ConfigPanle.getInatane();
+//			configPanle.init(null,"属性",2);
+//			LayerManager.getInstance().addPanel(configPanle);
+			
+			this.showBaseView()
+
+	
+			
+			var bonePanel:BonePanel = BonePanel.getInstance();
+			bonePanel.init(null,"骨骼",2);
+			LayerManager.getInstance().addPanel(bonePanel,true);
+			
+			
+			var meshPanle:MeshPanel = MeshPanel.getInstance();
+			meshPanle.init(null,"Mesh",4);
+			LayerManager.getInstance().addPanel(meshPanle);
+			
+			var actionPanel:ActionPanel = ActionPanel.getInstance();
+			actionPanel.init(null,"Action",5);
+			LayerManager.getInstance().addPanel(actionPanel);
+			
+			var controlCenterPanle:ControlCenterPanle = ControlCenterPanle.getInstance();
+			controlCenterPanle.init(null,"Skill",6);
+			LayerManager.getInstance().addPanel(controlCenterPanle);
+			
+			
+		
+			
+		}
+		public function  showBaseView():void
+		{
+			configPanle = ScenePropPanle.getInstance(); 
+			configPanle.init(null,"属性",2);
+			LayerManager.getInstance().addPanel(configPanle,true);
+		
+		}
+		
+	
+		
+		private function addTopMenu():void
+		{
+			if(!_menu){
+				_menu = new TopMenuView();
+			}
+			_menu.showMenu();
+			
+		}
+		
+	]]>
+</fx:Script>
+	<!--<mx:menu>
+		<mx:FlexNativeMenu dataProvider="{MenuData.myMenuData}"  itemClick="itemClickHandler(event)"
+						   labelField="@label" 
+						   showRoot="false"/>
+	</mx:menu>-->
+	<!--<menu:ToolBar/>-->
+	<mx:UIComponent id="axisUI"/>
+	
+	<mx:Canvas width="100%" height="100%" id="rootUI" horizontalScrollPolicy="off" verticalScrollPolicy="off" />
+	
+	<mx:Canvas width="100%" height="100%">
+		<mx:UIComponent id="layoutBottom" visible="false"/>
+		<mx:UIComponent id="layoutTop"/>
+	</mx:Canvas>
+	
+</s:WindowedApplication>

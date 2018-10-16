@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#404040" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="200" height="100">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.events.AIREvent;
+		
+		import spark.components.Window;
+		
+		import _Pan3D.display3D.Display3DMaterialSprite;
+		import _Pan3D.load.LoadInfo;
+		import _Pan3D.load.LoadManager;
+		import _Pan3D.program.shaders.MaterialShader;
+		import _Pan3D.utils.MaterialManager;
+		
+		import _me.Scene_data;
+		
+		import materials.MaterialTree;
+		
+		import renderLevel.Display3DMovieLocal;
+		import renderLevel.levels.RoleUtils;
+		
+		private var isFirst:Boolean = true;
+		private static var instance:RolePanle;
+
+		private var role:Display3DMovieLocal;
+		private var win:Window;
+
+		private var _menuFile:NativeMenu;
+		public static function getInstance():RolePanle{
+			if(!instance){
+				instance = new RolePanle;
+			}
+			return instance;
+		}
+		
+		public function show():void{
+			win = new Window(); 
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.width=200;
+			win.height=100;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = false;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom);
+			win.title = "角色设置";
+			win.open(true);
+		}
+		
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		
+		private function close():void{
+			
+		}
+		
+		
+		protected function onMenuAddItem():void
+		{
+			var file:File = new File;
+			file.addEventListener(Event.SELECT,loadRole);
+			file.browseForOpen("选择zzw文件");
+		}
+		
+		
+		protected function onSelRole(event:Event):void
+		{
+			var file:File = event.target as File;
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.READ);
+			var roleData:Object = fs.readObject();
+			fs.close();
+			
+			trace(roleData);
+			
+			var meshAry:Array = new Array;
+			
+			for(var i:int;i<roleData.mesh.length;i++){
+				var children:ArrayCollection = roleData.mesh[i].children;
+				for(var j:int=0;j<children.length;j++){
+					meshAry.push(children[j]);
+				}
+			}
+			
+			var obj:Object = new Object;
+			obj.bone = roleData.bone;
+			obj.mesh = meshAry;
+			
+			AppParticleData.roleContanier.removeAllChildren();
+			
+			role = new RoleUtils(obj).getRide();
+			role.addEventListener(Event.COMPLETE,onLoadCom);
+			role.addToRender(AppParticleData.roleContanier);
+			role.play("stand");
+			role.pause = true;
+			AppParticleData.role = role;
+			
+			if(roleData.hasOwnProperty("scale")){
+				role.fileScale = roleData.scale;
+			}
+			
+			role.updatePosMatrix();
+			
+		}
+		
+		public function loadRole(event:Event):void{
+			var file:File = event.target as File;
+			var fs:FileStream = new FileStream;
+			fs.open(file,FileMode.READ);
+			var roleData:Object = fs.readObject();
+			fs.close();
+			
+			var meshAry:Array = new Array;
+			
+			for(var i:int;i<roleData.mesh.length;i++){
+				var children:ArrayCollection = roleData.mesh[i].children;
+				for(var j:int=0;j<children.length;j++){
+					meshAry.push(children[j]);
+				}
+			}
+			
+			var obj:Object = new Object;
+			obj.bone = roleData.bone;
+			obj.mesh = meshAry;
+			obj.socket = roleData.socket;
+			
+			
+			role = new RidePosUtils(obj).getRide();
+			role.name = file.name;
+			
+			if(roleData.hasOwnProperty("scale")){
+				role.fileScale = roleData.scale;
+			}
+			
+			obj.role = role; 
+			
+			
+			AppParticleData.roleContanier.removeAllChildren();
+			
+			role.addEventListener("boneComplete",onLoadCom);
+			role.addToRender(AppParticleData.roleContanier);
+			role.play("stand");
+			role.pause = true;
+			AppParticleData.role = role;
+			
+			role.updatePosMatrix();
+			
+			showSave(roleData.socket.hang);
+		}
+		
+		private function showSave($dic:Object):void{
+			for(var key:String in $dic){
+				var ary:Array = $dic[key];
+				var newAry:Array = new Array;
+				for(var i:int=0;i<ary.length;i++){
+					var info:Object = new Object;
+					if(ary[i].type == 1){
+						info.isGroup = false;
+						info.saveObj = ary[i];
+						info.socketName = key;
+						loadPrefab(Scene_data.fileRoot + ary[i].url,info);
+					}else if(ary[i].type == 2){
+						info.saveObj = ary[i];
+						info.socketName = key;
+						//loadParticle(Scene_data.fileRoot + ary[i].url,info);
+					}else if(ary[i].type == 3){
+						if(!(ary[i].data)){
+							ary[i].data = new Array;
+						}
+						info.saveObj = ary[i];
+						info.socketName = key;
+						loadGroup(Scene_data.fileRoot + ary[i].url,info);
+					}else if(ary[i].type == 4){
+						info.saveObj = ary[i];
+						info.socketName = key;
+						//loadRole(Scene_data.fileRoot + ary[i].url,info);
+					}
+					
+					newAry.push(ary[i]);
+				}
+				//_showDic[key] = newAry;
+				
+			}
+			
+		}
+		
+		private function loadGroup($url:String,$inputInfo:Object):void{
+			var file:File = new File($url);
+			var fs:FileStream = new FileStream();
+			fs.open(file,FileMode.READ);
+			var obj:Object = fs.readObject();
+			fs.close();
+			
+			
+			
+			var ary:Array = obj.item[0].children;
+			for(var i:int;i<ary.length;i++){
+				var item:Object = ary[i];
+				
+				var pos:Vector3D = new Vector3D(item.x,item.y,item.z);
+				var scale:Vector3D = new Vector3D(item.scaleX,item.scaleY,item.scaleZ);
+				var rotation:Vector3D = new Vector3D(item.rotationX,item.rotationY,item.rotationZ);
+				
+				var info:Object = new Object;
+				
+				if(item.type == 1){
+					info.isGroup = true;
+					info.pos = pos;
+					info.scale = scale;
+					info.rotation = rotation;
+					info.saveObj = $inputInfo.saveObj;
+					info.socketName = $inputInfo.socketName;
+					loadPrefab(Scene_data.fileRoot + item.data.url,info);
+				}else if(item.type == 11){
+					
+				}
+				
+			}
+			
+		}
+		
+		private function loadPrefab($url:String,$info:Object):void{
+			var loaderinfo:LoadInfo = new LoadInfo($url,LoadInfo.BYTE,onPrefabLoad,0,$info);
+			LoadManager.getInstance().addSingleLoad(loaderinfo);
+		}
+		
+		private function onPrefabLoad(byte:ByteArray,info:Object):void
+		{
+			
+			var obj:Object = byte.readObject();
+			
+			var display:Display3DMaterialSprite = new Display3DMaterialSprite(Scene_data.context3D);
+			display.url = Scene_data.fileRoot +  obj.axoFileName;
+			MaterialManager.getInstance().getMaterial(Scene_data.fileRoot + obj.materialUrl,addMaterial,display,true,MaterialShader.MODEL_SHADER,MaterialShader);
+			if(info.saveObj.visible){
+				AppParticleData.roleContanier.addChild(display);
+			}
+			display.bindTarget = role;
+			display.bindSocket = info.socketName;
+			display.setMaterialParam(obj.materialInfoArr);
+			
+			info.saveObj.baseData = obj;
+			
+			if(info.isGroup){
+				display.isInGroup = true;
+				display.groupPos = info.pos;
+				display.groupScale = info.scale;
+				display.groupRotation = info.rotation;
+			}
+			
+			if(info.saveObj){
+				if(info.saveObj.type == 1){
+					info.saveObj.data = display;
+				}else if(info.saveObj.type == 3){
+					info.saveObj.data.push(display);
+				}
+			}
+			
+		}
+	
+		
+		private function addMaterial($mt:MaterialTree,info:Object):void{
+			info.material = $mt;
+		}
+		
+		protected function onLoadCom(event:Event):void{
+			// TODO Auto-generated method stub
+			var obj:Object = role.animDic;
+			var nameAry:ArrayCollection = new ArrayCollection;
+			for(var key:String in obj){
+				nameAry.addItem(key);
+			}
+			
+			if(nameAry.length){
+				btn.label = nameAry[0];
+				role.play(nameAry[0]);
+			}
+			
+			_menuFile = new NativeMenu();   
+			
+			var ary:Array = new Array;
+			
+			for(var i:int;i<nameAry.length;i++){
+				var addType:NativeMenuItem = new NativeMenuItem(nameAry[i]);  
+				addType.addEventListener(Event.SELECT,onMenuSel);
+				addType.data = nameAry[i];
+				ary.push(addType);
+			}
+			
+			_menuFile.items = ary;  
+			
+			
+		}
+		
+		protected function onMenuSel(event:Event):void
+		{
+			var key:String = event.target.data as String;
+			role.play(key);
+			btn.label = key;
+		}
+		
+		private function cbChange():void{
+			role.play(String(cb.selectedItem));
+		}
+		
+		
+		private function visibleChg():void
+		{
+			role.visible = cbvisible.selected;
+		}
+		
+		protected function btn_clickHandler(event:MouseEvent):void
+		{
+			if(_menuFile){
+				_menuFile.display(stage,stage.mouseX,stage.mouseY);
+			}
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Button x="10" y="10" label="添加" click="onMenuAddItem()"/>
+	<mx:ComboBox id="cb" x="10" y="68" width="180" change="cbChange()" rowCount="100" visible="false"/>
+	<mx:Button id="btn" x="10" y="50" width="180" click="btn_clickHandler(event)"/>
+	<mx:CheckBox id="cbvisible" x="94" y="10" label="是否显示角色" change="visibleChg()" selected="true"/>
+</mx:Canvas>

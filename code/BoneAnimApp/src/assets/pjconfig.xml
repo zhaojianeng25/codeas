@@ -1,0 +1,34 @@
+<application>
+	<projectName name='傲剑II' type='0'>
+		<ip>188.188.1.158</ip>
+		<port>3306</port>
+		<dbname>aj2_gamedata_v2</dbname>
+		<user>gongju</user>
+		<psd>aj2_gongjua</psd>
+		<mapUrl>http://188.188.1.158:8080/aj2/resRoot/Map/bigMap/</mapUrl>
+	</projectName>
+	<projectName name='测试项目' type='1'>
+		<ip>188.188.1.158</ip>
+		<port>3306</port>
+		<dbname>3d_test</dbname>
+		<user>gongju</user>
+		<psd>aj2_gongjua</psd>
+		<mapUrl>http://188.188.1.158:8080/aj2/resRoot/Map/bigMap/</mapUrl>
+	</projectName>
+	<projectName name='西游' type='2'>
+		<ip>188.188.0.251</ip>
+		<port>3306</port>
+		<dbname>d_gamedata</dbname>
+		<user>flash</user>
+		<psd>Cassandra12</psd>
+		<mapUrl>http://188.188.0.239:82/fengmoRoot/Map/bigMap/</mapUrl>
+	</projectName>
+	<projectName name='飞升项目' type='3'>
+		<ip>188.188.1.158</ip>
+		<port>3306</port>
+		<dbname>fs2_gamedata</dbname>
+		<user>gongju</user>
+		<psd>aj2_gongjua</psd>
+		<mapUrl>http://188.188.1.158:8080/aj2/NewGame/resRoot/Map/bigMap/</mapUrl>
+	</projectName>
+</application>

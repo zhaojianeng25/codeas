@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="236" height="472">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _Pan3D.particle.ctrl.ParticleManager;
+		
+		import _me.Scene_data;
+		
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		
+		import utils.FileConfigUtils;
+		
+		import view.mesh.MeshPanel;
+		import view.particleList.ParticlePanle;
+		private static var _instance:KeyAddParticlePanle;
+		private var _fun:Function
+		private var _info:Object;
+		private var _file:File;
+		private var _skill:SkillKeyFrameSprite;
+		[Bindable]
+		private var bindAry:ArrayCollection;
+		public static function getInstance():KeyAddParticlePanle{
+			if(!_instance){
+				_instance = new KeyAddParticlePanle;
+			}
+			return _instance;
+		}
+		public function show(container:DisplayObjectContainer,fun:Function,info:Object,bindList:Vector.<SkillKeyFrameSprite>,skill:SkillKeyFrameSprite=null):void{
+			container.addChild(this);
+			this.x = (container.width - this.width)/2;
+			this.y = (container.height - this.height)/2;
+			_fun = fun;
+			_info = info;
+			_skill = skill;
+			
+			bindAry = new ArrayCollection;
+			bindAry.addItem(new Object);
+//			bindAry.addItem(null);
+			for(var i:int;i<bindList.length;i++){
+				if(bindList[i].info.target == 3){
+					bindAry.addItem(bindList[i]);
+				}
+			}
+			
+			setData();
+		}
+		
+		private function setData():void{
+			if(_info.bindRatation){
+				rxTxt.text = _info.bindRatation.x;
+				ryTxt.text = _info.bindRatation.y;
+				rzTxt.text = _info.bindRatation.z;
+			}else{
+				rxTxt.text = null;
+				ryTxt.text = null;
+				rzTxt.text = null;
+			}
+			
+			if(_info.bindOffset){
+				xpos.text = _info.bindOffset.x;
+				ypos.text = _info.bindOffset.y;
+				zpos.text = _info.bindOffset.z;
+			}else{
+				xpos.text = null;
+				ypos.text = null;
+				zpos.text = null;
+			}
+			
+			if(_info.bindIndex){
+				cb.selectedIndex = _info.bindIndex + 1;
+			}else{
+				cb.selectedIndex = 0;
+			}
+			if(_info.particleNativePath){
+				particleLabel.text = _info.particleNativePath;
+			}else{
+				particleLabel.text = null;
+			}
+			
+			if(_info.bindFly){
+				for(var i:int;i<bindAry.length;i++){
+					if(bindAry[i]==_info.bindFly){
+						bindCb.selectedIndex = i;
+						break;
+					}
+				}
+				
+			}
+			
+			switch(_info.target){
+				case 1:
+					attacker.selected = true;
+					attacker_clickHandler();
+					break;
+				case 2:
+					beAttack.selected = true;
+					beAttack_clickHandler();
+					break;
+				case 3:
+					fly.selected = true;
+					fly_clickHandler();
+					break;
+			}
+		}
+		private function close():void{
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+		}
+		private function onSure():void{
+			if(!_info.particleUrl){
+				close();
+				return;
+			}
+			
+			_info.bindIndex = cb.selectedIndex-1;
+			_info.target = rbp.selectedValue;
+			
+			if(_info.target == 3 && !_info.fly){
+				Alert.show("飞行参数尚未配置")
+				return;
+			}
+			
+			if(_info.target == 2){
+				//_info.bindFly =
+				if(bindCb.selectedIndex == 0){
+					_info.bindFly = null;
+				}else{
+					_info.bindFly = bindCb.selectedItem;
+				}
+			}
+			
+			if(_skill){
+				_fun(_info,_skill);
+			}else{
+				_fun(_info);
+			}
+			close();
+		}
+		
+		private function onParticle():void{
+			ParticlePanle.getInstance().show(this.parent,onParticleSelByDB);
+			return;
+			var fileurl:String = MeshPanel.getInstance().lastParticleUrl;
+			if(!fileurl){
+				fileurl= FileConfigUtils.readConfig().lyfUrl;
+			}
+			_file = new File(fileurl);
+			_file.browseForOpen("打开粒子文件",[new FileFilter("lyf","*.lyf")]);
+			_file.addEventListener(Event.SELECT,onParticleSel);
+		}
+		private function onParticleSelByDB(obj:Object):void{
+			_info.particleUrl = "lid" + obj.id + ".lyf";
+			_info.particleID = obj.id;
+			particleLabel.text = _info.particleUrl; 
+			trace(obj);
+			
+		}
+		private function onParticleSel(event:Event):void{
+			if(_info.particle){
+				ParticleManager.getInstance().removeParticle(_info.particle);
+			}
+			
+			if(_file.url.indexOf(Scene_data.particleRoot) == -1){
+				Alert.show("非工作空间");
+				return;
+			}
+			_info.particleUrl = _file.url.substring(Scene_data.particleRoot.length);
+			
+			_info.particleNativePath = _file.nativePath;
+//			_info.particleUrl = _file.url;
+			_info.particleName = _file.name;
+			//info.bindIndex = 0;
+			//ParticleManager.getInstance().addParticle(_file.url,info);
+			
+			
+			MeshPanel.getInstance().lastParticleUrl = _file.parent.url;
+			FileConfigUtils.writeConfig("lyfUrl",MeshPanel.getInstance().lastParticleUrl);
+			particleLabel.text = _file.nativePath; 
+		}
+		public function offset():void{
+			_info.bindOffset = new Vector3D(Number(xpos.text),Number(ypos.text),Number(zpos.text))
+		}
+		public function rotationXY():void{
+			if(rxTxt.text == "" && ryTxt.text == "" && rzTxt.text == ""){
+				delete _info.bindRatation;
+			}else{
+				_info.bindRatation = new Vector3D(Number(rxTxt.text),Number(ryTxt.text),Number(rzTxt.text));
+			}
+		}
+		
+		private function getList(ary:ArrayCollection):ArrayCollection{
+			var newAry:ArrayCollection = new ArrayCollection;
+			
+			newAry.addItem({name:'-1'});
+			for(var i:int;i<ary.length;i++){
+				newAry.addItem(ary[i]);
+			}
+			
+			return newAry;
+		}
+		
+		protected function beAttack_clickHandler(event:MouseEvent=null):void{
+			rotationCav.enabled = false;
+			cb.enabled = false;
+			flyCav.enabled = false;
+			beAttackCav.enabled = true;
+			delRotation();
+		}
+		
+		protected function fly_clickHandler(event:MouseEvent=null):void{
+			rotationCav.enabled = false;
+			cb.enabled = false;
+			flyCav.enabled = true;
+			beAttackCav.enabled = false;
+			delRotation();
+		}
+		
+		protected function attacker_clickHandler(event:MouseEvent=null):void{
+			rotationCav.enabled = true;
+			cb.enabled = true;
+			flyCav.enabled = false;
+			beAttackCav.enabled = false;
+		}
+		
+		public function delRotation():void{
+			rxTxt.text = null;
+			ryTxt.text = null;
+			rzTxt.text = null;
+			delete _info.bindRatation;
+		}
+		
+		private var flyPanle:FlyPanle = new FlyPanle;
+		protected function flayBtn_clickHandler(event:MouseEvent):void
+		{
+			flyPanle.show(this.parent,_info);
+		}
+		
+		private function labFun(item:Object):String{
+			if(item is SkillKeyFrameSprite){
+				return item.info.fly.idStr;
+			}else{
+				return "不绑定";
+			}
+			
+		}
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:TextInput x="13" y="41" width="132" id="particleLabel"/>
+	<mx:Button x="153" y="42" label="打开" click="onParticle()"/>
+	<mx:Label x="10" y="6" width="216" fontWeight="bold" text="粒子属性编辑" mouseDown="startDrag()" mouseUp="stopDrag()"/>
+	<mx:RadioButtonGroup id="rbp"/>
+	<mx:RadioButton id="attacker" x="13" y="81" label="释放者" value="1" selected="true" groupName="rbp" click="attacker_clickHandler(event)"/>
+	<mx:RadioButton id="beAttack" x="77" y="82" label="击中者" value="2" groupName="rbp" click="beAttack_clickHandler(event)"/>
+	<mx:RadioButton id="fly" x="142" y="82" label="飞行" value="3" groupName="rbp" click="fly_clickHandler(event)"/>
+	<mx:Label x="13" y="110" text="挂点"/>
+	<mx:ComboBox id="cb" x="58" y="107" dataProvider="{getList(AppDataBone.boneList)}" labelField="name" rowCount="15"/>
+	
+	<mx:Label x="13" y="141" text="挂点偏移"/>
+	<mx:Label x="25" y="167" text="x:"/>
+	<mx:TextInput id="xpos" x="43" y="166" width="40" change="offset()"/>
+	<mx:Label x="90" y="167" text="y:"/>
+	<mx:TextInput id="ypos" x="108" y="166" width="40" change="offset()"/>
+	<mx:Label x="157" y="167" text="z:"/>
+	<mx:TextInput id="zpos" x="175" y="166" width="40" change="offset()"/>
+	
+	<mx:Canvas id="rotationCav" x="0" y="192" width="100%">
+		<mx:Label x="13" y="6" text="相对旋转"/>
+		<mx:Label x="25" y="32" text="x:"/>
+		<mx:TextInput id="rxTxt" x="43" y="31" width="40" change="rotationXY()"/>
+		<mx:Label x="90" y="32" text="y:"/>
+		<mx:TextInput id="ryTxt" x="108" y="31" width="40" change="rotationXY()"/>
+		<mx:Label x="157" y="32" text="z:"/>
+		<mx:TextInput id="rzTxt" x="175" y="31" width="40" change="rotationXY()"/>
+	</mx:Canvas>
+	<mx:Canvas id="flyCav" x="0" y="248" width="100%" height="70" dropShadowVisible="false">
+		<mx:Label x="11" y="6" text="飞行参数"/>
+		<mx:Button id="flayBtn" x="26" y="35" label="参数调节" click="flayBtn_clickHandler(event)"/>
+	</mx:Canvas>
+	<mx:Canvas id="beAttackCav" x="0" y="321" width="100%" height="70" cornerRadius="1">
+		<mx:Label x="11" y="6" text="击中参数"/>
+		<mx:Label x="11" y="35" text="击中绑定"/>
+		<mx:ComboBox id="bindCb" x="77" y="35" width="137" dataProvider="{bindAry}" labelFunction="labFun"/>
+	</mx:Canvas>
+	<mx:Button x="28" y="420" label="确定" click="onSure()"/>
+	<mx:Button x="143" y="420" label="关闭" click="close()"/>
+</mx:Canvas>

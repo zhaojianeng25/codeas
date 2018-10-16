@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#404040" creationComplete="onCom()"
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="300" height="350" xmlns:txt="common.utils.ui.txt.*">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import mx.events.AIREvent;
+		import mx.events.ListEvent;
+		
+		import spark.components.Window;
+		
+		import _me.Scene_data;
+		import _me.xyzPos.XyzPosData;
+		
+		import xyz.MoveScaleRotationLevel;
+		import xyz.base.TooXyzPosData;
+		import xyz.draw.TooXyzMoveData;
+		
+		private var isFirst:Boolean = true;
+		
+		private var dataAry:Array;
+		
+		private var dataObj:Object;
+		private var win:Window;
+		private var xyzPosData:TooXyzMoveData;
+		/**
+		 * 添加到舞台显示
+		 * */
+		public function show($obj:Object):void{
+			dataObj = $obj;
+			
+			if(!$obj.ary){
+				$obj.ary = new Array;
+			}
+			
+			dataAry = $obj.ary as Array;
+			
+			if(list){
+				list.dataProvider = dataAry;
+			}
+			
+			if(!xyzPosData){
+				initXyzCtrl();
+			}
+			
+			win = new Window();
+			win.transparent=false;
+			win.type=NativeWindowType.UTILITY;
+			win.systemChrome=NativeWindowSystemChrome.STANDARD;
+			win.width=300;
+			win.height=350;
+			win.showStatusBar = false;
+			win.addElement(this);
+			win.alwaysInFront = true;
+			win.resizable = false;
+			win.setStyle("fontFamily","Microsoft Yahei");
+			win.setStyle("fontSize",11); 
+			win.addEventListener(AIREvent.WINDOW_COMPLETE,onWinCom);
+			win.title = "配置测试点";
+			win.open(true);
+			win.addEventListener(Event.CLOSE,onClose);
+		}
+		
+		private function onCom():void{
+			list.dataProvider = dataAry;
+		}
+		
+		protected function onWinCom(event:AIREvent):void
+		{
+			Window(event.target).nativeWindow.x=Scene_data.stage.nativeWindow.x+Scene_data.stage.stageWidth/2-Window(event.target).nativeWindow.width/2;
+			Window(event.target).nativeWindow.y=Scene_data.stage.nativeWindow.y+Scene_data.stage.stageHeight/2-Window(event.target).nativeWindow.height/2;
+		}
+		
+		/**
+		 * 添加点
+		 * */
+		private function add():void{
+
+			if(!dataAry){
+				dataAry = new Array;
+				
+				dataObj.ary = dataAry;
+			}
+			
+			dataAry.push(new Vector3D());
+			list.dataProvider = dataAry;
+		}
+		/**
+		 * 删除点
+		 * */
+		private function del():void{
+			if(list.selectedIndex != -1){
+				dataAry.splice(list.selectedIndex,1);
+			}
+			list.dataProvider = dataAry;
+		}
+		
+		
+		private function initXyzCtrl():void{
+			var temp:XyzPosData = new XyzPosData();
+			temp.x = 0;
+			temp.y = 0;
+			temp.z = 0;
+			temp.angle_x=0;
+			temp.angle_y=0;
+			temp.angle_z=0;
+			
+			xyzPosData=new TooXyzMoveData;
+			xyzPosData.dataItem=new Vector.<TooXyzPosData>;
+			xyzPosData.modelItem=new Array;
+			
+			var tempxyzPosData:XyzPosData=temp;
+			var k:TooXyzPosData=new TooXyzPosData;
+			k.x=tempxyzPosData.x;
+			k.y=tempxyzPosData.y;
+			k.z=tempxyzPosData.z;
+			k.scale_x=1;
+			k.scale_y=1;
+			k.scale_z=1;
+			k.angle_x=tempxyzPosData.angle_x;
+			k.angle_y=tempxyzPosData.angle_y;
+			k.angle_z=tempxyzPosData.angle_z;
+			xyzPosData.dataItem.push(k);
+			xyzPosData.modelItem.push(tempxyzPosData);
+			
+			xyzPosData.fun=xyzBfun;
+			xyzPosData.isCenten=true;
+			
+		}
+		
+		public function xyzBfun($XyzMoveData:xyz.draw.TooXyzMoveData):void{
+			var tooXyzPosData:TooXyzPosData;
+			tooXyzPosData=$XyzMoveData.dataItem[0];
+			
+			var v3d:Vector3D = list.selectedItem as Vector3D;
+			v3d.setTo(tooXyzPosData.x,tooXyzPosData.y,tooXyzPosData.z);
+			list.invalidateList();
+		}
+		
+		protected function list_itemClickHandler(event:ListEvent):void
+		{
+			refreshXYZ();
+		}
+		
+		public function refreshXYZ():void{
+			var v3d:Vector3D = list.selectedItem as Vector3D;
+			xyzPosData.x = v3d.x;
+			xyzPosData.y = v3d.y;
+			xyzPosData.z = v3d.z;
+			
+			if(Boolean(xyzPosData.dataUpDate)){
+				xyzPosData.dataUpDate()
+			}
+			
+			MoveScaleRotationLevel.getInstance().xyzMoveData=xyzPosData;
+		}
+		
+		protected function list_itemFocusOutHandler(event:ListEvent):void
+		{
+			MoveScaleRotationLevel.getInstance().xyzMoveData=null;
+		}
+		
+		private function changeTime(num:Number):void{
+			dataObj.timeOut = num;
+		} 
+		
+		protected function onClose(event:Event):void
+		{
+			MoveScaleRotationLevel.getInstance().xyzMoveData=null;
+		}
+		
+	]]>
+</fx:Script>
+	
+	<mx:List id="list" left="5" right="5" y="10" height="150" borderStyle="none" itemClick="list_itemClickHandler(event)" itemFocusOut="list_itemFocusOutHandler(event)">
+		<mx:itemRenderer>
+			<fx:Component>
+				<mx:Canvas>
+					<fx:Script>
+						<![CDATA[
+							
+							private function chg(obj:Object):void{
+								outerDocument.refreshXYZ();
+							}
+							
+							override public function set data(value:Object):void{
+								super.data = value;
+								if(value){
+									txt.ve3Data = value as Vector3D;
+								}
+							}
+							
+							
+						]]>
+					</fx:Script>
+					<txt:TextVec3Input id="txt" label="位置：" changFun="chg"/>
+				</mx:Canvas>
+			</fx:Component>
+		</mx:itemRenderer>
+	</mx:List>
+	
+	<mx:Button x="17" y="180" label="添加" click="add()"/>
+	<mx:Button x="104" y="180" label="删除" click="del()"/>
+	<txt:TextCtrlInput id="tTxt" x="15" text="0" label="延时：" y="220" minNum="0" height="20" center="true" changFun="changeTime"/>
+</mx:Canvas>

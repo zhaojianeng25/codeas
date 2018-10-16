@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<flexLibProperties includeAllClasses="true" useMultiPlatformConfig="false" version="3">
+  <includeClasses>
+    <classEntry path="dzsf.modules.Net_processor"/>
+    <classEntry path="dzsf.common.net.INet2S"/>
+    <classEntry path="com.zcp.frame.net.INetMsgReceived"/>
+    <classEntry path="com.zcp.frame.Module"/>
+    <classEntry path="com.zcp.frame.Processor"/>
+    <classEntry path="dzsf.modules.View_processor"/>
+    <classEntry path="com.zcp.frame.event.ModuleEvent"/>
+  </includeClasses>
+  <includeResources/>
+  <namespaceManifests/>
+</flexLibProperties>

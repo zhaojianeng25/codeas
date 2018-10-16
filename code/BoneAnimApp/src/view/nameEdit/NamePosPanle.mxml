@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="216" height="160" creationComplete="onCreatCom()" addedToStage="addToStage(event)">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		import _me.Scene_data;
+		
+		import flash.filters.*;
+		
+		import mx.core.UIComponent;
+		
+		import utils.FileConfigUtils;
+		import utils.TestBoundClass;
+		/**
+		 * 骨骼信息
+		 * */
+		private var _info:Object;
+		/**
+		 * 是否为第一次打开
+		 * */
+		private var isFirst:Boolean = true;
+		/**
+		 * 名字和血条的容器
+		 * */
+		private var nameLabUI:UIComponent;
+		/**
+		 * 名字文本
+		 * */
+		private var txt:TextField;
+		/**
+		 * 3d到2d的转换类
+		 * */
+		private var testBounds:TestBoundClass = new TestBoundClass;
+		
+		public function show(container:DisplayObjectContainer,info:Object):void{
+			if(isFirst){
+				var str:String = FileConfigUtils.readConfig().NamePosPanle;
+				if(!str){
+					this.x = 1000;
+					this.y = 50;
+				}else{
+					var ary:Array = str.split("|");
+					this.x = ary[0];
+					this.y = ary[1];
+				}
+			}
+			
+			container.addChild(this);
+			isFirst = false;
+			_info = info;
+			
+			if(!nameLabUI){
+				initNameUI();
+			}
+			
+			hightTxt.text = _info.nameHeight;
+			
+			container.addChild(nameLabUI);
+			
+			refreshHeight();
+		}
+		
+		private function onCreatCom():void{
+			//initNameUI();
+			var str:String = FileConfigUtils.readConfig().NamePosStrName;
+			if(str){
+				txt.htmlText = "<p align='center'><font color='#fff600' size='12' face='SimSun'>" + str + "</font></p>";
+				nameTxt.text = str;
+			}
+			
+		}
+		
+		private function addToStage(event:Event):void{
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,onFrame);
+		}
+		/**
+		 * 初始化名字和血条
+		 * */
+		private function initNameUI():void{ 
+			nameLabUI = new UIComponent;
+			
+			var shape:Shape = new Shape;
+			shape.graphics.beginFill(0xcc0000);
+			shape.graphics.drawRect(-25,-4,50,4);
+			shape.graphics.endFill();
+			nameLabUI.addChild(shape);
+			
+			txt = new TextField;
+			txt.width = 200;
+			txt.height = 20;
+			txt.htmlText = "<p align='center'><font color='#fff600' size='12' face='SimSun'>[1区]张无忌他爹</font></p>";
+			txt.x = -100;
+			txt.y = -23;
+			txt.selectable = false;
+			
+			var filter:Array = [new GlowFilter(0x000e07, 1, 3, 3, 15, BitmapFilterQuality.LOW)];
+			txt.filters = filter;
+			
+			nameLabUI.addChild(txt);
+			
+			
+			
+			nameLabUI.x = Scene_data.stageWidth/2;
+			nameLabUI.y = Scene_data.stageHeight/2-130;
+			
+			nameLabUI.addEventListener(MouseEvent.MOUSE_DOWN,onMouseDown);
+			stage.addEventListener(MouseEvent.MOUSE_UP,onMouseUp);
+			
+		}
+		
+		private function onMouseDown(event:MouseEvent):void{
+			stage.addEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+			lastYpos = stage.mouseY;
+		}
+		private var lastYpos:int;
+		private function onMouseMove(event:MouseEvent):void{
+			hightTxt.text = String(Number(hightTxt.text) - stage.mouseY + lastYpos);
+			lastYpos = stage.mouseY;
+			hightTxtChg();
+		}
+		
+		private function onMouseUp(event:MouseEvent):void{
+			if(stage)
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE,onMouseMove);
+		}
+		
+		public function mouseUpDrag():void{
+			this.stopDrag();
+			FileConfigUtils.writeConfig("NamePosPanle",this.x + "|" + this.y);
+		}
+		
+		public function close():void{
+			stage.removeEventListener(MouseEvent.MOUSE_MOVE,onFrame);
+			
+			if(this.parent){
+				this.parent.removeChild(this);
+			}
+			if(nameLabUI.parent){
+				nameLabUI.parent.removeChild(nameLabUI);
+			}
+		}
+		/**
+		 * 将文本内容写入文件
+		 * */
+		private function txtChg():void{
+			txt.htmlText = "<p align='center'><font color='#fff600' size='12' face='SimSun'>" + nameTxt.text + "</font></p>";
+			FileConfigUtils.writeConfig("NamePosStrName",txt.text);
+		}
+		/**
+		 * 刷新文本和血条的高度
+		 * */
+		private function refreshHeight():void{
+			var hightNum:Number = Number(hightTxt.text);
+			//testBounds.refreshCam();
+			//var p:Point = testBounds.math3Dto2Dwolrd(new Vector3D(0,hightNum,0));
+			var p:Point = new Point(Scene_data.stageWidth/2,Scene_data.stageHeight/2)
+			p.y -= hightNum;
+			nameLabUI.x = p.x;
+			nameLabUI.y = p.y;
+		}
+		
+		private function onFrame(event:Event):void{
+			refreshHeight();
+		}
+		
+		private function hightTxtChg():void{
+			_info.nameHeight = Number(hightTxt.text);
+			refreshHeight();
+		}
+		
+		
+	]]>
+</fx:Script>
+	<mx:Panel width="100%" height="100%"/>
+	<mx:TextInput id="hightTxt" x="66" y="58" width="114" text="150" change="hightTxtChg()"/>
+	<mx:TextInput id="nameTxt" x="98" y="96" width="82" text="[1区]张无忌他爹" change="txtChg()"/>
+	<mx:Label x="25" y="97" text="测试用名字"/>
+	<mx:Label x="25" y="59" text="高度"/>
+	<mx:Label x="6" y="5" width="164" height="26" fontWeight="bold" mouseDown="startDrag()"
+			  mouseUp="mouseUpDrag()" text="高度编辑"/>
+	<mx:Button x="178" y="4" width="28" label="X" click="close()"/>
+	<mx:Label x="20" y="34" color="#FF0000" text="编辑高度请在2D模式下进行"/>
+</mx:Canvas>

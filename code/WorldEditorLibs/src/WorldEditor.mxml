@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" frameRate="60"
+					   xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%"
+					   xmlns:mx="library://ns.adobe.com/flex/mx" backgroundAlpha="0"
+					   backgroundColor="#404040" fontFamily="Microsoft Yahei" fontSize="11" 
+					   creationComplete="creationCompleteHandler(event)" addedToStage="addedToStageHandler(event)"
+					   xmlns:tab="common.utils.ui.tab.*" xmlns:color="common.utils.ui.color.*" xmlns:txt="common.utils.ui.txt.*" 
+					   xmlns:cbox="common.utils.ui.cbox.*" xmlns:check="common.utils.ui.check.*">
+	<fx:Script>
+		<![CDATA[
+			import com.zcp.frame.event.ModuleEventManager;
+			
+			import flash.display3D.Context3D;
+			
+			import mx.events.FlexEvent;
+			
+			import spark.components.WindowedApplication;
+			
+			import _me.Scene_data;
+			
+			import common.AppData;
+			import common.GameUIInstance;
+			import common.msg.event.MEvent_baseShowHidePanel;
+			import common.msg.event.brower.MEvent_BrowerShow;
+			import common.msg.event.engineConfig.MEvent_Config;
+			import common.msg.event.grass.MEvent_ShowGrass;
+			import common.msg.event.hierarchy.MEvent_Hierarchy;
+			import common.msg.event.menu.MEvent_ShowMenu;
+			import common.msg.event.scene.MEvent_ShowSceneCtrl;
+			import common.msg.event.scene.MEvent_ShowSceneProp;
+			import common.msg.event.terrain.MEvent_ShowTerrain;
+			
+			import manager.LayerManager;
+			import manager.MouseManager;
+			
+			import modules.ModuleList;
+			
+			import proxy.top.TopProxyManager;
+			import proxy.top.render.Render;
+			
+			import xyz.MoveScaleRotationLevel;
+			
+		
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+
+		
+				initConfig();
+
+			}
+			
+			private function initConfig():void{
+				GameUIInstance.stage = this.stage;
+				//GameUIInstance.application = this.parent as WindowedApplication;
+				GameUIInstance.uiContainer = rootUI;
+				GameUIInstance.layoutBottom = layoutBottom;
+				GameUIInstance.layoutTop = layoutTop;
+				//GameUIInstance.txt = fouseTxt;
+				
+				LayerManager.getInstance().testNodeTree();
+				
+				stage.addEventListener(Event.RESIZE,resizeHandler);
+				
+				start();
+				
+				MouseManager.initMouse();
+				
+	
+			
+		
+			}
+			
+			private function start():void{
+				ModuleList.startup();
+				
+
+				ModuleEventManager.dispatchEvent( new MEvent_ShowMenu(MEvent_baseShowHidePanel.SHOW));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_ShowSceneCtrl(MEvent_baseShowHidePanel.SHOW));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_ShowSceneProp(MEvent_baseShowHidePanel.SHOW));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_ShowTerrain(MEvent_baseShowHidePanel.SHOW));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_ShowGrass(MEvent_baseShowHidePanel.SHOW));
+				
+				//ModuleEventManager.dispatchEvent( new MEvent_ProjectData(MEvent_ProjectData.PROJECT_WORKSPACE_CONFIG));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_BrowerShow(MEvent_baseShowHidePanel.SHOW));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_Hierarchy(MEvent_Hierarchy.MEVENT_HIERARCHY_SHOW));
+				
+				ModuleEventManager.dispatchEvent( new MEvent_Config(MEvent_Config.MEVENT_CONFIG));
+				
+			}
+			
+			public function init(app:WindowedApplication,context3D:Context3D,type:int=0):void{
+				
+				TopProxyManager.type=type==0?true:false
+				GameUIInstance.application = app;
+				Scene_data.context3D = context3D;
+				
+				_context3D=context3D
+				
+		
+				
+				Render.init();
+				AppData.type = type;
+				
+				//XyzMoveScaleRotation.getInstance().initContext3D(context3D)
+				this.addEventListener(Event.ADDED_TO_STAGE,onAddtoSTAGE)
+				
+			}
+			private var _context3D:Context3D
+			protected function onAddtoSTAGE(event:Event):void
+			{
+				//XyzMoveScaleRotation.getInstance().initStage(this.stage)
+				MoveScaleRotationLevel.getInstance().initContext3D(_context3D,this.stage,TopProxyManager.type?2:1)
+				
+			}
+			
+			public function getUpdateLibRenderFun():Function{
+				return MoveScaleRotationLevel.getInstance().upData
+			}
+		
+			
+			protected function addedToStageHandler(event:Event):void
+			{
+				GameUIInstance.stage = this.stage;
+				Scene_data.stage = this.stage;
+				
+			}
+			
+			protected function resizeHandler(event:Event):void
+			{ 
+				LayerManager.getInstance().changeSize();
+				
+				//ModuleEventManager.dispatchEvent( new MEventStageResize(MEventStageResize.MEVENT_STAGE_RESIZE));
+			}
+			
+			
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		
+	</fx:Declarations>
+
+	<mx:Canvas width="100%" height="100%" id="rootUI" horizontalScrollPolicy="off" verticalScrollPolicy="off" />
+	
+	<!--<mx:Canvas id="rootUI"/>-->
+	<!--<color:ColorPickers x="200" y="200" label="环境色"/>-->
+	<mx:Canvas width="100%" height="100%">
+		<mx:UIComponent id="layoutBottom" visible="false"/>
+		<mx:UIComponent id="layoutTop"/>
+	</mx:Canvas>
+	<!--<s:TextInput id="fouseTxt"/>-->
+</mx:Canvas>

@@ -1,0 +1,16 @@
+﻿站立=stand
+行走=walk
+ 休闲动作=idea
+ 打坐=sit
+ 受伤=injured
+ 死亡=death
+跳跃=jump
+ 攻击1=attack_01
+ 攻击2=attack_02
+ 攻击3=attack_03
+ 攻击回招1=attack_010 
+ 攻击回招2=attack_020 
+基础技能=m_attack_01
+神兵技能1=s_attack_01           
+ 绝学1=j_attack_01
+ 绝学2=j_attack_02

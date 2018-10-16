@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" implements="view.IAnimItem" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" horizontalScrollPolicy="off" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="30">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+<fx:Script>
+	<![CDATA[
+		[Bindable]
+		public var setData:Object;
+		
+		public function get itemData():Object{
+			var obj:Object = new Object;
+			if(setData.hasOwnProperty("scale")){
+				obj.value = Number(wTxt.text)*setData.scale;
+			}else{
+				obj.value = Number(wTxt.text);
+			}
+			obj.type = setData.type;
+			obj.key = setData.key;
+			obj.name = setData.name;
+			return obj;
+		}
+		
+		public function setInfo(value:*):void{
+			if(setData.hasOwnProperty("scale")){
+				wTxt.text = String(value/setData.scale);
+			}else{
+				wTxt.text = String(value);
+			}
+		}
+		
+		public function setTip(str:String):void{
+			txt.toolTip = str;
+		}
+		
+		//contentBackgroundColor="#505050" color="#9f9f9f"
+	]]>
+</fx:Script>
+	<mx:Label id="txt" x="10" y="0" text="{setData.name}" color="#9f9f9f" toolTip="{setData.tip}"/>
+	<s:TextInput id="wTxt" width="150" x="123" y="5" contentBackgroundColor="#505050" color="#9f9f9f" borderVisible="false" height="16" paddingTop="4"
+				  text="{setData.value}"/>
+</mx:Canvas>
