@@ -39,6 +39,7 @@ package view.topmenu
 					<menuitem label="打开" id="1"/> 
 <menuitem label="保存" id="2"/>
 <menuitem label="另存为" id="22"/>
+<menuitem label="工程另存为" id="23"/>
 		
 				</menuitem> 
 				<menuitem label="管理"> 

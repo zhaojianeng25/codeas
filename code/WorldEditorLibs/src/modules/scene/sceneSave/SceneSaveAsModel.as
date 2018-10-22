@@ -81,8 +81,10 @@ package modules.scene.sceneSave
 					copyFile(picArr[j]);
 				}
 				copyFile($url);
-				var materiaTxt:String=$url.replace(".material",".txt")
-				copyFile(materiaTxt);
+ 
+				copyFile($url.replace(".material",".txt"));
+				copyFile($url.replace(".material","_byte.txt"))
+	 
 			}
 			
 		}
@@ -127,6 +129,7 @@ package modules.scene.sceneSave
 						copyFile(a[j])
 					}
 					copyFile($ParticleStaticMesh.url)
+					copyFile($ParticleStaticMesh.url.replace(".lyf","_byte.txt"))
 				
 			
 					
@@ -181,6 +184,13 @@ package modules.scene.sceneSave
 					copyFile($buildMesh.prefabStaticMesh.axoFileName);
 					moveMaterialTree($buildMesh.prefabStaticMesh.materialUrl)
 					
+					for(var j:Number=0;$buildMesh.prefabStaticMesh.materialInfoArr&&j<$buildMesh.prefabStaticMesh.materialInfoArr.length;j++){
+					     var infoObj:Object=$buildMesh.prefabStaticMesh.materialInfoArr[j];
+						 if(infoObj&&infoObj.type==0&&infoObj.url){
+							 copyFile(infoObj.url);
+						 }
+					}
+					
 				}
 			}
 
@@ -203,6 +213,8 @@ package modules.scene.sceneSave
 				if($url&&$url!="null"){
 					Alert.show("文件不存在",$file.url)
 				}
+			  
+	
 			   
 			}
 	

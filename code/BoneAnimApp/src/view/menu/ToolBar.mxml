@@ -37,6 +37,8 @@
 		import renderLevel.BoneKeyControl;
 		import renderLevel.Display3DMovieLocal;
 		
+		import scenesave.BoneAnimSaveSceneModel;
+		
 		import utils.FileConfigUtils;
 		
 		import view.action.ActionPanel;
@@ -55,6 +57,15 @@
 		import view.prop.ScenePropPanle;
 		import view.ride.RidePanel;
 		import view.ridepos.RidePosPanel;
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		
@@ -161,6 +172,10 @@
 					break;
 				case 20:
 					ExpResModel.getInstance().changeTbData()
+					break;
+				case 23:
+					trace("工程另存为")
+					BoneAnimSaveSceneModel.getInstance().saveScene(lastZZWurl)
 					break;
 				case 50:
 					
@@ -346,7 +361,7 @@
 			var file:File = event.target as File;
 			
 			
-			AppData.appTitle="BoneAnimApp--"+decodeURI(file.url.replace(AppData.workSpaceUrl,""));
+			AppData.appTitle="BoneAnimApp--"+decodeURI(file.url);
 				
 			var fs:FileStream = new FileStream;
 			fs.open(file,FileMode.READ);

@@ -47,6 +47,16 @@ package _Pan3D.particle.ctrl
 			Display3DFacetPartilce.initBuffer();
 		}
 		
+		public function get dicPool():Object
+		{
+			return _dicPool;
+		}
+
+		public function set dicPool(value:Object):void
+		{
+			_dicPool = value;
+		}
+
 		public static function getInstance():ParticleManager{
 			if(!instance){
 				instance = new ParticleManager;

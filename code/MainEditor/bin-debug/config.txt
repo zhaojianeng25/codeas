@@ -1,1 +1,2 @@
-{"tburl":"http://192.168.1.2/work/panjiazhi.xml","type":"panjiazhi" ,"model":["modeltabel#model,name,id"],"skill":["skilltabel#skill,name,id"],"role":["roletabel#avatar,id,name"],"map":["tb_map1_10#id,name,id","tb_map11_20#id,name,id","tb_map21_30#id,name,id"]}
+{"tburl":"http://192.168.1.2/work/panjiazhi.xml","type":"panjiazhi" ,"model":["modeltabel#model,name,id"],"skill":["skilltabel#skill,name,id"],"role":["roletabel#avatar,id,name"],"map":["tb_map_test#id,name,id","tb_map1_10#id,name,id","tb_map11_20#id,name,id","tb_map21_30#id,name,id"]}
+

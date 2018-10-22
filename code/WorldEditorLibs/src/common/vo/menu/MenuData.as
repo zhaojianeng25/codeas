@@ -11,7 +11,7 @@ package common.vo.menu
 			<root>
 				<menuitem label="文件">
 					<menuitem label="保存场景" id="0"/> 
-					<menuitem label="场景另存为" id="15"/> 
+					<menuitem label="工程另存为" id="15"/> 
 					<menuitem label="修改编辑器配置" id="1"/>
 				</menuitem> 
 				<menuitem label="地形"> 
