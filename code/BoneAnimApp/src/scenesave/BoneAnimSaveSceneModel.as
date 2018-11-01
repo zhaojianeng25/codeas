@@ -103,6 +103,9 @@ package scenesave
 					var b:Array=particles.getMaterialAry();
 					for(var materialTreeId:uint=0;materialTreeId<b.length;materialTreeId++){
 						var $MaterialTree:MaterialTree=MaterialTree(b[materialTreeId])
+						if(!$MaterialTree){
+							trace("没有")
+						}
 						var materialUrl:String=$MaterialTree.url.replace(AppData.workSpaceUrl,"")
 						copyFile(materialUrl)
 						moveMaterialTree(materialUrl)
@@ -165,10 +168,18 @@ package scenesave
 						  copyFile(infoObj.url);
 					  }
 				  }
+				  for(var k:Number=0;value.particleList&&k<value.particleList.length;k++){
+					
+					var particleurl:String= value.particleList[k].url
+					trace(decodeURI(particleurl))
+					moveTempParticle(decodeURI(particleurl))
+				  }
+				  
 			  }
 			  
 			
-			  
+			   
+
 			  
 		}
 		private function copyFile($url:String):void

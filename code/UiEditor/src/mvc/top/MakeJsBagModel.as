@@ -346,7 +346,7 @@ package mvc.top
 			OutTxtModel.getInstance().addLine("正在生成--->zip.js");
 			if($minfile.exists){
 				var destination:File = File.documentsDirectory;
-				destination = destination.resolvePath( "file:///E:/github/gunqiu/bin/libs/h5web.js");
+				destination = destination.resolvePath( "file:///E:/github/wudiqiuqiu/bin/libs/h5web.js");
 				$minfile.copyTo(destination,true);
 				ZipMinJsModel.getInstance().changeZipByFile($minfile)
 			}else{
