@@ -1,2 +1,2 @@
-{"tburl":"http://192.168.1.2/work/panjiazhi.xml","type":"panjiazhi" ,"model":["modeltabel#model,name,id"],"skill":["skilltabel#skill,name,id"],"role":["roletabel#avatar,id,name"],"map":["tb_map_test#id,name,id","tb_map1_10#id,name,id","tb_map11_20#id,name,id","tb_map21_30#id,name,id"]}
+{"tburl":"panjiazhi.xml","type":"panjiazhi" ,"model":["modeltabel#model,name,id"],"skill":["skilltabel#skill,name,id"],"role":["roletabel#avatar,id,name"],"map":["tb_map_test#id,name,id","tb_map1_10#id,name,id","tb_map11_20#id,name,id","tb_map21_30#id,name,id","tb_map31_40#id,name,id","tb_map31_40难#id,name,id","tb_map41_50#id,name,id","tb_map51_60#id,name,id","无尽场景#id,name,id","多人联机#id,name,id","特殊关卡#id,name,id"]}
 

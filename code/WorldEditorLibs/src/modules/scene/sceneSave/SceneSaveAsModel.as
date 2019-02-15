@@ -5,6 +5,10 @@ package modules.scene.sceneSave
 	
 	import mx.controls.Alert;
 	
+	import _Pan3D.particle.bone.Display3DBonePartilce;
+	import _Pan3D.particle.ctrl.TimeLine;
+	import _Pan3D.particle.modelObj.Display3DModelPartilce;
+	
 	import _me.Scene_data;
 	
 	import common.AppData;
@@ -132,6 +136,21 @@ package modules.scene.sceneSave
 					copyFile($ParticleStaticMesh.url.replace(".lyf","_byte.txt"))
 				
 			
+					for(var u:uint=0;u<	$ProxyPan3DParticle.particleSprite.timeLineAry.length;u++){
+						var dis:TimeLine= $ProxyPan3DParticle.particleSprite.timeLineAry[u] 
+						if(dis.display3D as Display3DBonePartilce){
+							var $bone:Display3DBonePartilce=Display3DBonePartilce(dis.display3D);
+							var $eee:Object=$bone.getAllInfo();
+							copyFile($eee.animUrl)
+							copyFile($eee.meshUrl)
+						}
+						if(dis.display3D as Display3DModelPartilce){
+							var $model:Display3DModelPartilce=Display3DModelPartilce(dis.display3D);
+							var $modeEEE:Object=$model.getAllInfo();
+							copyFile($modeEEE.objUrl)
+							
+						}
+					}
 					
 				}
 			}

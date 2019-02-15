@@ -28,7 +28,7 @@
 		/**
 		 * 引擎版本号 
 		 */		
-		public static var version:int = 37; 
+		public static var version:int = 38; 
 		public static var listTxt:String="Pan3d.me";
 		public static var drawNum:uint=0;
 		public static var drawTriangle:uint=0;

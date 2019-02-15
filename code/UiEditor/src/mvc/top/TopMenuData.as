@@ -37,7 +37,8 @@ package  mvc.top
 				<menuitem label="导出"> 
 
 <menuitem label="导出h5uiXML" id="40"/> 
-<menuitem label="lua转Csv" id="41"/> 	
+<menuitem label="重新整理res资源" id="41"/> 	
+ 
 				</menuitem>
 
 
@@ -48,6 +49,7 @@ package  mvc.top
 <menuitem label="清理H5工作目录" id="52"/> 
 	<menuitem label="合并系列动画" id="51"/> 
 <menuitem label="打包项目" id="53"/> 
+<menuitem label="打包项目min" id="56"/> 
 <menuitem label="zipFile" id="54"/> 
 <menuitem label="导出主干道" id="55"/> 
 

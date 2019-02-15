@@ -2,6 +2,8 @@ package _Pan3D.role
 {
 	import flash.display3D.Context3D;
 	
+	import spark.components.Alert;
+	
 	import _Pan3D.base.MeshData;
 	import _Pan3D.base.ObjectTri;
 	import _Pan3D.base.ObjectUv;
@@ -114,6 +116,10 @@ package _Pan3D.role
 			}else{
 				meshData = AnalysisServer.getInstance().analysisByteMesh(str);//new Md5Analysis().addMesh(str,1);
 			}
+			if(!meshData){
+				Alert.show(url,"不正确")
+			}
+			
 			meshData.key = url;
 			processForAgal(meshData);
 			

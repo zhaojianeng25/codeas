@@ -33,9 +33,11 @@ package mvc.top
 		//private var ProjectUrl:String="file:///E:/codets/game/arpg/arpg/";
 		private var ProjectUrl:String="file:///C:/wamp/www/work/football/football/";
 		private var JsBagRootUrl:String="file:///e:/jsbag/";
+		private var copyminiToLibs:Boolean
 		
-		public function run():void
+		public function run(copymin:Boolean=false):void
 		{
+			copyminiToLibs=copymin;
 			var file:File=new File()
 			file.addEventListener(Event.SELECT,onFileWorkChg);
 			file.browseForDirectory("选择文件夹");
@@ -342,13 +344,22 @@ package mvc.top
 		}
 		protected function packageOverHandler(event:NativeProcessExitEvent=null):void
 		{
-			var $minfile:File=new  File(JsBagRootUrl+"dest/h5web.js");
+			var $minfile:File
+			
+			if(copyminiToLibs){ //这里是指复制作min到项目
+				$minfile=new  File(JsBagRootUrl+"dest/h5web.min.js");
+			}else{
+				$minfile=new  File(JsBagRootUrl+"dest/h5web.js");
+			}
+			
 			OutTxtModel.getInstance().addLine("正在生成--->zip.js");
 			if($minfile.exists){
 				var destination:File = File.documentsDirectory;
 				destination = destination.resolvePath( "file:///E:/github/wudiqiuqiu/bin/libs/h5web.js");
 				$minfile.copyTo(destination,true);
 				ZipMinJsModel.getInstance().changeZipByFile($minfile)
+					
+				OutTxtModel.getInstance().addLine("复制完成----");
 			}else{
 				setTimeout(packageOverHandler,1000);
 			}

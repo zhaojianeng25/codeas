@@ -27,6 +27,7 @@
 			Scene_data.fileRoot = str;
 			writeFile();
 			close();
+			NativeApplication.nativeApplication.exit();  
 		}
 		
 		

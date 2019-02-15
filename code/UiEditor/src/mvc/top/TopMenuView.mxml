@@ -30,11 +30,19 @@
 			import mvc.scene.UiSceneEvent;
 			
 			import out.OutNetMapModel;
-			import out.OutShderByTxt;
+			import out.ResetAllResModel;
 			
 			import vo.FileInfoType;
 			import vo.H5UIFileNode;
 			import vo.HistoryModel;
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			
 			
@@ -208,8 +216,7 @@
 					}
 					case 41:
 					{
-						writeYb()
-					    //LuaModel.getInstance().luaExpCsv()
+						ResetAllResModel.getInstance().run()
 						
 						break;
 					}
@@ -235,6 +242,13 @@
 					{
 						
 						MakeJsBagModel.getInstance().run()
+						
+						break;
+					}
+					case 56:
+					{
+						
+						MakeJsBagModel.getInstance().run(true)
 						
 						break;
 					}
@@ -271,43 +285,6 @@
 			}
 		
 
-			private function writeYb():void
-			{
-				
-				var url:String="file:///C:/Users/pan/Desktop/Yb.ts";
-				
-			
-				var str:String=""
-					
-					
-				str+="class Yb {\n"
-					
-				for(var i:uint=0;i<20;i++){
-				
-					str+="   public key"+String(i)+":number="+String(i)+"\n"
-				
-				}	
-				
-				str+="  constructor() {\n"
-				str+="  }\n"
-					
-				
-				for(var j:uint=0;j<100000;j++){
-					
-					str+="    public Fun"+String(j)+"(): number \n"
-					str+="    { \n"
-					str+="         var ae:number="+String(j)+"\n"
-					str+="         return ae \n"
-					str+="    } \n"
-					
-				}	
-					
-					
-				str+="}"
-				
-				writeToXml(new File(url),str)
-				
-			}
 			
 			private  function writeToXml($file:File,str:String):void
 			{

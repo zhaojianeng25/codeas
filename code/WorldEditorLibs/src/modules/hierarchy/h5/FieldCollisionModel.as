@@ -171,7 +171,10 @@ package modules.hierarchy.h5
 				$vobj.rotationY=collisionVo.rotationY;
 				$vobj.rotationZ=collisionVo.rotationZ;
 				$vobj.type=collisionVo.type;
+				$vobj.radius=collisionVo.radius;
 				$vobj.data=collisionVo.data;
+				$vobj.colorInt=collisionVo.colorInt;
+				
 				$obj.collisionVo=$vobj;
 				$arr.push($obj);
 			}

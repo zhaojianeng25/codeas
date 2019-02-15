@@ -59,6 +59,7 @@ package  modules.brower.fileWin
 	
 	import modules.brower.fileTip.InputWindow;
 	import modules.expres.ExpTo3dmaxByObjs;
+	import modules.hierarchy.h5.ExpGroupToByteModel;
 	import modules.hierarchy.h5.ExpGroupToH5Model;
 	import modules.materials.CubeMapManager;
 	import modules.materials.view.MaterialTreeManager;
@@ -235,7 +236,15 @@ package  modules.brower.fileWin
 					item = new NativeMenuItem("导出H5数据");
 					item.addEventListener(Event.SELECT,onExpToH5);
 					_menuFile.addItem(item);
+					
+					if(_fileData.file.extension=="prefab" ){
+						item = new NativeMenuItem("导出byte模型");
+						item.addEventListener(Event.SELECT,onExpToByte);
+						_menuFile.addItem(item);
+					}
+				 
 				}
+				
 				if(_fileData.file.extension=="objs"){
 					item = new NativeMenuItem("导出3dmaxObj");
 					item.addEventListener(Event.SELECT,onExp3Dmaxobj);
@@ -263,11 +272,21 @@ package  modules.brower.fileWin
 				ExpTo3dmaxByObjs.getInstance().expByUrl(_sonFile.url)
 			}
 		}
+		protected function onExpToByte(event:Event):void
+		{
+			if(_fileData.file){
+				var _sonFile:File=_fileData.file
+				if(_sonFile.exists){
+					ExpGroupToByteModel.getInstance().expToH5(_sonFile)
+				}
+			}
+			
+		}
 		protected function onExpToH5(event:Event):void
 		{
 			if(_fileData.file){
 				var _sonFile:File=_fileData.file
-			
+				
 				if(_sonFile.exists){
 					ExpGroupToH5Model.getInstance().expToH5(_sonFile)
 				}

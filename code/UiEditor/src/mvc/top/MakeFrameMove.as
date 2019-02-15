@@ -99,7 +99,7 @@ package mvc.top
 		private function makeBigBitmapData():void
 		{
 			
-			if(true){
+			if(false){
 				make512Pic();
 			}else{
 				makeBasePic();
@@ -125,7 +125,7 @@ package mvc.top
 		}
 		private function make512Pic():void
 		{
-			if(bitmapdataItem[0].width>512/12){
+			if(bitmapdataItem[0].width>2048/12){
 				Alert.show("图片过大")
 				
 			}

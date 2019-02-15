@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!-- test_update.xml -->
 <update
  xmlns="http://ns.adobe.com/air/framework/update/description/1.0">
- <versionNumber>5.0.3</versionNumber>
+ <versionNumber>5.0.4</versionNumber>
  <url>http://www.h5key.com/airupdate/ParticleTools/output/ParticleTools.air</url>
  <description>
   <text xml:lang="en_US">导出支持小程序</text>

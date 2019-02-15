@@ -175,7 +175,8 @@ package exph5
 		}
 		
 		//private var _rootUrl:String="file:///G:/frame3d/"
-		private var _rootUrl:String="file:///C:/wamp/www/work/cannondemo/cannondemo/res/frame3d/"
+		//D:\work\cannondemo\cannondemo\res
+		private var _rootUrl:String="file:///D:/work/cannondemo/cannondemo/res/frame3d/"
 		public function expBuild(_fileNodeItem:Vector.<FrameFileNode>):void
 		{
 			

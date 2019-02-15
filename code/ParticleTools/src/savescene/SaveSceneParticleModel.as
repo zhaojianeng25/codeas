@@ -9,8 +9,11 @@ package savescene
 	
 	import _Pan3D.load.LoadInfo;
 	import _Pan3D.load.LoadManager;
+	import _Pan3D.particle.bone.Display3DBonePartilce;
 	import _Pan3D.particle.ctrl.CombineParticle;
 	import _Pan3D.particle.ctrl.ParticleManager;
+	import _Pan3D.particle.ctrl.TimeLine;
+	import _Pan3D.particle.modelObj.Display3DModelPartilce;
 	
 	import common.AppData;
 	
@@ -66,14 +69,31 @@ package savescene
 					var particles:CombineParticle = ParticleManager.getInstance().dicPool[AppData.workSpaceUrl+$particleUrl]
 					var a:Array=particles.getMaterialTexUrlAry()
 					var b:Array=particles.getMaterialAry();
+				
 					for(var materialTreeId:uint=0;materialTreeId<b.length;materialTreeId++){
 						var $MaterialTree:MaterialTree=MaterialTree(b[materialTreeId])
 						var materialUrl:String=$MaterialTree.url.replace(AppData.workSpaceUrl,"")
 						copyFile(materialUrl)
 						moveMaterialTree(materialUrl)
 					}
+					
 					for(var k:uint=0;k<a.length;k++){
 						copyFile(a[k])
+					}
+					for(var u:uint=0;u<	particles.timeLineAry.length;u++){
+						var dis:TimeLine= particles.timeLineAry[u] 
+						if(dis.display3D as Display3DBonePartilce){
+							var $bone:Display3DBonePartilce=Display3DBonePartilce(dis.display3D);
+							var eee:Object=$bone.getAllInfo();
+							copyFile(eee.animUrl);
+							copyFile(eee.meshUrl);
+						}
+						if(dis.display3D as Display3DModelPartilce){
+							var $model:Display3DModelPartilce=Display3DModelPartilce(dis.display3D);
+							var $modeEEE:Object=$model.getAllInfo();
+							copyFile($modeEEE.objUrl);
+				 
+						}
 					}
 					
 				},100)
