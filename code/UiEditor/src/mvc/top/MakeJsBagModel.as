@@ -66,6 +66,7 @@ package mvc.top
 					parseLine(lines[i]);
 				}
 				moveJsToBagRoot();
+				makeDtsFile()
 				buildGruntfile();
 				runComand();
 			//	moveResFile();
@@ -230,6 +231,37 @@ package mvc.top
 			}
 			OutTxtModel.getInstance().addLine("移动文件Js文件数量=>"+_jsFileItem.length.toString());
 		}
+		private function makeDtsFile():void
+		{
+			
+			var dtsOutStr:String=""
+	 
+			var $fsScene:FileStream = new FileStream;
+ 
+			for(var i:uint=0;i<_jsFileItem.length;i++){
+				var fileurl:String=ProjectUrl+_jsFileItem[i]
+		 
+				fileurl=fileurl.replace(".js",".d.ts")
+				var dtsFile:File= new File(fileurl);
+				if(dtsFile.exists ){
+					
+					$fsScene.open(dtsFile,FileMode.READ);
+					var $str:String = $fsScene.readUTFBytes($fsScene.bytesAvailable)
+					$fsScene.close();
+					
+					dtsOutStr+=$str+"\n"
+ 
+					
+				}else{
+					OutTxtModel.getInstance().addLine("!!!!没有文件->"+dtsFile.url);
+				}
+			}
+			
+			writeToXml(new File(JsBagRootUrl+"dest/h5web.d.ts"),dtsOutStr)
+			
+			
+		}
+			
 		private function changeFpsFile(fpsUrl:String):void
 		{
 			var jsFile:File= new File(ProjectUrl+fpsUrl);
